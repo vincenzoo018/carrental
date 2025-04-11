@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id('reservation_id');
-            $table->unsignedBigInteger('customer_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('car_id');
             $table->date('start_date');
             $table->date('end_date');
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('status');
             $table->unsignedBigInteger('service_id')->nullable();
 
-            $table->foreign('customer_id')->references('customer_id')->on('customers');
+            $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('car_id')->references('car_id')->on('cars');
             $table->foreign('service_id')->references('service_id')->on('services');
             $table->timestamps();

@@ -4,15 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Car extends Model
 {
     use HasFactory;
 
     protected $primaryKey = 'car_id';
-
     protected $fillable = [
         'brand',
         'model',
@@ -22,38 +19,48 @@ class Car extends Model
         'status',
         'mileage',
         'photo',
+        'type',
+        'seats',
+        'fuel_type',
+        'transmission'
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at'
-    ];
+    // Car statuses
+    const STATUS_AVAILABLE = 'available';
+    const STATUS_RENTED = 'rented';
+    const STATUS_MAINTENANCE = 'maintenance';
 
-    protected $casts = [
-        'year' => 'integer',
-        'price' => 'decimal:2',
-        'mileage' => 'integer',
-    ];
+    // Car types
+    const TYPE_ECONOMY = 'economy';
+    const TYPE_LUXURY = 'luxury';
+    const TYPE_SUV = 'suv';
+    const TYPE_SPORTS = 'sports';
 
-    public function reservations(): HasMany
+    // Relationship with reservations
+    public function reservations()
     {
-        return $this->hasMany(Reservation::class, 'car_id', 'car_id');
+        return $this->hasMany(Reservation::class, 'car_id');
     }
 
-    public function maintenanceRecords(): HasManyThrough
+    // Accessor for photo URL
+    public function getPhotoUrlAttribute()
     {
-        return $this->hasManyThrough(
-            Maintenance::class,
-            Reservation::class,
-            'car_id',
-            'reservation_id',
-            'car_id',
-            'reservation_id'
-        );
+        return $this->photo ? asset('storage/car_photos/' . $this->photo) :
+            'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80';
     }
 
-    public function getFullNameAttribute(): string
+    // Get status badge class
+    public function getStatusBadgeClass()
     {
-        return "{$this->brand} {$this->model} ({$this->year})";
+        switch ($this->status) {
+            case self::STATUS_AVAILABLE:
+                return 'bg-success';
+            case self::STATUS_RENTED:
+                return 'bg-warning';
+            case self::STATUS_MAINTENANCE:
+                return 'bg-danger';
+            default:
+                return 'bg-secondary';
+        }
     }
 }

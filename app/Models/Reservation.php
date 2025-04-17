@@ -4,59 +4,38 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Reservation extends Model
 {
     use HasFactory;
 
     protected $primaryKey = 'reservation_id';
-
     protected $fillable = [
-        'customer_id',
+        'user_id',
         'car_id',
         'start_date',
         'end_date',
         'total_price',
         'status',
-        'service_id',
     ];
 
-    protected $hidden = [
-        'created_at',
-        'updated_at'
-    ];
-
-    protected $casts = [
-        'start_date' => 'date',
-        'end_date' => 'date',
-        'total_price' => 'decimal:2',
-    ];
-
-    public function customer(): BelongsTo
+    public function user()
     {
-        return $this->belongsTo(Customer::class, 'customer_id', 'customer_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function car(): BelongsTo
+    public function car()
     {
-        return $this->belongsTo(Car::class, 'car_id', 'car_id');
+        return $this->belongsTo(Car::class, 'car_id');
     }
 
-
-    public function payments(): HasMany
+    public function payments()
     {
-        return $this->hasMany(Payment::class, 'reservation_id', 'reservation_id');
+        return $this->hasMany(Payment::class, 'reservation_id');
     }
 
-    public function maintenance(): HasMany
+    public function maintenance()
     {
-        return $this->hasMany(Maintenance::class, 'reservation_id', 'reservation_id');
-    }
-
-    public function getDurationAttribute(): int
-    {
-        return $this->start_date->diffInDays($this->end_date) + 1;
+        return $this->hasOne(Maintenance::class, 'reservation_id');
     }
 }

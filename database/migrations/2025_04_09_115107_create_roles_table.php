@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id('role_id');
-            $table->string('employee')->nullable();
-            $table->string('customer')->nullable();
+            $table->string('position')->nullable();
             $table->timestamps();
         });
     }

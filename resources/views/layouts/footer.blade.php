@@ -1,30 +1,41 @@
-<footer class="py-4 mt-5">
+<footer class="footer">
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <h5>Car Rental System</h5>
-                <p>Your reliable partner for vehicle rentals and management.</p>
+                <h5>About CarRental</h5>
+                <p>We provide the best car rental services with a wide range of vehicles to choose from. Our mission is to make your journey comfortable and memorable.</p>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-2">
                 <h5>Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="{{ route('vehicles.index') }}" class="text-white">Vehicles</a></li>
-                    <li><a href="{{ route('customers.index') }}" class="text-white">Customers</a></li>
-                    <li><a href="{{ route('rentals.index') }}" class="text-white">Rentals</a></li>
+                <ul class="footer-links">
+                    <li><a href="{{ route('user.home') }}">Home</a></li>
+                    <li><a href="{{ route('user.cars') }}">Cars</a></li>
+                    <li><a href="{{ route('user.reservations') }}">Rentals</a></li>
+                    <li><a href="{{ route('user.bookings') }}">Services</a></li>
                 </ul>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <h5>Contact Us</h5>
-                <address>
-                    <i class="bi bi-geo-alt"></i> 123 Rental St, City<br>
-                    <i class="bi bi-phone"></i> (123) 456-7890<br>
-                    <i class="bi bi-envelope"></i> info@carrental.com
-                </address>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i> 123 Street, City</li>
+                    <li><i class="fas fa-phone me-2"></i> +1 234 567 890</li>
+                    <li><i class="fas fa-envelope me-2"></i> info@carrental.com</li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Follow Us</h5>
+                <div class="social-icons">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                </div>
             </div>
         </div>
-        <hr class="my-4 bg-light">
-        <div class="text-center">
-            <p class="mb-0">&copy; 2023 Car Rental System. All rights reserved.</p>
+        <div class="row">
+            <div class="col-12 text-center copyright">
+                <p class="mb-0">&copy; 2023 CarRental System. All rights reserved.</p>
+            </div>
         </div>
     </div>
 </footer>

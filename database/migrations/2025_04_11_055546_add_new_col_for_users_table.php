@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('address');
             $table->unsignedBigInteger('role_id');
+            $table->string('license');
             $table->foreign('role_id')->references('role_id')->on('roles');
         });
     }

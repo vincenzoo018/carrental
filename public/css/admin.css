@@ -1,0 +1,243 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --light-color: #ecf0f1;
+    --dark-color: #2c3e50;
+    --white: #ffffff;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.sidebar {
+    background-color: var(--dark-color);
+    color: var(--white);
+    height: 100vh;
+    position: fixed;
+    width: 250px;
+    transition: all 0.3s;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-header h3 {
+    color: var(--white);
+    font-weight: 700;
+}
+
+.sidebar-components {
+    padding: 0;
+    list-style: none;
+}
+
+.sidebar-components li {
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.sidebar-components li:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-components a {
+    color: var(--white);
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s;
+}
+
+.sidebar-components a:hover {
+    color: var(--primary-color);
+    padding-left: 5px;
+}
+
+.sidebar-components i {
+    margin-right: 10px;
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: all 0.3s;
+}
+
+.navbar {
+    background-color: var(--white);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--primary-color) !important;
+    font-size: 1.5rem;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    margin-bottom: 30px;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-top-left-radius: 10px !important;
+    border-top-right-radius: 10px !important;
+    font-weight: 600;
+    padding: 15px 20px;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.table th {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    padding: 8px 20px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-danger {
+    padding: 8px 20px;
+    font-weight: 600;
+}
+
+.badge {
+    padding: 8px 12px;
+    font-weight: 600;
+    border-radius: 20px;
+}
+
+.badge-success {
+    background-color: #2ecc71;
+}
+
+.badge-warning {
+    background-color: #f39c12;
+}
+
+.badge-danger {
+    background-color: #e74c3c;
+}
+
+.section-title {
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 30px;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background-color: var(--primary-color);
+}
+
+.dashboard-card {
+    text-align: center;
+    padding: 30px 20px;
+    border-radius: 10px;
+    color: var(--white);
+    margin-bottom: 30px;
+}
+
+.dashboard-card i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.dashboard-card h3 {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.dashboard-card p {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+}
+
+.card-1 {
+    background-color: #3498db;
+}
+
+.card-2 {
+    background-color: #2ecc71;
+}
+
+.card-3 {
+    background-color: #f39c12;
+}
+
+.card-4 {
+    background-color: #e74c3c;
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 5px;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: -250px;
+    }
+
+    .sidebar.active {
+        margin-left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .main-content.active {
+        margin-left: 250px;
+    }
+}

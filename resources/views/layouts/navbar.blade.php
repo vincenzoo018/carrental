@@ -1,50 +1,36 @@
-<nav class="navbar navbar-expand-lg navbar-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">Car Rental</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <a class="navbar-brand" href="{{ route('user.home') }}">CarRental</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="vehiclesDropdown" role="button" data-bs-toggle="dropdown">
-                        Vehicles
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('vehicles.index') }}">All Vehicles</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.home') }}">Home</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="customersDropdown" role="button" data-bs-toggle="dropdown">
-                        Customers
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('customers.index') }}">Customer List</a></li>
-                        <li><a class="dropdown-item" href="{{ route('customers.create') }}">Register Customer</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.cars') }}">Cars</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="rentalsDropdown" role="button" data-bs-toggle="dropdown">
-                        Rentals
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('rentals.index') }}">All Rentals</a></li>
-                        <li><a class="dropdown-item" href="{{ route('rentals.create') }}">New Rental</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.reservations') }}">Rentals</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="reportsDropdown" role="button" data-bs-toggle="dropdown">
-                        Reports
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ route('reports.rentals') }}">Rental Reports</a></li>
-                        <li><a class="dropdown-item" href="{{ route('reports.revenue') }}">Revenue Reports</a></li>
-                    </ul>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.bookings') }}">Services</a>
                 </li>
             </ul>
             <div class="d-flex">
-                <a href="{{ route('maintenance.index') }}" class="btn btn-outline-light me-2">Maintenance</a>
-                <a href="{{ route('payments.index') }}" class="btn btn-outline-light">Payments</a>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i> My Account
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{{ route('user.profile') }}"><i class="fas fa-user me-2"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="{{ route('user.payments') }}"><i class="fas fa-credit-card me-2"></i> Payments</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

@@ -32,8 +32,18 @@
                 </a>
             </li>
             <li class="nav-item mb-2">
+                <a href="{{ route('admin.employees') }}" class="nav-link text-white {{ request()->routeIs('admin.employees') ? 'active' : '' }}">
+                    <i class="fas fa-users me-2"></i> Employee Management
+                </a>
+            </li>
+            <li class="nav-item mb-2">
                 <a href="{{ route('admin.reservations') }}" class="nav-link text-white {{ request()->routeIs('admin.reservations') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check me-2"></i> Rentals
+                </a>
+            </li>
+            <li class="nav-item mb-2">
+                <a href="{{ route('admin.services') }}" class="nav-link text-white {{ request()->routeIs('admin.services') ? 'active' : '' }}">
+                    <i class="fas fa-concierge-bell me-2"></i> Service Management
                 </a>
             </li>
             <li class="nav-item mb-2">

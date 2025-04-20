@@ -32,33 +32,33 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for($i = 1; $i <= 10; $i++)
+                        @foreach($customers as $customer)
                         <tr>
-                            <td>{{ $i }}</td>
+                            <td>{{ $customer->id }}</td>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="https://randomuser.me/api/portraits/men/{{ $i }}.jpg" class="rounded-circle me-3" width="40" height="40" alt="Customer">
+                                    <img src="https://randomuser.me/api/portraits/men/{{ $customer->id }}.jpg" class="rounded-circle me-3" width="40" height="40" alt="Customer">
                                     <div>
-                                        <h6 class="mb-0">John Doe {{ $i }}</h6>
-                                        <small class="text-muted">Member since {{ date('M Y', strtotime("-".$i." months")) }}</small>
+                                        <h6 class="mb-0">{{ $customer->name }}</h6>
+                                        <small class="text-muted">Member since {{ date('M Y', strtotime($customer->created_at)) }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td>john{{ $i }}@example.com</td>
-                            <td>+1 234 567 89{{ $i }}</td>
-                            <td>DL12345{{ $i }}</td>
+                            <td>{{ $customer->email }}</td>
+                            <td>{{ $customer->phone_number }}</td>
+                            <td>{{ $customer->license }}</td>
                             <td>
-                                @if($i % 4 == 0)
+                                @if($customer->status == 'pending')
                                 <span class="badge bg-warning">Pending</span>
                                 @else
                                 <span class="badge bg-success">Verified</span>
                                 @endif
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewCustomerModal{{ $i }}">
+                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewCustomerModal{{ $customer->id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#editCustomerModal{{ $i }}">
+                                <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#editCustomerModal{{ $customer->id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-danger">
@@ -68,49 +68,49 @@
                         </tr>
 
                         <!-- View Customer Modal -->
-                        <div class="modal fade" id="viewCustomerModal{{ $i }}" tabindex="-1" aria-labelledby="viewCustomerModal{{ $i }}Label" aria-hidden="true">
+                        <div class="modal fade" id="viewCustomerModal{{ $customer->id }}" tabindex="-1" aria-labelledby="viewCustomerModal{{ $customer->id }}Label" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewCustomerModal{{ $i }}Label">Customer Details</h5>
+                                        <h5 class="modal-title" id="viewCustomerModal{{ $customer->id }}Label">Customer Details</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row">
                                             <div class="col-md-4 text-center">
-                                                <img src="https://randomuser.me/api/portraits/men/{{ $i }}.jpg" class="rounded-circle mb-3" width="150" height="150" alt="Customer">
-                                                <h5>John Doe {{ $i }}</h5>
-                                                <p class="text-muted">Member since {{ date('M Y', strtotime("-".$i." months")) }}</p>
+                                                <img src="https://randomuser.me/api/portraits/men/{{ $customer->id }}.jpg" class="rounded-circle mb-3" width="150" height="150" alt="Customer">
+                                                <h5>{{ $customer->name }}</h5>
+                                                <p class="text-muted">Member since {{ date('M Y', strtotime($customer->created_at)) }}</p>
                                             </div>
                                             <div class="col-md-8">
                                                 <div class="row mb-3">
                                                     <div class="col-md-6">
                                                         <label class="form-label">Email</label>
-                                                        <p>john{{ $i }}@example.com</p>
+                                                        <p>{{ $customer->email }}</p>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label class="form-label">Phone</label>
-                                                        <p>+1 234 567 89{{ $i }}</p>
+                                                        <p>{{ $customer->phone_number }}</p>
                                                     </div>
                                                 </div>
                                                 <div class="row mb-3">
                                                     <div class="col-md-6">
                                                         <label class="form-label">License Number</label>
-                                                        <p>DL12345{{ $i }}</p>
+                                                        <p>{{ $customer->license }}</p>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <label class="form-label">License Expiry</label>
-                                                        <p>{{ date('M Y', strtotime("+".(5-$i)." years")) }}</p>
+                                                        <p>{{ date('M Y', strtotime($customer->license_expiry)) }}</p>
                                                     </div>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Address</label>
-                                                    <p>{{ $i }}23 Main St, Anytown, USA</p>
+                                                    <p>{{ $customer->address }}</p>
                                                 </div>
                                                 <div class="mb-3">
                                                     <label class="form-label">Status</label>
                                                     <p>
-                                                        @if($i % 4 == 0)
+                                                        @if($customer->status == 'pending')
                                                         <span class="badge bg-warning">Pending Verification</span>
                                                         @else
                                                         <span class="badge bg-success">Verified</span>
@@ -128,36 +128,36 @@
                         </div>
 
                         <!-- Edit Customer Modal -->
-                        <div class="modal fade" id="editCustomerModal{{ $i }}" tabindex="-1" aria-labelledby="editCustomerModal{{ $i }}Label" aria-hidden="true">
+                        <div class="modal fade" id="editCustomerModal{{ $customer->id }}" tabindex="-1" aria-labelledby="editCustomerModal{{ $customer->id }}Label" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="editCustomerModal{{ $i }}Label">Edit Customer</h5>
+                                        <h5 class="modal-title" id="editCustomerModal{{ $customer->id }}Label">Edit Customer</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <form>
                                             <div class="mb-3">
-                                                <label for="editName{{ $i }}" class="form-label">Full Name</label>
-                                                <input type="text" class="form-control" id="editName{{ $i }}" value="John Doe {{ $i }}">
+                                                <label for="editName{{ $customer->id }}" class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="editName{{ $customer->id }}" value="{{ $customer->name }}">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editEmail{{ $i }}" class="form-label">Email</label>
-                                                <input type="email" class="form-control" id="editEmail{{ $i }}" value="john{{ $i }}@example.com">
+                                                <label for="editEmail{{ $customer->id }}" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="editEmail{{ $customer->id }}" value="{{ $customer->email }}">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editPhone{{ $i }}" class="form-label">Phone</label>
-                                                <input type="tel" class="form-control" id="editPhone{{ $i }}" value="+1 234 567 89{{ $i }}">
+                                                <label for="editPhone{{ $customer->id }}" class="form-label">Phone</label>
+                                                <input type="tel" class="form-control" id="editPhone{{ $customer->id }}" value="{{ $customer->phone_number }}">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editLicense{{ $i }}" class="form-label">License Number</label>
-                                                <input type="text" class="form-control" id="editLicense{{ $i }}" value="DL12345{{ $i }}">
+                                                <label for="editLicense{{ $customer->id }}" class="form-label">License Number</label>
+                                                <input type="text" class="form-control" id="editLicense{{ $customer->id }}" value="{{ $customer->license }}">
                                             </div>
                                             <div class="mb-3">
-                                                <label for="editStatus{{ $i }}" class="form-label">Status</label>
-                                                <select class="form-select" id="editStatus{{ $i }}">
-                                                    <option value="verified" {{ $i % 4 != 0 ? 'selected' : '' }}>Verified</option>
-                                                    <option value="pending" {{ $i % 4 == 0 ? 'selected' : '' }}>Pending Verification</option>
+                                                <label for="editStatus{{ $customer->id }}" class="form-label">Status</label>
+                                                <select class="form-select" id="editStatus{{ $customer->id }}">
+                                                    <option value="verified" {{ $customer->status == 'verified' ? 'selected' : '' }}>Verified</option>
+                                                    <option value="pending" {{ $customer->status == 'pending' ? 'selected' : '' }}>Pending Verification</option>
                                                 </select>
                                             </div>
                                         </form>
@@ -169,7 +169,7 @@
                                 </div>
                             </div>
                         </div>
-                        @endfor
+                        @endforeach
                     </tbody>
                 </table>
             </div>

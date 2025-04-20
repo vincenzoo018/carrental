@@ -7,7 +7,12 @@ use App\Models\Service;
 use App\Models\Employee;
 use App\Models\Car;
 use App\Models\Role;
+use App\Models\Booking;  // Importing the Booking model
+use App\Models\Payment;  // Importing the Payment model
+use App\Models\Reservation; // Importing the Reservation model
+use App\Models\User;
 use Storage;
+use Carbon\Carbon; // For date manipulation
 
 class AdminController extends Controller
 {
@@ -188,57 +193,186 @@ class AdminController extends Controller
 
     // ** End of Services Methods **
 
+    /**
+     * Show all employees in the system.
+     */
     public function employees()
-{
-    $employees = Employee::with('role')->orderBy('employee_id', 'desc')->paginate(10);
-    $roles = Role::all();
-    return view('admin.employees', compact('employees', 'roles'));
-}
+    {
+        $employees = Employee::with('role')->orderBy('employee_id', 'desc')->paginate(10);
+        $roles = Role::all();
+        return view('admin.employees', compact('employees', 'roles'));
+    }
 
-// Store a new employee
-public function storeEmployee(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'role_id' => 'required|exists:roles,role_id',
-    ]);
+    /**
+     * Store a new employee.
+     */
+    public function storeEmployee(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'role_id' => 'required|exists:roles,role_id',
+        ]);
 
-    Employee::create([
-        'name' => $request->name,
-        'position' => $request->position,
-        'role_id' => $request->role_id,
-    ]);
+        Employee::create([
+            'name' => $request->name,
+            'position' => $request->position,
+            'role_id' => $request->role_id,
+        ]);
 
-    return redirect()->route('admin.employees')->with('success', 'Employee added successfully!');
-}
+        return redirect()->route('admin.employees')->with('success', 'Employee added successfully!');
+    }
 
-// Update employee details
-public function updateEmployee(Request $request, $employee_id)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'position' => 'required|string|max:255',
-        'role_id' => 'required|exists:roles,role_id',
-    ]);
+    /**
+     * Update employee details.
+     */
+    public function updateEmployee(Request $request, $employee_id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'position' => 'required|string|max:255',
+            'role_id' => 'required|exists:roles,role_id',
+        ]);
 
-    $employee = Employee::findOrFail($employee_id);
-    $employee->update([
-        'name' => $request->name,
-        'position' => $request->position,
-        'role_id' => $request->role_id,
-    ]);
+        $employee = Employee::findOrFail($employee_id);
+        $employee->update([
+            'name' => $request->name,
+            'position' => $request->position,
+            'role_id' => $request->role_id,
+        ]);
 
-    return redirect()->route('admin.employees')->with('success', 'Employee updated successfully!');
-}
+        return redirect()->route('admin.employees')->with('success', 'Employee updated successfully!');
+    }
 
-// Delete employee
-public function deleteEmployee($employee_id)
-{
-    $employee = Employee::findOrFail($employee_id);
-    $employee->delete();
+    /**
+     * Delete employee.
+     */
+    public function deleteEmployee($employee_id)
+    {
+        $employee = Employee::findOrFail($employee_id);
+        $employee->delete();
 
-    return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully!');
-}
+        return redirect()->route('admin.employees')->with('success', 'Employee deleted successfully!');
+    }
 
-}
+    // ** Start of Bookings Methods **
+
+    /**
+     * Show all bookings in the system.
+     */
+    public function bookings()
+    {
+        // Paginate bookings with related user and car info
+        $bookings = Booking::with(['user', 'car'])->orderBy('booking_id', 'desc')->paginate(10);
+        return view('admin.bookings', compact('bookings'));
+    }
+
+    // ** End of Bookings Methods **
+
+    // ** Start of Payments Methods **
+
+    /**
+     * Show all payments in the system with optional filters.
+     */
+    public function payments(Request $request)
+    {
+        $query = Payment::with('reservation')->orderBy('payment_date', 'desc');
+
+        // Filter by payment status if specified
+        if ($request->has('status') && $request->status !== 'All Status') {
+            $query->where('payment_status', $request->status);
+        }
+
+                    // Filter by payment date if specified
+                    if ($request->has('date')) {
+                        $date = Carbon::parse($request->date)->startOfDay();
+                        $query->whereDate('payment_date', $date);
+                    }
+        
+                    // Get the paginated payments
+                    $payments = $query->paginate(10);
+        
+                    return view('admin.payments', compact('payments'));
+                }
+        
+            // ** End of Payments Methods **
+        
+            // ** Start of Reservations Methods **
+        
+            /**
+             * Show all reservations in the system.
+             */
+            public function reservations()
+            {
+                $reservations = Reservation::with(['user', 'car'])->orderBy('reservation_id', 'desc')->paginate(10);
+                return view('admin.reservations', compact('reservations'));
+            }
+        
+            /**
+             * Store a new reservation.
+             */
+            public function storeReservation(Request $request)
+            {
+                $request->validate([
+                    'user_id' => 'required|exists:users,id',
+                    'car_id' => 'required|exists:cars,car_id',
+                    'reservation_date' => 'required|date',
+                    'status' => 'required|in:pending,confirmed,canceled',
+                ]);
+        
+                Reservation::create([
+                    'user_id' => $request->user_id,
+                    'car_id' => $request->car_id,
+                    'reservation_date' => $request->reservation_date,
+                    'status' => $request->status,
+                ]);
+        
+                return redirect()->route('admin.reservations')->with('success', 'Reservation added successfully!');
+            }
+        
+            /**
+             * Update the given reservation.
+             */
+            public function updateReservation(Request $request, $reservationId)
+            {
+                $request->validate([
+                    'status' => 'required|in:pending,confirmed,canceled',
+                ]);
+        
+                $reservation = Reservation::findOrFail($reservationId);
+                $reservation->update([
+                    'status' => $request->status,
+                ]);
+        
+                return redirect()->route('admin.reservations')->with('success', 'Reservation updated successfully!');
+            }
+        
+            /**
+             * Delete a reservation.
+             */
+            public function deleteReservation($reservationId)
+            {
+                $reservation = Reservation::findOrFail($reservationId);
+                $reservation->delete();
+        
+                return redirect()->route('admin.reservations')->with('success', 'Reservation deleted successfully!');
+            }
+        
+            // ** End of Reservations Methods **
+
+             /**
+     /**
+     * Display a list of all customers.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function customers()
+    {
+        // Fetch all users (customers)
+        $customers = User::all(); // You can add filtering, pagination, or sorting here if needed.
+
+        // Return the 'admin.customers' view with the customers data
+        return view('admin.customers', compact('customers'));
+    }
+   }
+        

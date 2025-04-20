@@ -70,9 +70,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Add file input for changing photo -->
+                <!-- Form for changing photo -->
                 <form action="{{ route('user.changePhoto') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT') <!-- Simulate PUT method -->
                     <div class="mb-3">
                         <label for="photo" class="form-label">Upload New Photo</label>
                         <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required>

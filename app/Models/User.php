@@ -80,4 +80,12 @@ class User extends Authenticatable
     {
         return $this->hasRole('user');
     }
+
+    /**
+     * Relationship: User has many payments (paymentMethods)
+     */
+    public function paymentMethods()
+    {
+        return $this->hasMany(Payment::class); // Payment relationship
+    }
 }

@@ -40,38 +40,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for($i = 1; $i <= 10; $i++)
+                        @foreach($reservations as $reservation)
                         <tr>
-                            <td>RES-{{ str_pad($i, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td>John Doe {{ $i }}</td>
-                            <td>Toyota Camry</td>
+                            <td>RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <td>{{ $reservation->user->name }}</td>
+                            <td>{{ $reservation->car->brand }} {{ $reservation->car->model }}</td>
                             <td>
-                                {{ date('M d', strtotime("+".$i." days")) }} - 
-                                {{ date('M d', strtotime("+".($i+5)." days")) }}
+                                {{ date('M d', strtotime($reservation->start_date)) }} - 
+                                {{ date('M d', strtotime($reservation->end_date)) }}
                             </td>
+                            <td>{{ $reservation->car->location }}</td>
+                            <td>${{ $reservation->total_price }}</td>
                             <td>
-                                @if($i % 3 == 0)
-                                Main Office
-                                @elseif($i % 2 == 0)
-                                Airport Branch
-                                @else
-                                Northside Branch
-                                @endif
-                            </td>
-                            <td>${{ $i * 75 }}</td>
-                            <td>
-                                @if($i % 4 == 0)
+                                @if($reservation->status == 'Upcoming')
                                 <span class="badge bg-info">Upcoming</span>
-                                @elseif($i % 3 == 0)
+                                @elseif($reservation->status == 'Active')
                                 <span class="badge bg-success">Active</span>
-                                @elseif($i % 2 == 0)
+                                @elseif($reservation->status == 'Completed')
                                 <span class="badge bg-secondary">Completed</span>
                                 @else
                                 <span class="badge bg-danger">Cancelled</span>
                                 @endif
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewReservationModal{{ $i }}">
+                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewReservationModal{{ $reservation->reservation_id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button class="btn btn-sm btn-outline-secondary">
@@ -81,104 +73,67 @@
                         </tr>
 
                         <!-- View Reservation Modal -->
-                        <div class="modal fade" id="viewReservationModal{{ $i }}" tabindex="-1" aria-labelledby="viewReservationModal{{ $i }}Label" aria-hidden="true">
+                        <div class="modal fade" id="viewReservationModal{{ $reservation->reservation_id }}" tabindex="-1" aria-labelledby="viewReservationModal{{ $reservation->reservation_id }}Label" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewReservationModal{{ $i }}Label">Rental Details</h5>
+                                        <h5 class="modal-title" id="viewReservationModal{{ $reservation->reservation_id }}Label">Rental Details</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row mb-4">
                                             <div class="col-md-6">
                                                 <h6>Reservation Information</h6>
-                                                <p><strong>Reservation ID:</strong> RES-{{ str_pad($i, 4, '0', STR_PAD_LEFT) }}</p>
-                                                <p><strong>Booking Date:</strong> {{ date('M d, Y', strtotime("-".$i." days")) }}</p>
+                                                <p><strong>Reservation ID:</strong> RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }}</p>
+                                                <p><strong>Booking Date:</strong> {{ date('M d, Y', strtotime($reservation->created_at)) }}</p>
                                                 <p><strong>Status:</strong> 
-                                                    @if($i % 4 == 0)
-                                                    <span class="badge bg-info">Upcoming</span>
-                                                    @elseif($i % 3 == 0)
-                                                    <span class="badge bg-success">Active</span>
-                                                    @elseif($i % 2 == 0)
-                                                    <span class="badge bg-secondary">Completed</span>
-                                                    @else
-                                                    <span class="badge bg-danger">Cancelled</span>
-                                                    @endif
+                                                    <span class="badge bg-{{ $reservation->status == 'Upcoming' ? 'info' : ($reservation->status == 'Active' ? 'success' : ($reservation->status == 'Completed' ? 'secondary' : 'danger')) }}">
+                                                        {{ $reservation->status }}
+                                                    </span>
                                                 </p>
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Customer Information</h6>
-                                                <p><strong>Name:</strong> John Doe {{ $i }}</p>
-                                                <p><strong>Email:</strong> john{{ $i }}@example.com</p>
-                                                <p><strong>Phone:</strong> +1 234 567 89{{ $i }}</p>
-                                                <p><strong>License:</strong> DL12345{{ $i }}</p>
+                                                <p><strong>Name:</strong> {{ $reservation->user->name }}</p>
+                                                <p><strong>Email:</strong> {{ $reservation->user->email }}</p>
+                                                <p><strong>Phone:</strong> {{ $reservation->user->phone }}</p>
+                                                <p><strong>License:</strong> {{ $reservation->user->license_number }}</p>
                                             </div>
                                         </div>
                                         <div class="row mb-4">
                                             <div class="col-md-6">
                                                 <h6>Car Details</h6>
                                                 <div class="d-flex">
-                                                    <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" width="80" class="me-3" alt="Car">
+                                                    <img src="{{ Storage::url($reservation->car->photo) }}" width="80" class="me-3" alt="Car">
                                                     <div>
-                                                        <p><strong>Car:</strong> Toyota Camry</p>
-                                                        <p><strong>Plate:</strong> ABC-{{ $i }}234</p>
-                                                        <p><strong>Year:</strong> 2023</p>
-                                                        <p><strong>Price/Day:</strong> $75</p>
+                                                        <p><strong>Car:</strong> {{ $reservation->car->brand }} {{ $reservation->car->model }}</p>
+                                                        <p><strong>Plate:</strong> {{ $reservation->car->plate_number }}</p>
+                                                        <p><strong>Year:</strong> {{ $reservation->car->year }}</p>
+                                                        <p><strong>Price/Day:</strong> ${{ $reservation->car->price }}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Rental Details</h6>
-                                                <p><strong>Pickup Date:</strong> {{ date('M d, Y', strtotime("+".$i." days")) }}</p>
-                                                <p><strong>Return Date:</strong> {{ date('M d, Y', strtotime("+".($i+5)." days")) }}</p>
-                                                <p><strong>Pickup Location:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    Main Office
-                                                    @elseif($i % 2 == 0)
-                                                    Airport Branch
-                                                    @else
-                                                    Northside Branch
-                                                    @endif
-                                                </p>
-                                                <p><strong>Duration:</strong> 5 days</p>
+                                                <p><strong>Pickup Date:</strong> {{ date('M d, Y', strtotime($reservation->start_date)) }}</p>
+                                                <p><strong>Return Date:</strong> {{ date('M d, Y', strtotime($reservation->end_date)) }}</p>
+                                                <p><strong>Pickup Location:</strong> {{ $reservation->car->location }}</p>
+                                                <p><strong>Duration:</strong> {{ \Carbon\Carbon::parse($reservation->start_date)->diffInDays($reservation->end_date) }} days</p>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <h6>Payment Information</h6>
-                                                <p><strong>Subtotal:</strong> $375</p>
-                                                <p><strong>Additional Services:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    Insurance (+$75)
-                                                    @elseif($i % 2 == 0)
-                                                    GPS (+$50)
-                                                    @else
-                                                    Child Seat (+$40)
-                                                    @endif
-                                                </p>
-                                                <p><strong>Total Amount:</strong> ${{ $i * 75 }}</p>
-                                                <p><strong>Payment Method:</strong> Credit Card</p>
-                                                <p><strong>Payment Status:</strong> Paid</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <h6>Additional Information</h6>
-                                                <p><strong>Notes:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    Customer requested early pickup at 8 AM
-                                                    @elseif($i % 2 == 0)
-                                                    Will return car with full tank
-                                                    @else
-                                                    Needs infant car seat installed
-                                                    @endif
-                                                </p>
+                                                <p><strong>Subtotal:</strong> ${{ $reservation->total_price }}</p>
+                                                <p><strong>Payment Status:</strong> {{ $reservation->payments->count() > 0 ? 'Paid' : 'Pending' }}</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        @if($i % 4 == 0)
+                                        @if($reservation->status == 'Upcoming')
                                         <button type="button" class="btn btn-success me-2">Check Out</button>
                                         <button type="button" class="btn btn-danger me-2">Cancel</button>
-                                        @elseif($i % 3 == 0)
+                                        @elseif($reservation->status == 'Active')
                                         <button type="button" class="btn btn-primary me-2">Check In</button>
                                         @endif
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -186,9 +141,13 @@
                                 </div>
                             </div>
                         </div>
-                        @endfor
+                        @endforeach
                     </tbody>
                 </table>
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center">
+                    {{ $reservations->links() }}
+                </div>
             </div>
         </div>
     </div>

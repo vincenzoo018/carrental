@@ -16,7 +16,7 @@ Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
 
 // ===========================
-// Terms and Conditions
+// Terms and Conditions Route
 // ===========================
 Route::get('/terms', fn () => view('terms'))->name('terms');
 
@@ -24,13 +24,26 @@ Route::get('/terms', fn () => view('terms'))->name('terms');
 // User Routes (Authenticated)
 // ===========================
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    // Dashboard/Home for the user
     Route::get('/home', [UserController::class, 'home'])->name('home');
+
+    // Cars List (User-specific)
     Route::get('/cars', [UserController::class, 'cars'])->name('cars');
+
+    // Booking Listings
     Route::get('/bookings', [UserController::class, 'bookings'])->name('bookings');
+
+    // Available Services
     Route::get('/services', [UserController::class, 'services'])->name('services');
+
+    // Reservations Listings
     Route::get('/reservations', [UserController::class, 'reservations'])->name('reservations');
+
+    // Profile page
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
-    Route::get('/payments', [UserController::class, 'payments'])->name('payments');
+    
+    // User's Payment History
+    Route::get('/payments', [UserController::class, 'payments'])->name('payments');  // <-- Added the payments route
 
     // Profile Updates
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('updateProfile');
@@ -42,13 +55,25 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 // Admin Routes (Authenticated)
 // ===========================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard + Static Views
+    // Admin Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::get('/customers', fn () => view('admin.customers'))->name('customers');
-    Route::get('/bookings', fn () => view('admin.bookings'))->name('bookings');
-    Route::get('/reservations', fn () => view('admin.reservations'))->name('reservations');
-    Route::get('/payments', fn () => view('admin.payments'))->name('payments');
+
+    // View all customers
+    Route::get('/customers', [AdminController::class, 'customers'])->name('customers');  // <-- Corrected to call a method in AdminController
+
+    // Bookings (Admin)
+    Route::get('/bookings', [AdminController::class, 'bookings'])->name('bookings');
+
+    // Reservations (Admin)
+    Route::get('/reservations', [AdminController::class, 'reservations'])->name('reservations');
+    
+    // Payments (Admin)
+    Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
+    
+    // Maintenance View
     Route::get('/maintenance', fn () => view('admin.maintenance'))->name('maintenance');
+
+    // Reports View
     Route::get('/reports', fn () => view('admin.reports'))->name('reports');
 
     // Car Management

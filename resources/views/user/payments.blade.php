@@ -5,7 +5,7 @@
 <section class="py-5">
     <div class="container">
         <h2 class="section-title">Payment History</h2>
-        
+
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
@@ -19,46 +19,26 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @forelse($payments as $payment)
                     <tr>
-                        <td>TRX-20230601</td>
-                        <td>2023-06-01</td>
-                        <td>Toyota Camry Rental (Jun 10-15)</td>
-                        <td>$375.00</td>
-                        <td><span class="badge bg-success">Paid</span></td>
+                        <td>TRX-{{ str_pad($payment->payment_id, 4, '0', STR_PAD_LEFT) }}</td>
+                        <td>{{ $payment->payment_date->format('Y-m-d') }}</td>
+                        <td>{{ $payment->reservation->description ?? 'No description' }}</td>
+                        <td>${{ number_format($payment->amount, 2) }}</td>
+                        <td>
+                            <span class="badge bg-{{ $payment->payment_status == 'Paid' ? 'success' : 'danger' }}">
+                                {{ $payment->payment_status }}
+                            </span>
+                        </td>
                         <td>
                             <button class="btn btn-sm btn-outline-primary">Invoice</button>
                         </td>
                     </tr>
+                    @empty
                     <tr>
-                        <td>TRX-20230525</td>
-                        <td>2023-05-25</td>
-                        <td>Honda Accord Rental (May 25-30)</td>
-                        <td>$300.00</td>
-                        <td><span class="badge bg-success">Paid</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">Invoice</button>
-                        </td>
+                        <td colspan="6" class="text-center">No payment history available.</td>
                     </tr>
-                    <tr>
-                        <td>TRX-20230510</td>
-                        <td>2023-05-10</td>
-                        <td>Toyota RAV4 Rental (May 10-12)</td>
-                        <td>$180.00</td>
-                        <td><span class="badge bg-success">Paid</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">Invoice</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>TRX-20230415</td>
-                        <td>2023-04-15</td>
-                        <td>Chevrolet Malibu Rental (Apr 15-18)</td>
-                        <td>$210.00</td>
-                        <td><span class="badge bg-success">Paid</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">Invoice</button>
-                        </td>
-                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -67,13 +47,14 @@
         <div class="mt-5">
             <h2 class="section-title">Payment Methods</h2>
             <div class="row">
+                @forelse(Auth::user()->paymentMethods as $method)
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <h5 class="card-title">Visa ending in 4242</h5>
-                                    <p class="card-text">Expires 12/2024</p>
+                                    <h5 class="card-title">{{ $method->type }} ending in {{ $method->last4 }}</h5>
+                                    <p class="card-text">Expires {{ $method->expiry_date->format('m/Y') }}</p>
                                 </div>
                                 <div>
                                     <button class="btn btn-sm btn-outline-danger">Remove</button>
@@ -82,21 +63,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="card-title">PayPal</h5>
-                                    <p class="card-text">john.doe@example.com</p>
-                                </div>
-                                <div>
-                                    <button class="btn btn-sm btn-outline-danger">Remove</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                @empty
+                <div class="col-12">
+                    <p class="text-center">No payment methods added yet.</p>
                 </div>
+                @endforelse
             </div>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
                 <i class="fas fa-plus me-2"></i>Add Payment Method
@@ -164,4 +135,5 @@
         </div>
     </div>
 </div>
+
 @endsection

@@ -7,6 +7,7 @@ use App\Models\Car;
 use App\Models\Reservation;
 use App\Models\Booking;
 use App\Models\Service;  // Import Service model
+use App\Models\Payment;  // Import the Payment model for payments
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -18,9 +19,19 @@ class UserController extends Controller
      * Display the homepage.
      */
     public function home()
-    {
-        return view('user.home');
-    }
+{
+    // Get the logged-in user
+    $user = Auth::user();
+
+    // Fetch the latest reservation, booking, and payment for the logged-in user
+    $latestReservation = Reservation::where('user_id', $user->id)->latest()->first();
+    $latestBooking = Booking::where('user_id', $user->id)->latest()->first();
+    $latestPayment = Payment::where('user_id', $user->id)->latest()->first();
+
+    // Return the home view with the data
+    return view('user.home', compact('latestReservation', 'latestBooking', 'latestPayment'));
+}
+
 
     /**
      * Display a listing of available cars with optional filters.
@@ -253,4 +264,22 @@ class UserController extends Controller
         // Redirect back to the profile page with a success message
         return redirect()->route('user.profile')->with('success', 'Password updated successfully!');
     }
+
+   // Show the authenticated user's payment history
+   public function payments()
+{
+    // Get the authenticated user
+    $user = Auth::user();
+    
+    // Retrieve all payments associated with the authenticated user
+    $payments = $user->paymentMethods()->latest()->get(); // Retrieve payments in descending order of creation
+    
+    // Return the payments view with the payments data
+    return view('user.payments', compact('payments'));
+}
+
+   
+
+
+
 }

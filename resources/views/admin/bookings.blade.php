@@ -32,7 +32,7 @@
                             <th>Booking ID</th>
                             <th>Customer</th>
                             <th>Service</th>
-                            <th>Date & Time</th>
+                            <th>Date</th>
                             <th>Car</th>
                             <th>Amount</th>
                             <th>Status</th>
@@ -40,174 +40,86 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for($i = 1; $i <= 10; $i++)
+                        @forelse($bookings as $booking)
                         <tr>
-                            <td>SRV-{{ str_pad($i, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td>John Doe {{ $i }}</td>
+                            <td>SRV-{{ str_pad($booking->booking_id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <td>{{ $booking->user->name ?? 'N/A' }}</td>
+                            <td>{{ $booking->service->service_name ?? 'N/A' }}</td>
+                            <td>{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</td>
+                            <td>—</td>
+                            <td>${{ number_format($booking->total_price, 2) }}</td>
                             <td>
-                                @if($i % 3 == 0)
-                                Premium Car Wash
-                                @elseif($i % 2 == 0)
-                                Oil Change
-                                @else
-                                Interior Detailing
-                                @endif
+                                <span class="badge 
+                                    @if($booking->status === 'pending') bg-warning
+                                    @elseif($booking->status === 'confirmed') bg-info
+                                    @elseif($booking->status === 'completed') bg-success
+                                    @elseif($booking->status === 'cancelled') bg-danger
+                                    @else bg-secondary @endif">
+                                    {{ ucfirst($booking->status) }}
+                                </span>
                             </td>
                             <td>
-                                {{ date('M d', strtotime("+".$i." days")) }}, 
-                                @if($i % 3 == 0)
-                                10:00 AM
-                                @elseif($i % 2 == 0)
-                                2:00 PM
-                                @else
-                                9:00 AM
-                                @endif
-                            </td>
-                            <td>Toyota Camry</td>
-                            <td>
-                                @if($i % 3 == 0)
-                                $45
-                                @elseif($i % 2 == 0)
-                                $65
-                                @else
-                                $85
-                                @endif
-                            </td>
-                            <td>
-                                @if($i % 4 == 0)
-                                <span class="badge bg-warning">Pending</span>
-                                @elseif($i % 3 == 0)
-                                <span class="badge bg-success">Completed</span>
-                                @elseif($i % 2 == 0)
-                                <span class="badge bg-info">Confirmed</span>
-                                @else
-                                <span class="badge bg-danger">Cancelled</span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewBookingModal{{ $i }}">
+                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewBookingModal{{ $booking->booking_id }}">
                                     <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-edit"></i>
                                 </button>
                             </td>
                         </tr>
 
-                        <!-- View Booking Modal -->
-                        <div class="modal fade" id="viewBookingModal{{ $i }}" tabindex="-1" aria-labelledby="viewBookingModal{{ $i }}Label" aria-hidden="true">
+                        <!-- Modal -->
+                        <div class="modal fade" id="viewBookingModal{{ $booking->booking_id }}" tabindex="-1" aria-labelledby="viewBookingModalLabel{{ $booking->booking_id }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewBookingModal{{ $i }}Label">Booking Details</h5>
+                                        <h5 class="modal-title">Booking Details - SRV-{{ str_pad($booking->booking_id, 4, '0', STR_PAD_LEFT) }}</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Booking Information</h6>
-                                                <p><strong>Booking ID:</strong> SRV-{{ str_pad($i, 4, '0', STR_PAD_LEFT) }}</p>
-                                                <p><strong>Booking Date:</strong> {{ date('M d, Y', strtotime("-".$i." days")) }}</p>
-                                                <p><strong>Status:</strong> 
-                                                    @if($i % 4 == 0)
-                                                    <span class="badge bg-warning">Pending</span>
-                                                    @elseif($i % 3 == 0)
-                                                    <span class="badge bg-success">Completed</span>
-                                                    @elseif($i % 2 == 0)
-                                                    <span class="badge bg-info">Confirmed</span>
-                                                    @else
-                                                    <span class="badge bg-danger">Cancelled</span>
-                                                    @endif
-                                                </p>
+                                                <h6>Booking Info</h6>
+                                                <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($booking->date)->toFormattedDateString() }}</p>
+                                                <p><strong>Status:</strong> {{ ucfirst($booking->status) }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Customer Information</h6>
-                                                <p><strong>Name:</strong> John Doe {{ $i }}</p>
-                                                <p><strong>Email:</strong> john{{ $i }}@example.com</p>
-                                                <p><strong>Phone:</strong> +1 234 567 89{{ $i }}</p>
+                                                <h6>Customer Info</h6>
+                                                <p><strong>Name:</strong> {{ $booking->user->name ?? 'N/A' }}</p>
+                                                <p><strong>Email:</strong> {{ $booking->user->email ?? 'N/A' }}</p>
                                             </div>
                                         </div>
                                         <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Service Details</h6>
-                                                <p><strong>Service:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    Premium Car Wash
-                                                    @elseif($i % 2 == 0)
-                                                    Oil Change
-                                                    @else
-                                                    Interior Detailing
-                                                    @endif
-                                                </p>
-                                                <p><strong>Date:</strong> {{ date('M d, Y', strtotime("+".$i." days")) }}</p>
-                                                <p><strong>Time:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    10:00 AM
-                                                    @elseif($i % 2 == 0)
-                                                    2:00 PM
-                                                    @else
-                                                    9:00 AM
-                                                    @endif
-                                                </p>
+                                                <h6>Service Info</h6>
+                                                <p><strong>Service:</strong> {{ $booking->service->service_name ?? 'N/A' }}</p>
+                                                <p><strong>Price:</strong> ${{ number_format($booking->total_price, 2) }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Car Details</h6>
-                                                <p><strong>Car:</strong> Toyota Camry</p>
-                                                <p><strong>Plate:</strong> ABC-{{ $i }}234</p>
-                                                <p><strong>Year:</strong> 2023</p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <h6>Payment Information</h6>
-                                                <p><strong>Amount:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    $45
-                                                    @elseif($i % 2 == 0)
-                                                    $65
-                                                    @else
-                                                    $85
-                                                    @endif
-                                                </p>
-                                                <p><strong>Payment Method:</strong> Credit Card</p>
-                                                <p><strong>Payment Status:</strong> Paid</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <h6>Location</h6>
-                                                <p><strong>Branch:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    Main Office
-                                                    @elseif($i % 2 == 0)
-                                                    Airport Branch
-                                                    @else
-                                                    Northside Branch
-                                                    @endif
-                                                </p>
-                                                <p><strong>Address:</strong> 
-                                                    @if($i % 3 == 0)
-                                                    123 Main St, Anytown
-                                                    @elseif($i % 2 == 0)
-                                                    456 Airport Rd, Anytown
-                                                    @else
-                                                    789 North Ave, Anytown
-                                                    @endif
-                                                </p>
+                                                <h6>Payment</h6>
+                                                <p><strong>Status:</strong> Paid</p>
+                                                <p><strong>Method:</strong> Credit Card</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        @if($i % 4 == 0)
-                                        <button type="button" class="btn btn-success me-2">Confirm</button>
-                                        <button type="button" class="btn btn-danger me-2">Reject</button>
+                                        @if($booking->status === 'pending')
+                                        <button type="button" class="btn btn-success">Confirm</button>
+                                        <button type="button" class="btn btn-danger">Cancel</button>
                                         @endif
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        @endfor
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center">No bookings found.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
+                <!-- Pagination -->
+                <div class="mt-3">
+                    {{ $bookings->links() }}
+                </div>
             </div>
         </div>
     </div>

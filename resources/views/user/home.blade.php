@@ -37,6 +37,47 @@
     </div>
 </section>
 
+<!-- User Information Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title">Welcome, {{ Auth::user()->name }}!</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <h4>Latest Reservation</h4>
+                @if($latestReservation)
+                    <p>Car: {{ $latestReservation->car->make }} {{ $latestReservation->car->model }} ({{ $latestReservation->status }})</p>
+                    <p>Start Date: {{ $latestReservation->start_date->format('F d, Y') }}</p>
+                    <p>End Date: {{ $latestReservation->end_date->format('F d, Y') }}</p>
+                @else
+                    <p>No reservations yet.</p>
+                @endif
+            </div>
+
+            <div class="col-md-4">
+                <h4>Latest Booking</h4>
+                @if($latestBooking)
+                    <p>Service: {{ $latestBooking->service->name }} ({{ $latestBooking->status }})</p>
+                    <p>Start Date: {{ $latestBooking->start_date->format('F d, Y') }}</p>
+                    <p>Price: ${{ $latestBooking->price }}</p>
+                @else
+                    <p>No bookings yet.</p>
+                @endif
+            </div>
+
+            <div class="col-md-4">
+                <h4>Latest Payment</h4>
+                @if($latestPayment)
+                    <p>Amount Paid: ${{ $latestPayment->amount }}</p>
+                    <p>Status: {{ $latestPayment->payment_status }}</p>
+                    <p>Date: {{ $latestPayment->payment_date->format('F d, Y') }}</p>
+                @else
+                    <p>No payments yet.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Services Section -->
 <section class="py-5 bg-light">
     <div class="container">
@@ -76,97 +117,4 @@
     </div>
 </section>
 
-<!-- Testimonials -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="section-title">What Our Customers Say</h2>
-        <div class="row">
-            @for($i = 0; $i < 3; $i++)
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex mb-3">
-                            <img src="https://randomuser.me/api/portraits/men/{{ rand(1, 99) }}.jpg" class="rounded-circle me-3" width="50" height="50" alt="Customer">
-                            <div>
-                                <h6 class="mb-0">John Doe</h6>
-                                <small class="text-muted">Verified Customer</small>
-                            </div>
-                        </div>
-                        <p class="card-text">"Excellent service! The car was clean and in perfect condition. Will definitely rent again."</p>
-                        <div class="text-warning">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endfor
-        </div>
-    </div>
-</section>
-
-<!-- Rent Modal -->
-<div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="rentModalLabel">Rent Toyota Camry 2023</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="mb-3">
-                        <label for="pickupDate" class="form-label">Pickup Date</label>
-                        <input type="date" class="form-control" id="pickupDate">
-                    </div>
-                    <div class="mb-3">
-                        <label for="returnDate" class="form-label">Return Date</label>
-                        <input type="date" class="form-control" id="returnDate">
-                    </div>
-                    <div class="mb-3">
-                        <label for="pickupLocation" class="form-label">Pickup Location</label>
-                        <select class="form-select" id="pickupLocation">
-                            <option selected>Select Location</option>
-                            <option>Main Office - Downtown</option>
-                            <option>Airport Branch</option>
-                            <option>Northside Branch</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="additionalServices" class="form-label">Additional Services</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="insurance">
-                            <label class="form-check-label" for="insurance">
-                                Insurance Coverage (+$15/day)
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="gps">
-                            <label class="form-check-label" for="gps">
-                                GPS Navigation (+$10/day)
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="childSeat">
-                            <label class="form-check-label" for="childSeat">
-                                Child Safety Seat (+$8/day)
-                            </label>
-                        </div>
-                    </div>
-                    <div class="alert alert-info">
-                        <h6 class="mb-1">Estimated Total: $225</h6>
-                        <small class="text-muted">Final price will be confirmed after booking</small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Confirm Rental</button>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection

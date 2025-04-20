@@ -11,10 +11,11 @@
                     <i class="fas fa-filter me-2"></i>Filter
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                    <li><a class="dropdown-item" href="{{ route('user.cars.filter', 'all') }}">All Cars</a></li>
-                    @foreach(App\Models\Car::TYPES as $key => $type)
-                    <li><a class="dropdown-item" href="{{ route('user.cars.filter', $key) }}">{{ $type }}</a></li>
-                    @endforeach
+                    <li><a class="dropdown-item" href="#">All Cars</a></li>
+                    <li><a class="dropdown-item" href="#">SUV</a></li>
+                    <li><a class="dropdown-item" href="#">Sedan</a></li>
+                    <li><a class="dropdown-item" href="#">Coupe</a></li>
+                    <li><a class="dropdown-item" href="#">Convertible</a></li>
                 </ul>
             </div>
         </div>
@@ -152,7 +153,7 @@
             endDate.attr('min', startDate.toISOString().split('T')[0]);
             
             if (endDate.val() && new Date(endDate.val()) <= new Date(this.value)) {
-                endDate.val('');
+                endDate.val('');  // Clear return date if it's earlier than start date
             }
         });
     });

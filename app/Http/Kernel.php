@@ -48,6 +48,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         // Role-based middleware
         'role' => \App\Http\Middleware\CheckRole::class,  // Custom middleware for role-based access control
+        'admin' => \App\Http\Middleware\AdminMiddleware::class,
 
         // Authentication middleware
         'auth' => \App\Http\Middleware\Authenticate::class,

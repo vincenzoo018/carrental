@@ -16,7 +16,10 @@
                     <a class="nav-link" href="{{ route('user.reservations') }}">Rentals</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('user.bookings') }}">Services</a>
+                    <a class="nav-link" href="{{ route('user.bookings') }}">Booking</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('user.services') }}">Services</a>
                 </li>
             </ul>
             <div class="d-flex">
@@ -28,10 +31,29 @@
                         <li><a class="dropdown-item" href="{{ route('user.profile') }}"><i class="fas fa-user me-2"></i> Profile</a></li>
                         <li><a class="dropdown-item" href="{{ route('user.payments') }}"><i class="fas fa-credit-card me-2"></i> Payments</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                        <!-- Logout Form with JS -->
+                        <li>
+                            <a class="dropdown-item" href="#" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 </nav>
+
+<!-- JavaScript to handle logout and redirect to login -->
+<script>
+    document.getElementById('logoutBtn').addEventListener('click', function(event) {
+        event.preventDefault();
+        // Submit the logout form
+        document.getElementById('logoutForm').submit();
+    });
+</script>
+
+<!-- Hidden Form to Logout -->
+<form id="logoutForm" action="{{ route('logout') }}" method="POST" style="display: none;">
+    @csrf
+</form>

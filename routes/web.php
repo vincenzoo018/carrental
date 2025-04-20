@@ -24,19 +24,26 @@ Route::middleware(['auth'])->prefix('user')->group(function () {
     Route::get('/home', [UserController::class, 'home'])->name('user.home');
     Route::get('/cars', [UserController::class, 'cars'])->name('user.cars');
     Route::get('/bookings', [UserController::class, 'bookings'])->name('user.bookings');
+    Route::get('/services', [UserController::class, 'services'])->name('user.services');
     Route::get('/reservations', [UserController::class, 'reservations'])->name('user.reservations');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/payments', [UserController::class, 'payments'])->name('user.payments');
+
+    // Profile Update Routes
+    Route::put('/profile', [UserController::class, 'updateProfile'])->name('user.updateProfile');
+    Route::put('/profile/photo', [UserController::class, 'changePhoto'])->name('user.changePhoto');
+    Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 });
 
-// Admin Routes (Protected Routes, with role check)
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/cars', [AdminController::class, 'cars'])->name('admin.cars');
-    Route::get('/customers', [AdminController::class, 'customers'])->name('admin.customers');
-    Route::get('/bookings', [AdminController::class, 'bookings'])->name('admin.bookings');
-    Route::get('/reservations', [AdminController::class, 'reservations'])->name('admin.reservations');
-    Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
-    Route::get('/maintenance', [AdminController::class, 'maintenance'])->name('admin.maintenance');
-    Route::get('/reports', [AdminController::class, 'reports'])->name('admin.reports');
+// Admin Routes (Protected Routes with Admin Middleware)
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
+    Route::get('/cars', fn () => view('admin.cars'))->name('admin.cars');
+    Route::get('/customers', fn () => view('admin.customers'))->name('admin.customers');
+    Route::get('/bookings', fn () => view('admin.bookings'))->name('admin.bookings');
+    Route::get('/reservations', fn () => view('admin.reservations'))->name('admin.reservations');
+    Route::get('/payments', fn () => view('admin.payments'))->name('admin.payments');
+    Route::get('/maintenance', fn () => view('admin.maintenance'))->name('admin.maintenance');
+    Route::get('/reports', fn () => view('admin.reports'))->name('admin.reports');
 });
+

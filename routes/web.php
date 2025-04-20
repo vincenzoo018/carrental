@@ -14,12 +14,12 @@ Route::get('/register', [AuthenticationController::class, 'showRegistrationForm'
 Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
 
-// Terms and Conditions Route (Ensure this route exists for 'terms' link)
+// Terms and Conditions Route
 Route::get('/terms', function () {
-    return view('terms'); // Create a 'terms.blade.php' view file
+    return view('terms');
 })->name('terms');
 
-// User Routes (Protected Routes)
+// User Routes (Protected)
 Route::middleware(['auth'])->prefix('user')->group(function () {
     Route::get('/home', [UserController::class, 'home'])->name('user.home');
     Route::get('/cars', [UserController::class, 'cars'])->name('user.cars');
@@ -35,15 +35,21 @@ Route::middleware(['auth'])->prefix('user')->group(function () {
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('user.updatePassword');
 });
 
-// Admin Routes (Protected Routes with Admin Middleware)
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', fn () => view('admin.dashboard'))->name('admin.dashboard');
-    Route::get('/cars', fn () => view('admin.cars'))->name('admin.cars');
+// Admin Routes (Protected)
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Admin Views
+    Route::get('/login', fn () => view('admin.login'))->name('admin.login');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/customers', fn () => view('admin.customers'))->name('admin.customers');
     Route::get('/bookings', fn () => view('admin.bookings'))->name('admin.bookings');
     Route::get('/reservations', fn () => view('admin.reservations'))->name('admin.reservations');
     Route::get('/payments', fn () => view('admin.payments'))->name('admin.payments');
     Route::get('/maintenance', fn () => view('admin.maintenance'))->name('admin.maintenance');
     Route::get('/reports', fn () => view('admin.reports'))->name('admin.reports');
-});
 
+    // Car Management via Controller
+    Route::get('/cars', [AdminController::class, 'cars'])->name('admin.cars');
+    Route::post('/cars/store', [AdminController::class, 'storeCar'])->name('admin.cars.store');
+    Route::put('/cars/{carId}', [AdminController::class, 'updateCar'])->name('admin.cars.update');
+    Route::delete('/cars/{carId}', [AdminController::class, 'deleteCar'])->name('admin.cars.delete');
+});

@@ -9,11 +9,12 @@ class AdminMiddleware
 {
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->hasRole('admin')) {
+        // Check if the user is authenticated and has admin role
+        if (Auth::check() && Auth::user()->role_id == 1) {
             return $next($request);
         }
 
-        abort(403, 'Unauthorized');
+        // If the user is not an admin, abort with an Unauthorized status
+        return redirect()->route('login')->withErrors('You are not authorized to access this page.');
     }
 }
-

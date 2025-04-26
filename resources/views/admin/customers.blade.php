@@ -61,6 +61,9 @@
                                 <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#editCustomerModal{{ $customer->id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                <button class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#damageAssessmentModal{{ $customer->id }}">
+                                    <i class="fas fa-car-crash"></i>
+                                </button>
                                 <button class="btn btn-sm btn-outline-danger">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -165,6 +168,94 @@
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                         <button type="button" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Damage Assessment Modal -->
+                        <div class="modal fade" id="damageAssessmentModal{{ $customer->id }}" tabindex="-1" aria-labelledby="damageAssessmentModal{{ $customer->id }}Label" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-warning text-white">
+                                        <h5 class="modal-title" id="damageAssessmentModal{{ $customer->id }}Label">Damage Assessment</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form>
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label for="rentalReference{{ $customer->id }}" class="form-label">Rental Reference</label>
+                                                    <select class="form-select" id="rentalReference{{ $customer->id }}">
+                                                        <option value="">Select Rental</option>
+                                                        <option value="rental1">Rental #1234 (Toyota Camry)</option>
+                                                        <option value="rental2">Rental #5678 (Honda Civic)</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label for="assessmentDate{{ $customer->id }}" class="form-label">Assessment Date</label>
+                                                    <input type="date" class="form-control" id="assessmentDate{{ $customer->id }}" value="{{ date('Y-m-d') }}">
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="damageType{{ $customer->id }}" class="form-label">Type of Damage</label>
+                                                <select class="form-select" id="damageType{{ $customer->id }}">
+                                                    <option value="">Select Damage Type</option>
+                                                    <option value="scratch">Scratch</option>
+                                                    <option value="dent">Dent</option>
+                                                    <option value="broken_glass">Broken Glass</option>
+                                                    <option value="interior">Interior Damage</option>
+                                                    <option value="mechanical">Mechanical Issue</option>
+                                                    <option value="other">Other</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="damageDescription{{ $customer->id }}" class="form-label">Damage Description</label>
+                                                <textarea class="form-control" id="damageDescription{{ $customer->id }}" rows="3" placeholder="Detailed description of the damage..."></textarea>
+                                            </div>
+                                            
+                                            <div class="row mb-3">
+                                                <div class="col-md-4">
+                                                    <label for="severity{{ $customer->id }}" class="form-label">Severity Level</label>
+                                                    <select class="form-select" id="severity{{ $customer->id }}">
+                                                        <option value="minor">Minor</option>
+                                                        <option value="moderate">Moderate</option>
+                                                        <option value="severe">Severe</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="repairCost{{ $customer->id }}" class="form-label">Estimated Repair Cost</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" class="form-control" id="repairCost{{ $customer->id }}" min="0" step="0.01">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="violationFee{{ $customer->id }}" class="form-label">Violation Fee</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text">$</span>
+                                                        <input type="number" class="form-control" id="violationFee{{ $customer->id }}" min="0" step="0.01">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="damagePhotos{{ $customer->id }}" class="form-label">Damage Photos</label>
+                                                <input class="form-control" type="file" id="damagePhotos{{ $customer->id }}" multiple accept="image/*">
+                                                <small class="text-muted">Upload clear photos of the damage (max 5 photos)</small>
+                                            </div>
+                                            
+                                            <div class="mb-3 form-check">
+                                                <input type="checkbox" class="form-check-input" id="insuranceClaim{{ $customer->id }}">
+                                                <label class="form-check-label" for="insuranceClaim{{ $customer->id }}">File insurance claim</label>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" class="btn btn-warning">Submit Damage Report</button>
                                     </div>
                                 </div>
                             </div>

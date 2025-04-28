@@ -38,4 +38,8 @@ class Reservation extends Model
     {
         return $this->hasOne(Maintenance::class, 'reservation_id');
     }
+    public function damage()
+    {
+        return $this->hasMany(Damage::class);
+    }
 }

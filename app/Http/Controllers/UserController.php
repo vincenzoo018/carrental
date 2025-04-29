@@ -60,31 +60,38 @@ class UserController extends Controller
         // Return the cars view with the cars data
         return view('user.cars', compact('cars'));
     }
-
-    /**
-     * Display a listing of the user's reservations and rental history.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function reservations()
-    {
-        // Fetch all reservations for the logged-in user, including past, upcoming, and active
-        $reservations = Reservation::where('user_id', Auth::id())
-            ->orderBy('start_date', 'desc')
-            ->get();
-
-        // Separate active and completed reservations
-        $activeReservations = $reservations->filter(function ($reservation) {
-            return $reservation->status == 'active' || $reservation->status == 'upcoming';
-        });
-
-        $completedReservations = $reservations->filter(function ($reservation) {
-            return $reservation->status == 'completed';
-        });
-
-        // Return the view with active and completed reservations
-        return view('user.reservations', compact('activeReservations', 'completedReservations'));
+    public function store(Request $request)
+{
+    // Check if the user is authenticated
+    if (!auth()->check()) {
+        return redirect()->route('login')->with('error', 'You must be logged in to make a reservation.');
     }
+
+    // Validate the input
+    $validated = $request->validate([
+        'car_id' => 'required|exists:cars,id',
+        'start_date' => 'required|date|after_or_equal:today',
+        'end_date' => 'required|date|after:start_date',
+        'pickup_location' => 'nullable|string|max:255',
+        'total_price' => 'required|numeric|min:0',
+    ]);
+
+    // Create the reservation
+    $reservation = new Reservation();
+    $reservation->user_id = auth()->id(); // Assuming the user is logged in
+    $reservation->car_id = $request->car_id;
+    $reservation->start_date = $request->start_date;
+    $reservation->end_date = $request->end_date;
+    $reservation->pickup_location = $request->pickup_location;
+    $reservation->total_price = $request->total_price;
+    $reservation->status = 'active'; // Assuming new reservations are active
+    $reservation->save();
+
+    // Redirect with success message
+    return redirect()->route('user.reservations')->with('success', 'Reservation confirmed!');
+}
+
+
 
     /**
      * Display a listing of the user's bookings.

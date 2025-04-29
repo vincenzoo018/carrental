@@ -29,6 +29,7 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 
     // Cars List (User-specific)
     Route::get('/cars', [UserController::class, 'cars'])->name('cars');
+    Route::post('/user/cars/rent', [UserController::class, 'rentCar'])->name('user.cars');
 
     // Booking Listings
     Route::get('/bookings', [UserController::class, 'bookings'])->name('bookings');

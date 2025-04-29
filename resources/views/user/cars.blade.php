@@ -43,9 +43,17 @@
                             </span>
                             <h5 class="mb-0">${{ number_format($car->price, 2) }}/day</h5>
                         </div>
-                        @if($car->is_available)
-                        <button class="btn btn-primary w-100 mt-auto" disabled>
-                            Currently Unavailable
+
+                        @if($car->status === \App\Models\Car::STATUS_AVAILABLE)
+                        <button 
+                            class="btn btn-primary w-100 mt-auto rent-now-btn" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#rentModal" 
+                            data-car-id="{{ $car->car_id }}"
+                            data-car-name="{{ $car->brand }} {{ $car->model }} ({{ $car->year }})"
+                            data-car-price="{{ $car->price }}"
+                        >
+                            Rent Now
                         </button>
                         @else
                         <button class="btn btn-secondary w-100 mt-auto" disabled>
@@ -74,21 +82,65 @@
         @endif
     </div>
 </section>
+
+<!-- Rent Modal -->
+<div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form method="POST" action="{{ route('user.reservations.store') }}">
+            @csrf
+            <input type="hidden" name="car_id" id="modalCarId">
+            <input type="hidden" name="car_price" id="modalCarPriceInput">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rentModalLabel">Rent Car</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Car:</strong> <span id="modalCarName"></span></p>
+                    <p><strong>Price per day:</strong> $<span id="modalCarPrice"></span></p>
+                    <div class="mb-3">
+                        <label for="pickupDate" class="form-label">Pickup Date</label>
+                        <input type="date" class="form-control" name="start_date" id="pickupDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="returnDate" class="form-label">Return Date</label>
+                        <input type="date" class="form-control" name="end_date" id="returnDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="pickupLocation" class="form-label">Pickup Location</label>
+                        <input type="text" class="form-control" name="pickup_location" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Confirm Reservation</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Update end date min value when start date changes
-        $('[id^=pickupDate]').on('change', function() {
-            const id = this.id.replace('pickupDate', '');
-            const endDate = $('#returnDate' + id);
+    document.addEventListener('DOMContentLoaded', function () {
+        $('.rent-now-btn').on('click', function () {
+            const carId = $(this).data('car-id');
+            const carName = $(this).data('car-name');
+            const carPrice = $(this).data('car-price');
+
+            $('#modalCarId').val(carId);
+            $('#modalCarName').text(carName);
+            $('#modalCarPrice').text(carPrice);
+            $('#modalCarPriceInput').val(carPrice); // Setting the car price in the hidden field
+        });
+
+        $('#pickupDate').on('change', function () {
             const startDate = new Date(this.value);
             startDate.setDate(startDate.getDate() + 1);
-            endDate.attr('min', startDate.toISOString().split('T')[0]);
-            
-            if (endDate.val() && new Date(endDate.val()) <= new Date(this.value)) {
-                endDate.val('');  // Clear return date if it's earlier than start date
+            $('#returnDate').attr('min', startDate.toISOString().split('T')[0]);
+
+            if ($('#returnDate').val() && new Date($('#returnDate').val()) <= new Date(this.value)) {
+                $('#returnDate').val('');
             }
         });
     });

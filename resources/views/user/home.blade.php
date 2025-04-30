@@ -16,7 +16,7 @@
         <h2 class="section-title">Featured Vehicles</h2>
         <div class="row">
             @for($i = 0; $i < 3; $i++)
-            <div class="col-md-4">
+                <div class="col-md-4">
                 <div class="card">
                     <img src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="card-img-top" alt="Car Image">
                     <div class="card-body">
@@ -31,52 +31,12 @@
                         </button>
                     </div>
                 </div>
-            </div>
-            @endfor
         </div>
+        @endfor
+    </div>
     </div>
 </section>
 
-<!-- User Information Section -->
-<section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="section-title">Welcome, {{ Auth::user()->name }}!</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <h4>Latest Reservation</h4>
-                @if($latestReservation)
-                    <p>Car: {{ $latestReservation->car->make }} {{ $latestReservation->car->model }} ({{ $latestReservation->status }})</p>
-                    <p>Start Date: {{ $latestReservation->start_date->format('F d, Y') }}</p>
-                    <p>End Date: {{ $latestReservation->end_date->format('F d, Y') }}</p>
-                @else
-                    <p>No reservations yet.</p>
-                @endif
-            </div>
-
-            <div class="col-md-4">
-                <h4>Latest Booking</h4>
-                @if($latestBooking)
-                    <p>Service: {{ $latestBooking->service->name }} ({{ $latestBooking->status }})</p>
-                    <p>Start Date: {{ $latestBooking->start_date->format('F d, Y') }}</p>
-                    <p>Price: ₱{{ $latestBooking->price }}</p>
-                @else
-                    <p>No bookings yet.</p>
-                @endif
-            </div>
-
-            <div class="col-md-4">
-                <h4>Latest Payment</h4>
-                @if($latestPayment)
-                    <p>Amount Paid: ₱{{ $latestPayment->amount }}</p>
-                    <p>Status: {{ $latestPayment->payment_status }}</p>
-                    <p>Date: {{ $latestPayment->payment_date->format('F d, Y') }}</p>
-                @else
-                    <p>No payments yet.</p>
-                @endif
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Services Section -->
 <section class="py-5 bg-light">

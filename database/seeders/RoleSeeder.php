@@ -1,22 +1,30 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Http\Middleware;
 
-use Illuminate\Database\Seeder;
-use App\Models\Role;
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class RoleSeeder extends Seeder
+class RoleMiddleware
 {
-    public function run()
+    public function handle(Request $request, Closure $next, $role)
     {
-        Role::create([
-            'name' => 'admin',
-            'description' => 'Administrator role'
-        ]);
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
 
-        Role::create([
-            'name' => 'user',
-            'description' => 'Regular user role'
-        ]);
+        $user = Auth::user();
+
+        // Check if user's role matches required role
+        if ($role == 'admin' && $user->role_id != 1) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ($role == 'user' && $user->role_id != 2) {
+            abort(403, 'Unauthorized');
+        }
+
+        return $next($request);
     }
 }

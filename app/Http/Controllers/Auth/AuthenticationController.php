@@ -32,19 +32,28 @@ class AuthenticationController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate login form
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        // Attempt to login the user
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-            // Redirect to user home based on their role
-            return redirect()->intended(route('user.home'));
+            $user = Auth::user();
+
+            // Redirect based on role_id
+            if ($user->role_id == 1) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->role_id == 2) {
+                return redirect()->route('user.home');
+            }
+
+            // Fallback in case of unknown role
+            Auth::logout();
+            return redirect()->route('login')->withErrors([
+                'email' => 'Unauthorized role.',
+            ]);
         }
 
-        // If login fails, redirect back with error
         return back()->withErrors([
             'email' => 'These credentials do not match our records.',
         ]);
@@ -68,7 +77,6 @@ class AuthenticationController extends Controller
      */
     public function register(Request $request)
     {
-        // Validate the registration form
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -77,10 +85,9 @@ class AuthenticationController extends Controller
             'password' => ['required', 'string', 'min:8', 'confirmed', Password::min(8)->letters()->numbers()],
             'address' => 'required|string|max:255',
             'license' => 'required|string|max:255',
-            'terms' => 'accepted',  // Ensures terms are checked
+            'terms' => 'accepted',
         ]);
 
-        // Create the user instance
         $user = new User([
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
@@ -88,16 +95,13 @@ class AuthenticationController extends Controller
             'password' => Hash::make($request->password),
             'address' => $request->address,
             'license' => $request->license,
-            'role_id' => 2, // Default role, could be 'user', adjust this based on your needs
+            'role_id' => 2, // Default to customer
         ]);
 
-        // Save the user
         $user->save();
 
-        // Log the user in immediately after registration
         Auth::login($user);
 
-        // Redirect to the user home page
         return redirect()->route('user.home');
     }
 
@@ -109,7 +113,7 @@ class AuthenticationController extends Controller
     public function logout()
     {
         Auth::logout();
-        Session::flush();  // Remove all session data
+        Session::flush();
         return redirect()->route('login');
     }
 }

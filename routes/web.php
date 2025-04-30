@@ -14,17 +14,28 @@ Route::post('/login', [AuthenticationController::class, 'login']);
 Route::get('/register', [AuthenticationController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
+// Admin Dashboard
+Route::get('/admin/dashboard', function () {
+    return view('admin.dashboard');
+})->name('admin.dashboard')->middleware('auth');
+
+// User Home
+Route::get('/user/home', function () {
+    return view('user.home');
+})->name('user.home')->middleware('auth');
 
 // ===========================
 // Terms and Conditions Route
 // ===========================
-Route::get('/terms', fn () => view('terms'))->name('terms');
+Route::get('/terms', fn() => view('terms'))->name('terms');
 
 // ===========================
 // User Routes (Authenticated)
 // ===========================
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     // Dashboard/Home for the user
+    Route::get('/user/cars', [UserController::class, 'showCars'])->name('user.cars');
+
     Route::get('/home', [UserController::class, 'home'])->name('home');
 
     // Cars List (User-specific)
@@ -42,9 +53,11 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 
     // Profile page
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
-    
+
     // User's Payment History
     Route::get('/payments', [UserController::class, 'payments'])->name('payments');  // <-- Added the payments route
+
+
 
     // Profile Updates
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('updateProfile');
@@ -67,15 +80,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Reservations (Admin)
     Route::get('/reservations', [AdminController::class, 'reservations'])->name('reservations');
-    
+
     // Payments (Admin)
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
-    
+
     // Maintenance View
-    Route::get('/maintenance', fn () => view('admin.maintenance'))->name('maintenance');
+    Route::get('/maintenance', fn() => view('admin.maintenance'))->name('maintenance');
 
     // Reports View
-    Route::get('/reports', fn () => view('admin.reports'))->name('reports');
+    Route::get('/reports', fn() => view('admin.reports'))->name('reports');
 
     // Car Management
     Route::get('/cars', [AdminController::class, 'cars'])->name('cars');
@@ -94,4 +107,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/employees/store', [AdminController::class, 'storeEmployee'])->name('employees.store');
     Route::put('/employees/update/{employee_id}', [AdminController::class, 'updateEmployee'])->name('employees.update');
     Route::delete('/employees/delete/{employee_id}', [AdminController::class, 'deleteEmployee'])->name('employees.delete');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/reservations/create', [UserController::class, 'createReservation'])->name('user.reservations.create');
+    Route::get('/my-reservations', [UserController::class, 'reservations'])->name('user.reservations.index');
 });

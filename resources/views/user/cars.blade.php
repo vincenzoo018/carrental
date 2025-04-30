@@ -19,12 +19,12 @@
                 </ul>
             </div>
         </div>
-        
+
         <div class="row">
             @forelse($cars as $car)
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
-                    <img src="{{ $car->photo_url }}" class="card-img-top" alt="{{ $car->brand }} {{ $car->model }}">
+                    <img src="{{ $car->photo_url }}" class="card-img-top" alt="{{ $car->brand }} {{ $car->model }} {{ $car->year }}">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ $car->brand }} {{ $car->model }} {{ $car->year }}</h5>
                         <div class="car-specs mb-3">
@@ -45,14 +45,13 @@
                         </div>
 
                         @if($car->status === \App\Models\Car::STATUS_AVAILABLE)
-                        <button 
-                            class="btn btn-primary w-100 mt-auto rent-now-btn" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#rentModal" 
+                        <button
+                            class="btn btn-primary w-100 mt-auto rent-now-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#rentModal"
                             data-car-id="{{ $car->car_id }}"
                             data-car-name="{{ $car->brand }} {{ $car->model }} ({{ $car->year }})"
-                            data-car-price="{{ $car->price }}"
-                        >
+                            data-car-price="{{ $car->price }}">
                             Rent Now
                         </button>
                         @else
@@ -84,9 +83,10 @@
 </section>
 
 <!-- Rent Modal -->
+<!-- Rent Modal -->
 <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('user.reservations.store') }}">
+        <form method="POST" action="{{ route('user.reservations.create') }}">
             @csrf
             <input type="hidden" name="car_id" id="modalCarId">
             <input type="hidden" name="car_price" id="modalCarPriceInput">
@@ -118,12 +118,13 @@
         </form>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        $('.rent-now-btn').on('click', function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        $('.rent-now-btn').on('click', function() {
             const carId = $(this).data('car-id');
             const carName = $(this).data('car-name');
             const carPrice = $(this).data('car-price');
@@ -134,7 +135,7 @@
             $('#modalCarPriceInput').val(carPrice); // Setting the car price in the hidden field
         });
 
-        $('#pickupDate').on('change', function () {
+        $('#pickupDate').on('change', function() {
             const startDate = new Date(this.value);
             startDate.setDate(startDate.getDate() + 1);
             $('#returnDate').attr('min', startDate.toISOString().split('T')[0]);
@@ -145,4 +146,5 @@
         });
     });
 </script>
+
 @endsection

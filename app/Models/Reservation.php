@@ -17,6 +17,8 @@ class Reservation extends Model
         'end_date',
         'total_price',
         'status',
+        'pickup_location',
+
     ];
 
     public function user()
@@ -28,6 +30,7 @@ class Reservation extends Model
     {
         return $this->belongsTo(Car::class, 'car_id');
     }
+
 
     public function payments()
     {

@@ -17,7 +17,9 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,  // Can be kept if you want to restrict post sizes.
         \App\Http\Middleware\TrimStrings::class,
-        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,  // Useful, but can be removed if not needed.
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+        // Useful, but can be removed if not needed.
     ];
 
     /**

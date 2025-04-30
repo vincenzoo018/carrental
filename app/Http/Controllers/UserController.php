@@ -19,18 +19,18 @@ class UserController extends Controller
      * Display the homepage.
      */
     public function home()
-{
-    // Get the logged-in user
-    $user = Auth::user();
+    {
+        // Get the logged-in user
+        $user = Auth::user();
 
-    // Fetch the latest reservation, booking, and payment for the logged-in user
-    $latestReservation = Reservation::where('user_id', $user->id)->latest()->first();
-    $latestBooking = Booking::where('user_id', $user->id)->latest()->first();
-    $latestPayment = Payment::where('user_id', $user->id)->latest()->first();
+        // Fetch the latest reservation, booking, and payment for the logged-in user
+        $latestReservation = Reservation::where('user_id', $user->id)->latest()->first();
+        $latestBooking = Booking::where('user_id', $user->id)->latest()->first();
+        $latestPayment = Payment::where('user_id', $user->id)->latest()->first();
 
-    // Return the home view with the data
-    return view('user.home', compact('latestReservation', 'latestBooking', 'latestPayment'));
-}
+        // Return the home view with the data
+        return view('user.home', compact('latestReservation', 'latestBooking', 'latestPayment'));
+    }
 
 
     /**
@@ -61,36 +61,45 @@ class UserController extends Controller
         return view('user.cars', compact('cars'));
     }
     public function store(Request $request)
-{
-    // Check if the user is authenticated
-    if (!auth()->check()) {
-        return redirect()->route('login')->with('error', 'You must be logged in to make a reservation.');
+    {
+        // Ensure the user is authenticated
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'You must be logged in to make a reservation.');
+        }
+
+        // Validate the input
+        $validated = $request->validate([
+            'car_id' => 'required|exists:cars,id', // Ensure the car exists
+            'start_date' => 'required|date|after_or_equal:today', // Ensure valid date
+            'end_date' => 'required|date|after:start_date', // Ensure end date is after start date
+            'pickup_location' => 'nullable|string|max:255', // Optional pickup location
+        ]);
+
+        // Fetch the selected car's price
+        $car = Car::findOrFail($validated['car_id']);
+        $startDate = Carbon::parse($validated['start_date']);
+        $endDate = Carbon::parse($validated['end_date']);
+
+        // Calculate the rental duration in days
+        $days = $startDate->diffInDays($endDate);
+
+        // Calculate the total price for the reservation
+        $totalPrice = $car->price * $days;
+
+        // Create the reservation
+        $reservation = new Reservation();
+        $reservation->user_id = auth()->id(); // The authenticated user
+        $reservation->car_id = $validated['car_id'];
+        $reservation->start_date = $validated['start_date'];
+        $reservation->end_date = $validated['end_date'];
+        $reservation->pickup_location = $validated['pickup_location'];
+        $reservation->total_price = $totalPrice;
+        $reservation->status = 'active'; // New reservations are active by default
+        $reservation->save();
+
+        // Redirect to the reservations page with success message
+        return redirect()->route('user.reservations')->with('success', 'Reservation confirmed!');
     }
-
-    // Validate the input
-    $validated = $request->validate([
-        'car_id' => 'required|exists:cars,id',
-        'start_date' => 'required|date|after_or_equal:today',
-        'end_date' => 'required|date|after:start_date',
-        'pickup_location' => 'nullable|string|max:255',
-        'total_price' => 'required|numeric|min:0',
-    ]);
-
-    // Create the reservation
-    $reservation = new Reservation();
-    $reservation->user_id = auth()->id(); // Assuming the user is logged in
-    $reservation->car_id = $request->car_id;
-    $reservation->start_date = $request->start_date;
-    $reservation->end_date = $request->end_date;
-    $reservation->pickup_location = $request->pickup_location;
-    $reservation->total_price = $request->total_price;
-    $reservation->status = 'active'; // Assuming new reservations are active
-    $reservation->save();
-
-    // Redirect with success message
-    return redirect()->route('user.reservations')->with('success', 'Reservation confirmed!');
-}
-
 
 
     /**
@@ -133,13 +142,13 @@ class UserController extends Controller
                 'service_id' => 'required|exists:services,id', // Ensure service exists
                 'start_date' => 'required|date|after_or_equal:today', // Ensure valid date
             ]);
-    
+
             // Retrieve the logged-in user
             $userId = Auth::id();
-    
+
             // Fetch the selected service
             $service = Service::find($request->service_id);
-    
+
             // Create a new booking (you may adjust this logic depending on your database schema)
             $booking = new Booking();
             $booking->user_id = $userId;
@@ -148,14 +157,14 @@ class UserController extends Controller
             $booking->price = $service->price; // Store the service price (you might calculate total if applicable)
             $booking->status = 'pending'; // Set the status to 'pending' or another relevant status
             $booking->save();
-    
+
             // Redirect back with a success message
             return redirect()->route('user.services')->with('success', 'Service booked successfully!');
         }
-    
+
         // Fetch all available services with pagination
         $services = Service::paginate(10);
-    
+
         // Return the services view with the paginated services data
         return view('user.services', compact('services'));
     }
@@ -272,21 +281,28 @@ class UserController extends Controller
         return redirect()->route('user.profile')->with('success', 'Password updated successfully!');
     }
 
-   // Show the authenticated user's payment history
-   public function payments()
-{
-    // Get the authenticated user
-    $user = Auth::user();
-    
-    // Retrieve all payments associated with the authenticated user
-    $payments = $user->paymentMethods()->latest()->get(); // Retrieve payments in descending order of creation
-    
-    // Return the payments view with the payments data
-    return view('user.payments', compact('payments'));
-}
+    // Show the authenticated user's payment history
+    public function payments()
+    {
+        // Get the authenticated user
+        $user = Auth::user();
 
-   
+        // Retrieve all payments associated with the authenticated user
+        $payments = $user->paymentMethods()->latest()->get(); // Retrieve payments in descending order of creation
 
+        // Return the payments view with the payments data
+        return view('user.payments', compact('payments'));
+    }
+    public function showCars(Request $request)
+    {
+        $type = $request->get('type');
+        $carsQuery = Car::query();
 
+        if ($type) {
+            $carsQuery->where('type', $type);
+        }
 
+        $cars = $carsQuery->paginate(6);
+        return view('user.cars', compact('cars'));
+    }
 }

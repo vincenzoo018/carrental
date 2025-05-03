@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use \App\Http\Middleware\AdminMiddleware;
 
 // ===========================
 // Authentication Routes
@@ -68,7 +69,7 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 // ===========================
 // Admin Routes (Authenticated)
 // ===========================
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
     // Admin Dashboard
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 

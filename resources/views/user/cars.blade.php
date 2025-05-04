@@ -46,7 +46,9 @@
 
                         @if($car->status === \App\Models\Car::STATUS_AVAILABLE)
                         <button
-                            class="btn btn-primary w-100 mt-auto rent-now-btn"
+                            console.log({ carId, carName, carPrice });
+
+                            class="btn btn-primary rent-now-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#rentModal"
                             data-car-id="{{ $car->car_id }}"
@@ -54,6 +56,7 @@
                             data-car-price="{{ $car->price }}">
                             Rent Now
                         </button>
+
                         @else
                         <button class="btn btn-secondary w-100 mt-auto" disabled>
                             Currently Unavailable
@@ -71,7 +74,6 @@
             @endforelse
         </div>
 
-        <!-- Pagination -->
         @if($cars->hasPages())
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center">
@@ -83,34 +85,77 @@
 </section>
 
 <!-- Rent Modal -->
-<!-- Rent Modal -->
 <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('user.reservations.create') }}">
+        <form method="POST" action="{{ route('user.reservations.create', $car) }}">">
             @csrf
-            <input type="hidden" name="car_id" id="modalCarId">
-            <input type="hidden" name="car_price" id="modalCarPriceInput">
+            <!-- Add these hidden fields -->
+            <input type="hidden" name="car_id" value="{{ $car->car_id }}">
+            <input type="hidden" name="car_price" value="{{ $car->price }}">
+
+
+
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="rentModalLabel">Rent Car</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+
                 <div class="modal-body">
-                    <p><strong>Car:</strong> <span id="modalCarName"></span></p>
-                    <p><strong>Price per day:</strong> $<span id="modalCarPrice"></span></p>
+                    <!-- Use label tags to display car details -->
+                    <div>
+                        <label for="car_id"><strong>Car:</strong></label>
+                        <label id="car_id">{{ $car->brand }} {{ $car->model }} ({{ $car->year }})</label>
+                    </div>
+
+                    <div>
+                        <label for="price"><strong>Price per day:</strong></label>
+                        <label id="price">${{ number_format($car->price, 2) }}</label>
+                    </div>
+
+                    <!-- Authenticated User Info -->
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" value="{{ Auth::user()->email }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" value="{{ Auth::user()->phone_number }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" rows="2" readonly>{{ Auth::user()->address }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Driver's License</label>
+                        <input type="text" class="form-control" value="{{ Auth::user()->license }}" readonly>
+                    </div>
+
+                    <!-- Rental Info -->
                     <div class="mb-3">
                         <label for="pickupDate" class="form-label">Pickup Date</label>
                         <input type="date" class="form-control" name="start_date" id="pickupDate" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="returnDate" class="form-label">Return Date</label>
                         <input type="date" class="form-control" name="end_date" id="returnDate" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="pickupLocation" class="form-label">Pickup Location</label>
                         <input type="text" class="form-control" name="pickup_location" required>
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Confirm Reservation</button>
                 </div>
@@ -123,18 +168,20 @@
 
 @section('scripts')
 <script>
+    // In your script inside user.cars view
     document.addEventListener('DOMContentLoaded', function() {
         $('.rent-now-btn').on('click', function() {
             const carId = $(this).data('car-id');
             const carName = $(this).data('car-name');
             const carPrice = $(this).data('car-price');
 
-            $('#modalCarId').val(carId);
-            $('#modalCarName').text(carName);
-            $('#modalCarPrice').text(carPrice);
-            $('#modalCarPriceInput').val(carPrice); // Setting the car price in the hidden field
+            $('#modalCarId').val(carId); // ✅ correctly pass carId
+            $('#modalCarName').text(carName); // carName is a display name
+            $('#modalCarPrice').text(carPrice); // shows price in modal
+            $('#modalCarPriceInput').val(carPrice); // ✅ correctly pass carPrice
         });
 
+        // Date logic (optional validation)
         $('#pickupDate').on('change', function() {
             const startDate = new Date(this.value);
             startDate.setDate(startDate.getDate() + 1);
@@ -146,5 +193,4 @@
         });
     });
 </script>
-
 @endsection

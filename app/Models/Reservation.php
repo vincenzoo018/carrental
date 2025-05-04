@@ -28,9 +28,8 @@ class Reservation extends Model
 
     public function car()
     {
-        return $this->belongsTo(Car::class, 'car_id');
+        return $this->belongsTo(Car::class, 'car_id', 'car_id');
     }
-
 
     public function payments()
     {

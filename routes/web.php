@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
-use \App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\User\ReservationController;
+use App\Http\Middleware\AdminMiddleware;
 
 // ===========================
 // Authentication Routes
@@ -15,6 +16,7 @@ Route::post('/login', [AuthenticationController::class, 'login']);
 Route::get('/register', [AuthenticationController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [AuthenticationController::class, 'register']);
 Route::post('/logout', [AuthenticationController::class, 'logout'])->name('logout');
+
 // Admin Dashboard
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
@@ -35,13 +37,11 @@ Route::get('/terms', fn() => view('terms'))->name('terms');
 // ===========================
 Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     // Dashboard/Home for the user
-    Route::get('/user/cars', [UserController::class, 'showCars'])->name('user.cars');
-
     Route::get('/home', [UserController::class, 'home'])->name('home');
 
     // Cars List (User-specific)
     Route::get('/cars', [UserController::class, 'cars'])->name('cars');
-    Route::post('/user/cars/rent', [UserController::class, 'rentCar'])->name('user.cars');
+    Route::post('/cars/rent', [UserController::class, 'rentCar'])->name('cars.rent');
 
     // Booking Listings
     Route::get('/bookings', [UserController::class, 'bookings'])->name('bookings');
@@ -49,21 +49,32 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     // Available Services
     Route::get('/services', [UserController::class, 'services'])->name('services');
 
-    // Reservations Listings
-    Route::get('/reservations', [UserController::class, 'reservations'])->name('reservations');
-
     // Profile page
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
 
     // User's Payment History
-    Route::get('/payments', [UserController::class, 'payments'])->name('payments');  // <-- Added the payments route
-
-
+    Route::get('/payments', [UserController::class, 'payments'])->name('payments');
 
     // Profile Updates
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('updateProfile');
     Route::put('/profile/photo', [UserController::class, 'changePhoto'])->name('changePhoto');
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('updatePassword');
+});
+
+// ===========================
+// Reservation Routes (Authenticated)
+// ===========================
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-reservations', [ReservationController::class, 'index'])->name('user.reservations');
+
+    // Added the missing {car} parameter
+    Route::get('/reservations/create/{car}', [ReservationController::class, 'create'])->name('user.reservations.create');
+
+    // Store route remains the same
+    Route::post('/reservations', [ReservationController::class, 'store'])->name('user.reservations.store');
+
+    // Cancel route remains the same
+    Route::post('/reservations/{id}/cancel', [ReservationController::class, 'cancel'])->name('user.reservations.cancel');
 });
 
 // ===========================
@@ -74,7 +85,7 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // View all customers
-    Route::get('/customers', [AdminController::class, 'customers'])->name('customers');  // <-- Corrected to call a method in AdminController
+    Route::get('/customers', [AdminController::class, 'customers'])->name('customers');
 
     // Bookings (Admin)
     Route::get('/bookings', [AdminController::class, 'bookings'])->name('bookings');
@@ -108,9 +119,4 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('/employees/store', [AdminController::class, 'storeEmployee'])->name('employees.store');
     Route::put('/employees/update/{employee_id}', [AdminController::class, 'updateEmployee'])->name('employees.update');
     Route::delete('/employees/delete/{employee_id}', [AdminController::class, 'deleteEmployee'])->name('employees.delete');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::post('/reservations/create', [UserController::class, 'createReservation'])->name('user.reservations.create');
-    Route::get('/my-reservations', [UserController::class, 'reservations'])->name('user.reservations.index');
 });

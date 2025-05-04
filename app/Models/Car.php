@@ -36,10 +36,12 @@ class Car extends Model
     const TYPE_SPORTS = 'sports';
 
     // Relationships
-    public function car()
+    // Car Model
+    public function reservation()
     {
-        return $this->belongsTo(Car::class, 'car_id', 'car_id');
+        return $this->belongsTo(Reservation::class, 'car_id', 'car_id');
     }
+
 
 
     // Accessor for full photo URL

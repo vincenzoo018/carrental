@@ -1,69 +1,48 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- My Reservations Section -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="section-title">My Car Rentals</h2>
+<div class="container">
+    <h1 class="mb-4">My Reservations</h1>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Car</th>
-                        <th>Pickup Date</th>
-                        <th>Return Date</th>
-                        <th>Pickup Location</th>
-                        <th>Total Price</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Active Reservations Section -->
-                    @foreach ($activeReservations as $reservation)
-                    <tr>
-                        <td>{{ $reservation->car->brand }} {{ $reservation->car->model }} {{ $reservation->car->year }}</td>
-                        <td>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</td>
-                        <td>{{ $reservation->pickup_location ?? 'N/A' }}</td>
-                        <td>${{ number_format($reservation->total_price, 2) }}</td>
-                        <td>
-                            <span class="badge bg-{{ $reservation->status == 'active' ? 'success' : 'info' }}">
-                                {{ ucfirst($reservation->status) }}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary me-2">Extend</button>
-                            <button class="btn btn-sm btn-outline-danger">Cancel</button>
-                        </td>
-                    </tr>
-                    @endforeach
-
-                    <!-- Completed Reservations Section (Rental History) -->
-                    @foreach ($completedReservations as $reservation)
-                    <tr>
-                        <td>{{ $reservation->car->brand }} {{ $reservation->car->model }} {{ $reservation->car->year }}</td>
-                        <td>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</td>
-                        <td>{{ $reservation->pickup_location ?? 'N/A' }}</td>
-                        <td>${{ number_format($reservation->total_price, 2) }}</td>
-                        <td>
-                            <span class="badge bg-secondary">
-                                Completed
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">Rent Again</button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
-    @if (session('success'))
+    @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
     @endif
-</section>
+    @if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    {{-- Active Reservations --}}
+    <h2>Active Reservations</h2>
+    @forelse ($activeReservations as $reservation)
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ $reservation->car->make }} {{ $reservation->car->model }}</h5>
+            <p>From: {{ $reservation->start_date->format('Y-m-d') }} to {{ $reservation->end_date->format('Y-m-d') }}</p>
+            <p>Pickup: {{ $reservation->pickup_location }}</p>
+            <p>Total: ${{ number_format($reservation->total_price, 2) }}</p>
+            <form method="POST" action="{{ route('user.reservations.cancel', $reservation->id) }}">
+                @csrf
+                <button class="btn btn-danger btn-sm">Cancel</button>
+            </form>
+        </div>
+    </div>
+    @empty
+    <p>No active reservations.</p>
+    @endforelse
+
+    {{-- Completed/Cancelled Reservations --}}
+    <h2 class="mt-5">Completed / Cancelled Reservations</h2>
+    @forelse ($completedReservations as $reservation)
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">{{ $reservation->car->make }} {{ $reservation->car->model }}</h5>
+            <p>From: {{ $reservation->start_date->format('Y-m-d') }} to {{ $reservation->end_date->format('Y-m-d') }}</p>
+            <p>Status: {{ ucfirst($reservation->status) }}</p>
+            <p>Total: ${{ number_format($reservation->total_price, 2) }}</p>
+        </div>
+    </div>
+    @empty
+    <p>No completed or cancelled reservations.</p>
+    @endforelse
+</div>
 @endsection

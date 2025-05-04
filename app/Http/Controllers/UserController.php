@@ -60,46 +60,7 @@ class UserController extends Controller
         // Return the cars view with the cars data
         return view('user.cars', compact('cars'));
     }
-    public function store(Request $request)
-    {
-        // Ensure the user is authenticated
-        if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'You must be logged in to make a reservation.');
-        }
 
-        // Validate the input
-        $validated = $request->validate([
-            'car_id' => 'required|exists:cars,id', // Ensure the car exists
-            'start_date' => 'required|date|after_or_equal:today', // Ensure valid date
-            'end_date' => 'required|date|after:start_date', // Ensure end date is after start date
-            'pickup_location' => 'nullable|string|max:255', // Optional pickup location
-        ]);
-
-        // Fetch the selected car's price
-        $car = Car::findOrFail($validated['car_id']);
-        $startDate = Carbon::parse($validated['start_date']);
-        $endDate = Carbon::parse($validated['end_date']);
-
-        // Calculate the rental duration in days
-        $days = $startDate->diffInDays($endDate);
-
-        // Calculate the total price for the reservation
-        $totalPrice = $car->price * $days;
-
-        // Create the reservation
-        $reservation = new Reservation();
-        $reservation->user_id = auth()->id(); // The authenticated user
-        $reservation->car_id = $validated['car_id'];
-        $reservation->start_date = $validated['start_date'];
-        $reservation->end_date = $validated['end_date'];
-        $reservation->pickup_location = $validated['pickup_location'];
-        $reservation->total_price = $totalPrice;
-        $reservation->status = 'active'; // New reservations are active by default
-        $reservation->save();
-
-        // Redirect to the reservations page with success message
-        return redirect()->route('user.reservations')->with('success', 'Reservation confirmed!');
-    }
 
 
     /**

@@ -65,16 +65,11 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 // Reservation Routes (Authenticated)
 // ===========================
 Route::middleware(['auth'])->group(function () {
-    Route::get('/my-reservations', [ReservationController::class, 'index'])->name('user.reservations');
+    Route::get('/reservations', [ReservationController::class, 'index'])->name('user.reservations');
 
-    // Added the missing {car} parameter
     Route::get('/reservations/create/{car}', [ReservationController::class, 'create'])->name('user.reservations.create');
 
-    // Store route remains the same
     Route::post('/reservations', [ReservationController::class, 'store'])->name('user.reservations.store');
-
-    // Cancel route remains the same
-    Route::post('/reservations/{id}/cancel', [ReservationController::class, 'cancel'])->name('user.reservations.cancel');
 });
 
 // ===========================

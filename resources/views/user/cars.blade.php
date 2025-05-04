@@ -87,7 +87,7 @@
 <!-- Rent Modal -->
 <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form method="POST" action="{{ route('user.reservations.create', $car) }}">">
+        <form method="POST" action="{{ route('user.reservations.store', $car) }}">">
             @csrf
             <!-- Add these hidden fields -->
             <input type="hidden" name="car_id" value="{{ $car->car_id }}">

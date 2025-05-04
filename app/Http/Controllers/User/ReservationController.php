@@ -11,9 +11,6 @@ use Carbon\Carbon;
 
 class ReservationController extends Controller
 {
-    /**
-     * Show the form for creating a new reservation
-     */
     public function create(Car $car)
     {
         if ($car->status !== 'available') {
@@ -27,9 +24,6 @@ class ReservationController extends Controller
         ]);
     }
 
-    /**
-     * Store a new reservation
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -63,26 +57,21 @@ class ReservationController extends Controller
 
         $car->update(['status' => 'rented']);
 
-        return redirect()->route('user.reservations.index')
-            ->with('success', "Reservation #{$reservation->id} created successfully!");
+        return redirect()->route('user.reservations')->with('success', "Reservation #{$reservation->id} created successfully!");
     }
 
-    /**
-     * Display all reservations
-     */
-    public function reservations()
+    public function index()
     {
         $user = Auth::user();
 
-        // Convert dates to Carbon instances using with()
         $activeReservations = Reservation::with('car')
             ->where('user_id', $user->id)
             ->where('status', 'active')
             ->orderBy('start_date')
             ->get()
             ->each(function ($reservation) {
-                $reservation->start_date = \Carbon\Carbon::parse($reservation->start_date);
-                $reservation->end_date = \Carbon\Carbon::parse($reservation->end_date);
+                $reservation->start_date = Carbon::parse($reservation->start_date);
+                $reservation->end_date = Carbon::parse($reservation->end_date);
             });
 
         $completedReservations = Reservation::with('car')
@@ -91,35 +80,13 @@ class ReservationController extends Controller
             ->orderByDesc('end_date')
             ->get()
             ->each(function ($reservation) {
-                $reservation->start_date = \Carbon\Carbon::parse($reservation->start_date);
-                $reservation->end_date = \Carbon\Carbon::parse($reservation->end_date);
+                $reservation->start_date = Carbon::parse($reservation->start_date);
+                $reservation->end_date = Carbon::parse($reservation->end_date);
             });
 
         return view('user.reservations', [
             'activeReservations' => $activeReservations,
             'completedReservations' => $completedReservations
         ]);
-    }
-
-
-    /**
-     * Cancel a reservation
-     */
-    public function cancel($id)
-    {
-        $reservation = Reservation::with('car')
-            ->where('user_id', Auth::id())
-            ->findOrFail($id);
-
-        if (!in_array($reservation->status, ['active', 'pending'])) {
-            return redirect()->back()
-                ->with('error', 'Only active or pending reservations can be cancelled.');
-        }
-
-        $reservation->car->update(['status' => 'available']);
-        $reservation->update(['status' => 'cancelled']);
-
-        return redirect()->route('user.reservations.index')
-            ->with('success', "Reservation #{$id} cancelled successfully.");
     }
 }

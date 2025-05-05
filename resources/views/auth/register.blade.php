@@ -179,21 +179,23 @@
 
 @section('scripts')
 <script>
-    // Password toggle functionality
-    document.querySelectorAll('.toggle-password').forEach(function(button) {
-        button.addEventListener('click', function() {
-            const input = this.parentElement.querySelector('input');
-            const icon = this.querySelector('i');
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function () {
+                // Get the associated input field inside the same group
+                const inputField = this.closest('.input-group').querySelector('input');
+
+                if (inputField) {
+                    inputField.type = inputField.type === 'password' ? 'text' : 'password';
+
+                    // Toggle the eye icon
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('fa-eye-slash');
+                    icon.classList.toggle('fa-eye');
+                }
+            });
         });
     });
-
     // Phone number formatting
     document.getElementById('phone').addEventListener('input', function(e) {
         const x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);

@@ -21,7 +21,6 @@ class Employee extends Model
         
     ];
 
-    // Define the relationship to the Role model (a user has one role)
     
 
     // Define the relationship to the Service model (a user can have many services)

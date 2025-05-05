@@ -24,9 +24,17 @@
                         </div>
                         <div class="mb-4">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                   id="password" name="password" required autocomplete="current-password"
-                                   placeholder="Enter your password">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-lock text-primary"></i>
+                                </span>
+                                <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                       id="password" name="password" required autocomplete="current-password"
+                                       placeholder="Enter your password">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
                             @error('password')
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $message }}</strong>
@@ -57,4 +65,25 @@
         </div>
     </div>
 </div>
+@section('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function () {
+                // Find the corresponding password field in the same input group
+                const inputField = this.closest('.input-group').querySelector('input');
+
+                if (inputField) {
+                    inputField.type = inputField.type === 'password' ? 'text' : 'password';
+
+                    // Toggle the eye icon
+                    const icon = this.querySelector('i');
+                    icon.classList.toggle('fa-eye-slash');
+                    icon.classList.toggle('fa-eye');
+                }
+            });
+        });
+    });
+</script>
+@endsection
 @endsection

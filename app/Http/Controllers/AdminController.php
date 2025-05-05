@@ -196,12 +196,12 @@ class AdminController extends Controller
     /**
      * Show all employees in the system.
      */
-    public function employees()
+     public function employees()
     {
-        $employees = Employee::with('role')->orderBy('employee_id', 'desc')->paginate(10);
-        $roles = Role::all();
-        return view('admin.employees', compact('employees', 'roles'));
+        $employees = Employee::orderBy('employee_id', 'desc')->paginate(10);
+        return view('admin.employees', compact('employees'));
     }
+
 
     /**
      * Store a new employee.

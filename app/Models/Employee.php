@@ -18,14 +18,11 @@ class Employee extends Model
     protected $fillable = [
         'name',
         'position',
-        'role_id',
+        
     ];
 
     // Define the relationship to the Role model (a user has one role)
-    public function role()
-    {
-        return $this->belongsTo(Role::class, 'role_id');
-    }
+    
 
     // Define the relationship to the Service model (a user can have many services)
     public function services()

@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id('employee_id');
             $table->string('name');
             $table->string('position');
-            $table->unsignedBigInteger('role_id');
-            $table->foreign('role_id')->references('role_id')->on('roles');
+            
             $table->timestamps();
         });
     }

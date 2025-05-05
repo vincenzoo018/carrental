@@ -211,13 +211,15 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'role_id' => 'required|exists:roles,role_id',
+            
         ]);
 
+
+     
         Employee::create([
             'name' => $request->name,
             'position' => $request->position,
-            'role_id' => $request->role_id,
+            
         ]);
 
         return redirect()->route('admin.employees')->with('success', 'Employee added successfully!');
@@ -231,14 +233,14 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            'role_id' => 'required|exists:roles,role_id',
+            
         ]);
 
         $employee = Employee::findOrFail($employee_id);
         $employee->update([
             'name' => $request->name,
             'position' => $request->position,
-            'role_id' => $request->role_id,
+            
         ]);
 
         return redirect()->route('admin.employees')->with('success', 'Employee updated successfully!');

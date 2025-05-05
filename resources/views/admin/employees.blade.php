@@ -28,7 +28,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Position</th>
-                            <th>Role</th>
+                            
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -38,7 +38,7 @@
                             <td>{{ $employee->employee_id }}</td>
                             <td>{{ $employee->name }}</td>
                             <td>{{ $employee->position }}</td>
-                            <td>{{ $employee->role->name }}</td>
+                            
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editEmployeeModal{{ $employee->employee_id }}">
                                     <i class="fas fa-edit"></i>
@@ -73,16 +73,8 @@
                                                 <label>Position</label>
                                                 <input type="text" name="position" value="{{ $employee->position }}" class="form-control" required>
                                             </div>
-                                            <div class="mb-3">
-                                                <label>Role</label>
-                                                <select name="role_id" class="form-select" required>
-                                                    @foreach($roles as $role)
-                                                    <option value="{{ $role->role_id }}" {{ $employee->role_id == $role->role_id ? 'selected' : '' }}>
-                                                        {{ $role->name }}
-                                                    </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                            
+                                            
                                         </div>
                                         <div class="modal-footer">
                                             <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -125,14 +117,7 @@
                         <label>Position</label>
                         <input type="text" name="position" class="form-control" required>
                     </div>
-                    <div class="mb-3">
-                        <label>Role</label>
-                        <select name="role_id" class="form-select" required>
-                            @foreach($roles as $role)
-                            <option value="{{ $role->role_id }}">{{ $role->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Add Employee</button>

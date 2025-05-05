@@ -65,7 +65,7 @@ class ReservationController extends Controller
 
         $car->update(['status' => Car::STATUS_RENTED]);
 
-        return redirect()->route('user.reservations.index')
+        return redirect()->route('user.reservations')
             ->with('success', 'Your reservation request has been successfully submitted.');
     }
 

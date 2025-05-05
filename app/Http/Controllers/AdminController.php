@@ -211,15 +211,15 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            
+
         ]);
 
 
-     
+
         Employee::create([
             'name' => $request->name,
             'position' => $request->position,
-            
+
         ]);
 
         return redirect()->route('admin.employees')->with('success', 'Employee added successfully!');
@@ -233,14 +233,14 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
-            
+
         ]);
 
         $employee = Employee::findOrFail($employee_id);
         $employee->update([
             'name' => $request->name,
             'position' => $request->position,
-            
+
         ]);
 
         return redirect()->route('admin.employees')->with('success', 'Employee updated successfully!');
@@ -282,87 +282,87 @@ class AdminController extends Controller
 
         // Filter by payment status if specified
         if ($request->has('status') && $request->status !== 'All Status') {
-            $query->where('payment_status', $request->status);
+            $query->where('payment_status', operator: $request->status);
         }
 
-                    // Filter by payment date if specified
-                    if ($request->has('date')) {
-                        $date = Carbon::parse($request->date)->startOfDay();
-                        $query->whereDate('payment_date', $date);
-                    }
-        
-                    // Get the paginated payments
-                    $payments = $query->paginate(10);
-        
-                    return view('admin.payments', compact('payments'));
-                }
-        
-            // ** End of Payments Methods **
-        
-            // ** Start of Reservations Methods **
-        
-            /**
-             * Show all reservations in the system.
-             */
-            public function reservations()
-            {
-                $reservations = Reservation::with(['user', 'car'])->orderBy('reservation_id', 'desc')->paginate(10);
-                return view('admin.reservations', compact('reservations'));
-            }
-        
-            /**
-             * Store a new reservation.
-             */
-            public function storeReservation(Request $request)
-            {
-                $request->validate([
-                    'user_id' => 'required|exists:users,id',
-                    'car_id' => 'required|exists:cars,car_id',
-                    'reservation_date' => 'required|date',
-                    'status' => 'required|in:pending,confirmed,canceled',
-                ]);
-        
-                Reservation::create([
-                    'user_id' => $request->user_id,
-                    'car_id' => $request->car_id,
-                    'reservation_date' => $request->reservation_date,
-                    'status' => $request->status,
-                ]);
-        
-                return redirect()->route('admin.reservations')->with('success', 'Reservation added successfully!');
-            }
-        
-            /**
-             * Update the given reservation.
-             */
-            public function updateReservation(Request $request, $reservationId)
-            {
-                $request->validate([
-                    'status' => 'required|in:pending,confirmed,canceled',
-                ]);
-        
-                $reservation = Reservation::findOrFail($reservationId);
-                $reservation->update([
-                    'status' => $request->status,
-                ]);
-        
-                return redirect()->route('admin.reservations')->with('success', 'Reservation updated successfully!');
-            }
-        
-            /**
-             * Delete a reservation.
-             */
-            public function deleteReservation($reservationId)
-            {
-                $reservation = Reservation::findOrFail($reservationId);
-                $reservation->delete();
-        
-                return redirect()->route('admin.reservations')->with('success', 'Reservation deleted successfully!');
-            }
-        
-            // ** End of Reservations Methods **
+        // Filter by payment date if specified
+        if ($request->has('date')) {
+            $date = Carbon::parse($request->date)->startOfDay();
+            $query->whereDate('payment_date', $date);
+        }
 
-             /**
+        // Get the paginated payments
+        $payments = $query->paginate(10);
+
+        return view('admin.payments', compact('payments'));
+    }
+
+    // ** End of Payments Methods **
+
+    // ** Start of Reservations Methods **
+
+    /**
+     * Show all reservations in the system.
+     */
+    public function reservations()
+    {
+        $reservations = Reservation::with(['user', 'car'])->orderBy('reservation_id', 'desc')->paginate(10);
+        return view('admin.reservations', compact('reservations'));
+    }
+
+    /**
+     * Store a new reservation.
+     */
+    public function storeReservation(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'car_id' => 'required|exists:cars,car_id',
+            'reservation_date' => 'required|date',
+            'status' => 'required|in:pending,confirmed,canceled',
+        ]);
+
+        Reservation::create([
+            'user_id' => $request->user_id,
+            'car_id' => $request->car_id,
+            'reservation_date' => $request->reservation_date,
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('admin.reservations')->with('success', 'Reservation added successfully!');
+    }
+
+    /**
+     * Update the given reservation.
+     */
+    public function updateReservation(Request $request, $reservationId)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,confirmed,canceled',
+        ]);
+
+        $reservation = Reservation::findOrFail($reservationId);
+        $reservation->update([
+            'status' => $request->status,
+        ]);
+
+        return redirect()->route('admin.reservations')->with('success', 'Reservation updated successfully!');
+    }
+
+    /**
+     * Delete a reservation.
+     */
+    public function deleteReservation($reservationId)
+    {
+        $reservation = Reservation::findOrFail($reservationId);
+        $reservation->delete();
+
+        return redirect()->route('admin.reservations')->with('success', 'Reservation deleted successfully!');
+    }
+
+    // ** End of Reservations Methods **
+
+    /**
      /**
      * Display a list of all customers.
      *
@@ -376,5 +376,4 @@ class AdminController extends Controller
         // Return the 'admin.customers' view with the customers data
         return view('admin.customers', compact('customers'));
     }
-   }
-        
+}

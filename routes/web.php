@@ -5,7 +5,10 @@ use App\Http\Controllers\Auth\AuthenticationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\User\ReservationController;
+use App\Http\Controllers\Admin\ConfirmationController;
+
 use App\Http\Middleware\AdminMiddleware;
+
 
 // ===========================
 // Authentication Routes
@@ -85,9 +88,6 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     // Bookings (Admin)
     Route::get('/bookings', [AdminController::class, 'bookings'])->name('bookings');
 
-    // Reservations (Admin)
-    Route::get('/reservations', [AdminController::class, 'reservations'])->name('reservations');
-
     // Payments (Admin)
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
 
@@ -114,4 +114,15 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
     Route::post('/employees/store', [AdminController::class, 'storeEmployee'])->name('employees.store');
     Route::put('/employees/update/{employee_id}', [AdminController::class, 'updateEmployee'])->name('employees.update');
     Route::delete('/employees/delete/{employee_id}', [AdminController::class, 'deleteEmployee'])->name('employees.delete');
+});
+
+
+Route::prefix('admin')->group(function () {
+    Route::get('/reservations', [ConfirmationController::class, 'reservations'])->name('admin.reservations');
+
+    Route::post('/reservations/store', [ConfirmationController::class, 'storeReservation'])->name('admin.reservations.store');
+
+    Route::put('/reservations/update/{reservationId}', [ConfirmationController::class, 'updateReservation'])->name('admin.reservations.update');
+
+    Route::delete('/reservations/delete/{reservationId}', [ConfirmationController::class, 'deleteReservation'])->name('admin.reservations.delete');
 });

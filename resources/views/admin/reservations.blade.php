@@ -80,14 +80,14 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="viewReservationModal{{ $reservation->reservation_id }}Label">Rental Details</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <h5 class="modal-title">Rental Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body">
                                         <div class="row mb-4">
                                             <div class="col-md-6">
                                                 <h6>Reservation Information</h6>
-                                                <p><strong>Reservation ID:</strong> RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }}</p>
+                                                <p><strong>ID:</strong> RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }}</p>
                                                 <p><strong>Booking Date:</strong> {{ date('M d, Y', strtotime($reservation->created_at)) }}</p>
                                                 <p><strong>Status:</strong>
                                                     <span class="badge bg-{{ $reservation->status == 'Upcoming' ? 'info' : ($reservation->status == 'Active' ? 'success' : ($reservation->status == 'Completed' ? 'secondary' : 'danger')) }}">
@@ -96,7 +96,7 @@
                                                 </p>
                                             </div>
                                             <div class="col-md-6">
-                                                <h6>Customer Information</h6>
+                                                <h6>Customer Info</h6>
                                                 <p><strong>Name:</strong> {{ $reservation->user->name }}</p>
                                                 <p><strong>Email:</strong> {{ $reservation->user->email }}</p>
                                                 <p><strong>Phone:</strong> {{ $reservation->user->phone }}</p>
@@ -105,41 +105,41 @@
                                         </div>
                                         <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <h6>Car Details</h6>
+                                                <h6>Car Info</h6>
                                                 <div class="d-flex">
-                                                    <img src="{{ Storage::url($reservation->car->photo) }}" width="80" class="me-3" alt="Car">
+                                                    <img src="{{ Storage::url($reservation->car->photo) }}" width="80" class="me-3">
                                                     <div>
-                                                        <p><strong>Car:</strong> {{ $reservation->car->brand }} {{ $reservation->car->model }}</p>
+                                                        <p><strong>Model:</strong> {{ $reservation->car->brand }} {{ $reservation->car->model }}</p>
                                                         <p><strong>Plate:</strong> {{ $reservation->car->plate_number }}</p>
                                                         <p><strong>Year:</strong> {{ $reservation->car->year }}</p>
-                                                        <p><strong>Price/Day:</strong> ${{ $reservation->car->price }}</p>
+                                                        <p><strong>Daily Rate:</strong> ${{ $reservation->car->price }}</p>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Rental Details</h6>
-                                                <p><strong>Pickup Date:</strong> {{ date('M d, Y', strtotime($reservation->start_date)) }}</p>
-                                                <p><strong>Return Date:</strong> {{ date('M d, Y', strtotime($reservation->end_date)) }}</p>
-                                                <p><strong>Pickup Location:</strong> {{ $reservation->car->location }}</p>
+                                                <p><strong>Pickup:</strong> {{ date('M d, Y', strtotime($reservation->start_date)) }}</p>
+                                                <p><strong>Return:</strong> {{ date('M d, Y', strtotime($reservation->end_date)) }}</p>
+                                                <p><strong>Location:</strong> {{ $reservation->car->location }}</p>
                                                 <p><strong>Duration:</strong> {{ \Carbon\Carbon::parse($reservation->start_date)->diffInDays($reservation->end_date) }} days</p>
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <h6>Payment Information</h6>
-                                                <p><strong>Subtotal:</strong> ${{ $reservation->total_price }}</p>
-                                                <p><strong>Payment Status:</strong> {{ $reservation->payments->count() > 0 ? 'Paid' : 'Pending' }}</p>
+                                                <h6>Payment</h6>
+                                                <p><strong>Total:</strong> ${{ $reservation->total_price }}</p>
+                                                <p><strong>Status:</strong> {{ $reservation->payments->count() > 0 ? 'Paid' : 'Pending' }}</p>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
                                         @if($reservation->status == 'Upcoming')
-                                        <button type="button" class="btn btn-success me-2">Check Out</button>
-                                        <button type="button" class="btn btn-danger me-2">Cancel</button>
+                                        <button class="btn btn-success">Check Out</button>
+                                        <button class="btn btn-danger">Cancel</button>
                                         @elseif($reservation->status == 'Active')
-                                        <button type="button" class="btn btn-primary me-2">Check In</button>
+                                        <button class="btn btn-primary">Check In</button>
                                         @endif
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
@@ -147,6 +147,7 @@
                         @endforeach
                     </tbody>
                 </table>
+
                 <!-- Pagination -->
                 <div class="d-flex justify-content-center">
                     {{ $reservations->links() }}
@@ -177,7 +178,7 @@
                                     data-name="{{ $reservation->user->name }}"
                                     data-car="{{ $reservation->car->brand }} {{ $reservation->car->model }}"
                                     data-total="{{ $reservation->total_price }}">
-                                    RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->user->name }} ({{ $reservation->car->brand }} {{ $reservation->car->model }})
+                                    RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->user->name }}
                                 </option>
                                 @endforeach
                             </select>
@@ -189,19 +190,19 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="damageTypes" class="form-label">Type of Damage (Type and Add More if Needed)</label>
-                        <input type="text" class="form-control" id="damageTypes" placeholder="Type of Damage (e.g., Scratch, Dent)">
-                        <small class="text-muted">Separate damages with commas if multiple</small>
+                        <label for="damageTypes" class="form-label">Type of Damage</label>
+                        <input type="text" class="form-control" id="damageTypes" placeholder="e.g. Scratch, Dent">
+                        <small class="text-muted">Separate multiple damages with commas.</small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="damageDescription" class="form-label">Damage Description</label>
-                        <textarea class="form-control" id="damageDescription" rows="3" placeholder="Detailed description of the damage..."></textarea>
+                        <label for="damageDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="damageDescription" rows="3"></textarea>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label for="severity" class="form-label">Severity Level</label>
+                            <label for="severity" class="form-label">Severity</label>
                             <select class="form-select" id="severity">
                                 <option value="minor">Minor</option>
                                 <option value="moderate">Moderate</option>
@@ -209,30 +210,27 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label for="repairCost" class="form-label">Estimated Repair Cost</label>
+                            <label for="repairCost" class="form-label">Estimated Repair</label>
                             <div class="input-group">
-                                <span class="input-group-text">₱
-                                </span>
-                                <input type="number" class="form-control" id="repairCost" min="0" step="0.01">
+                                <span class="input-group-text">₱</span>
+                                <input type="number" class="form-control" id="repairCost" min="0">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <label for="violationFee" class="form-label">Violation Fee</label>
                             <div class="input-group">
-                                <span class="input-group-text">₱
-                                </span>
-                                <input type="number" class="form-control" id="violationFee" min="0" step="0.01">
+                                <span class="input-group-text">₱</span>
+                                <input type="number" class="form-control" id="violationFee" min="0">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="damagePhotos" class="form-label">Damage Photos</label>
-                        <input class="form-control" type="file" id="damagePhotos" multiple accept="image/*">
-                        <small class="text-muted">Upload clear photos of the damage (max 5 photos)</small>
+                        <label for="damagePhotos" class="form-label">Photos</label>
+                        <input type="file" class="form-control" id="damagePhotos" multiple>
                     </div>
 
-                    <div class="mb-3 form-check">
+                    <div class="form-check mb-3">
                         <input type="checkbox" class="form-check-input" id="insuranceClaim">
                         <label class="form-check-label" for="insuranceClaim">File insurance claim</label>
                     </div>
@@ -244,26 +242,27 @@
                         <p><strong>Customer:</strong> <span id="receiptCustomerName"></span></p>
                         <p><strong>Car:</strong> <span id="receiptCar"></span></p>
                         <p><strong>Damage Types:</strong> <span id="receiptDamageTypes"></span></p>
-                        <p><strong>Damage Description:</strong> <span id="receiptDescription"></span></p>
+                        <p><strong>Description:</strong> <span id="receiptDescription"></span></p>
                         <p><strong>Severity:</strong> <span id="receiptSeverity"></span></p>
                         <p><strong>Repair Cost:</strong> ₱<span id="receiptRepairCost"></span></p>
-                        <p><strong>Violation Fee:</strong>₱<span id="receiptViolationFee"></span></p>
+                        <p><strong>Violation Fee:</strong> ₱<span id="receiptViolationFee"></span></p>
                         <p><strong>Total Due:</strong> ₱<span id="receiptTotalDue"></span></p>
                     </div>
                 </form>
 
-                <button type="button" class="btn btn-warning" id="generateReceiptBtn">Generate Receipt</button>
-                <button type="button" class="btn btn-primary" id="printReceipt">Print Receipt</button>
+                <button class="btn btn-warning" id="generateReceiptBtn">Generate Receipt</button>
+                <button class="btn btn-primary" id="printReceipt">Print Receipt</button>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-warning">Submit Damage Report</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-warning">Submit Damage Report</button>
             </div>
         </div>
     </div>
 </div>
 @endsection
 
+@push('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -273,23 +272,23 @@
         const printReceipt = document.getElementById('printReceipt');
 
         function updateReceipt() {
-            const selectedReservation = reservationSelect.selectedOptions[0];
-            if (selectedReservation) {
-                document.getElementById('receiptReservationId').textContent = selectedReservation.textContent.split(" ")[0];
-                document.getElementById('receiptCustomerName').textContent = selectedReservation.dataset.name;
-                document.getElementById('receiptCar').textContent = selectedReservation.dataset.car;
+            const selected = reservationSelect.selectedOptions[0];
+            if (selected) {
+                document.getElementById('receiptReservationId').textContent = selected.textContent.split(" ")[0];
+                document.getElementById('receiptCustomerName').textContent = selected.dataset.name;
+                document.getElementById('receiptCar').textContent = selected.dataset.car;
                 document.getElementById('receiptDamageTypes').textContent = document.getElementById('damageTypes').value;
                 document.getElementById('receiptDescription').textContent = document.getElementById('damageDescription').value;
                 document.getElementById('receiptSeverity').textContent = document.getElementById('severity').value;
                 document.getElementById('receiptRepairCost').textContent = document.getElementById('repairCost').value || "0";
                 document.getElementById('receiptViolationFee').textContent = document.getElementById('violationFee').value || "0";
-                const totalDue = (parseFloat(document.getElementById('repairCost').value) || 0) + (parseFloat(document.getElementById('violationFee').value) || 0);
+                const totalDue = (parseFloat(document.getElementById('repairCost').value) || 0) +
+                    (parseFloat(document.getElementById('violationFee').value) || 0);
                 document.getElementById('receiptTotalDue').textContent = totalDue.toFixed(2);
                 receiptPreview.style.display = "block";
             }
         }
 
-        // Event listeners to update the receipt
         reservationSelect.addEventListener('change', updateReceipt);
         document.getElementById('damageTypes').addEventListener('input', updateReceipt);
         document.getElementById('damageDescription').addEventListener('input', updateReceipt);
@@ -297,18 +296,13 @@
         document.getElementById('repairCost').addEventListener('input', updateReceipt);
         document.getElementById('violationFee').addEventListener('input', updateReceipt);
 
-        // Print/PDF button functionality
+        generateReceiptBtn.addEventListener('click', updateReceipt);
+
         printReceipt.addEventListener('click', function() {
-            const receiptContent = receiptPreview;
-            receiptContent.printThis({
+            $('#receiptPreview').printThis({
                 header: "<h4>Damage Assessment Receipt</h4>"
             });
         });
-
-        // Generate Receipt button
-        generateReceiptBtn.addEventListener('click', updateReceipt);
-
-        // Initial update
-        updateReceipt();
     });
 </script>
+@endpush

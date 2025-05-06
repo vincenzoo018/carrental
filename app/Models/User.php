@@ -88,4 +88,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class); // Payment relationship
     }
+    public function routeNotificationForMail()
+{
+    return $this->email;
+}
 }

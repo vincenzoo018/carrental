@@ -33,7 +33,7 @@ class ConfirmationController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'total_price' => 'required|numeric',
-            'status' => 'required|in:pending,confirmed,canceled',
+            'status' => 'required|in:pending,confirmed,cancelled',
         ]);
 
         // Ensure the start_date is before end_date
@@ -59,7 +59,7 @@ class ConfirmationController extends Controller
     public function updateReservation(Request $request, $reservationId)
     {
         $request->validate([
-            'status' => 'required|in:pending,confirmed,canceled',
+            'status' => 'required|in:pending,confirmed,cancelled',
         ]);
 
         $reservation = Reservation::findOrFail($reservationId);
@@ -85,10 +85,10 @@ class ConfirmationController extends Controller
         }
 
         // Change reservation status to 'canceled'
-        $reservation->status = 'canceled';
+        $reservation->status = 'cancelled';
         $reservation->save();
 
-        return redirect()->route('admin.reservations')->with('success', 'Cancellation request has been approved and reservation is now canceled.');
+        return redirect()->route('admin.reservations')->with('success', 'Cancellation request has been approved and reservation is now cancelled.');
     }
 
     /**

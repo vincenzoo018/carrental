@@ -23,7 +23,7 @@ class ReservationController extends Controller
             return redirect()->back()->with('error', 'This car is not available for rent.');
         }
 
-        return view('user.reservations.create', [
+        return view('user.reservations', [
             'car' => $car,
             'min_date' => now()->format('Y-m-d'),
             'max_date' => now()->addMonths(3)->format('Y-m-d'),
@@ -76,60 +76,61 @@ class ReservationController extends Controller
      * Show the list of reservations for the authenticated user.
      */
     public function index()
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        $activeReservations = Reservation::with('car')
-            ->where('user_id', $user->id)
-            ->where('status', '!=', 'completed')
-            ->where('status', '!=', 'cancelled')
-            ->orderBy('start_date')
-            ->get()
-            ->each(function ($reservation) {
-                $reservation->start_date = Carbon::parse($reservation->start_date);
-                $reservation->end_date = Carbon::parse($reservation->end_date);
-            });
+    // Fetch the reservations again to make sure they're up-to-date
+    $activeReservations = Reservation::with('car')
+        ->where('user_id', $user->id)
+        ->where('status', '!=', 'completed')
+        ->where('status', '!=', 'cancelled')
+        ->orderBy('start_date')
+        ->get()
+        ->each(function ($reservation) {
+            $reservation->start_date = Carbon::parse($reservation->start_date);
+            $reservation->end_date = Carbon::parse($reservation->end_date);
+        });
 
-        $completedReservations = Reservation::with('car')
-            ->where('user_id', $user->id)
-            ->whereIn('status', ['completed', 'cancelled'])
-            ->orderByDesc('end_date')
-            ->get()
-            ->each(function ($reservation) {
-                $reservation->start_date = Carbon::parse($reservation->start_date);
-                $reservation->end_date = Carbon::parse($reservation->end_date);
-            });
+    $completedReservations = Reservation::with('car')
+        ->where('user_id', $user->id)
+        ->whereIn('status', ['completed', 'cancelled'])
+        ->orderByDesc('end_date')
+        ->get()
+        ->each(function ($reservation) {
+            $reservation->start_date = Carbon::parse($reservation->start_date);
+            $reservation->end_date = Carbon::parse($reservation->end_date);
+        });
 
-        return view('user.reservations', [
-            'activeReservations' => $activeReservations,
-            'completedReservations' => $completedReservations,
-        ]);
-    }
+    return view('user.reservations', [
+        'activeReservations' => $activeReservations,
+        'completedReservations' => $completedReservations,
+    ]);
+}
+
 
     /**
      * User cancels a reservation by requesting cancellation.
      */
     public function cancel(Request $request, $reservationId)
-    {
-        // Get the reservation by ID
-        $reservation = Reservation::findOrFail($reservationId);
+{
+    $reservation = Reservation::findOrFail($reservationId);
 
-        // Check if the authenticated user is the one who made the reservation
-        if ($reservation->user_id !== Auth::id()) {
-            return redirect()->route('user.reservations')->with('error', 'You are not authorized to cancel this reservation.');
-        }
-
-        // Update reservation status to 'cancellation_requested'
-        $reservation->status = 'cancellation_requested';
-        $reservation->save();
-
-        // Send a notification to the admin about the cancellation request
-        $admin = User::where('role', 'admin')->first();
-        if ($admin) {
-            $admin->notify(new ReservationCancellationRequested($reservation));
-        }
-
-        // Redirect back with success message
-        return redirect()->route('user.reservations')->with('success', 'Your cancellation request has been submitted and is pending approval.');
+    // Authorization check
+    if ($reservation->user_id !== Auth::id()) {
+        return redirect()->route('user.reservations')->with('error', 'Unauthorized action.');
     }
+
+    // Update status
+    $reservation->update(['status' => 'cancellation_requested']);
+
+    // Get admin users by role_id (1 = admin)
+    $admins = User::where('role_id', 1)->get(); // Use role_id instead of role
+
+    // Notify all admins
+    foreach ($admins as $admin) {
+        $admin->notify(new ReservationCancellationRequested($reservation));
+    }
+
+    return redirect()->route('user.reservations')->with('success', 'Cancellation requested.');
+}
 }

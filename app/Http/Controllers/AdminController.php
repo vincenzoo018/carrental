@@ -72,39 +72,39 @@ class AdminController extends Controller
      * Update the given car.
      */
     public function updateCar(Request $request, $carId)
-    {
-        $request->validate([
-            'brand' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'year' => 'required|integer|digits:4',
-            'plate_number' => 'required|string|max:255|unique:cars,plate_number,' . $carId,
-            'price' => 'required|numeric',
-            'status' => 'required|in:available,rented,maintenance',
-            'mileage' => 'required|numeric',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
-        ]);
+{
+    $validated = $request->validate([
+        'brand' => 'required|string|max:255',
+        'model' => 'required|string|max:255',
+        'year' => 'required|integer|digits:4',
+        // Add ID column specification for unique rule
+        'plate_number' => 'required|string|max:255|unique:cars,plate_number,'.$carId.',car_id',
+        'price' => 'required|numeric',
+        'status' => 'required|in:available,rented,maintenance',
+        // Match validation with form input type (integer)
+        'mileage' => 'required|integer',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
+    ]);
 
-        $car = Car::findOrFail($carId);
+    $car = Car::findOrFail($carId);
 
-        if ($request->hasFile('photo')) {
-            if ($car->photo && Storage::disk('public')->exists($car->photo)) {
-                Storage::disk('public')->delete($car->photo);
-            }
-            $car->photo = $request->file('photo')->store('car_photos', 'public');
+    // Handle photo upload
+    if ($request->hasFile('photo')) {
+        // Delete old photo if exists
+        if ($car->photo_url && Storage::disk('public')->exists($car->photo_url)) {
+            Storage::disk('public')->delete($car->photo_url);
         }
 
-        $car->update([
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'year' => $request->year,
-            'plate_number' => $request->plate_number,
-            'price' => $request->price,
-            'status' => $request->status,
-            'mileage' => $request->mileage,
-        ]);
-
-        return redirect()->route('admin.cars')->with('success', 'Car updated successfully!');
+        // Store new photo and get full URL path
+        $path = $request->file('photo')->store('cars', 'public');
+        $validated['photo_url'] = Storage::url($path);
     }
+
+    // Update all validated fields including potential photo_url
+    $car->update($validated);
+
+    return redirect()->route('admin.cars')->with('success', 'Car updated successfully!');
+}
 
     /**
      * Delete a car.

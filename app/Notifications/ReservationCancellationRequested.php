@@ -26,7 +26,7 @@ class ReservationCancellationRequested extends Notification
         return [
             'reservation_id' => $this->reservation->reservation_id,
             'user_name' => $this->reservation->user->name,
-            'status' => 'canceled',
+            'status' => 'cancelled',
             'message' => 'A reservation has been canceled by the user.',
         ];
     }

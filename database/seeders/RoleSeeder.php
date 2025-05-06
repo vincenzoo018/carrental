@@ -12,18 +12,13 @@ class RoleSeeder extends Seeder
         Role::create([
             'role_id' => '1',
             'position' => 'admin',
-            'created_at' => null,
-            'updated_at' => null,
+
         ]);
 
         Role::create([
             'role_id' => '2',
             'position' => 'customer',
-            'created_at' => null,
-            'updated_at' => null,
-        ]);
-        
 
-        
+        ]);
     }
 }

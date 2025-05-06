@@ -27,6 +27,7 @@
                         <th>Pickup Location</th>
                         <th>Total Price</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,6 +38,15 @@
                         <td>{{ $reservation->pickup_location }}</td>
                         <td>${{ number_format($reservation->total_price, 2) }}</td>
                         <td><strong class="text-dark">{{ ucfirst($reservation->status) }}</strong></td>
+                        <td>
+                            <!-- Cancel Button Form -->
+                            <form action="{{ route('user.reservations.cancel', $reservation->reservation_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                                @csrf
+                                @method('PATCH') <!-- Important for sending the PATCH request -->
+                                <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                            </form>
+
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>

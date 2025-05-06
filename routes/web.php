@@ -68,11 +68,17 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 // Reservation Routes (Authenticated)
 // ===========================
 Route::middleware(['auth'])->group(function () {
+    // Route to display the user's reservations
     Route::get('/reservations', [ReservationController::class, 'index'])->name('user.reservations');
 
+    // Route to show the form for creating a new reservation
     Route::get('/reservations/create/{car}', [ReservationController::class, 'create'])->name('user.reservations.create');
 
+    // Route to store a new reservation
     Route::post('/reservations', [ReservationController::class, 'store'])->name('user.reservations.store');
+
+    // Route to cancel a reservation using PATCH
+    Route::patch('/user/reservations/{reservation_id}/cancel', [ReservationController::class, 'cancel'])->name('user.reservations.cancel');
 });
 
 // ===========================
@@ -117,12 +123,17 @@ Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function ()
 });
 
 
-Route::prefix('admin')->group(function () {
-    Route::get('/reservations', [ConfirmationController::class, 'reservations'])->name('admin.reservations');
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
-    Route::post('/reservations/store', [ConfirmationController::class, 'storeReservation'])->name('admin.reservations.store');
+    // Show all reservations
+    Route::get('/reservations', [ConfirmationController::class, 'reservations'])->name('reservations');
 
-    Route::put('/reservations/update/{reservationId}', [ConfirmationController::class, 'updateReservation'])->name('admin.reservations.update');
+    // Store a new reservation (POST method)
+    Route::post('/reservations/{reservationId}/cancel', [ConfirmationController::class, 'cancelReservation'])
+        ->name('admin.reservation.cancel');
+    // Update a reservation (PUT/PATCH method)
+    Route::put('/reservations/{reservationId}', [ConfirmationController::class, 'updateReservation'])->name('reservations.update');
 
-    Route::delete('/reservations/delete/{reservationId}', [ConfirmationController::class, 'deleteReservation'])->name('admin.reservations.delete');
+    // Delete a reservation (DELETE method)
+    Route::delete('/reservations/{reservationId}', [ConfirmationController::class, 'deleteReservation'])->name('reservations.delete');
 });

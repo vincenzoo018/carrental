@@ -4,8 +4,11 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Reservation;
+use App\Models\User;
+use App\Notifications\ReservationCancellationRequested; // Add the import statement
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 use App\Models\Car;
 use Carbon\Carbon;
 
@@ -101,5 +104,32 @@ class ReservationController extends Controller
             'activeReservations' => $activeReservations,
             'completedReservations' => $completedReservations,
         ]);
+    }
+
+    /**
+     * User cancels a reservation by requesting cancellation.
+     */
+    public function cancel(Request $request, $reservationId)
+    {
+        // Get the reservation by ID
+        $reservation = Reservation::findOrFail($reservationId);
+
+        // Check if the authenticated user is the one who made the reservation
+        if ($reservation->user_id !== Auth::id()) {
+            return redirect()->route('user.reservations')->with('error', 'You are not authorized to cancel this reservation.');
+        }
+
+        // Update reservation status to 'cancellation_requested'
+        $reservation->status = 'cancellation_requested';
+        $reservation->save();
+
+        // Send a notification to the admin about the cancellation request
+        $admin = User::where('role', 'admin')->first();
+        if ($admin) {
+            $admin->notify(new ReservationCancellationRequested($reservation));
+        }
+
+        // Redirect back with success message
+        return redirect()->route('user.reservations')->with('success', 'Your cancellation request has been submitted and is pending approval.');
     }
 }

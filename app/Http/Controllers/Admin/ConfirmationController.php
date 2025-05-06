@@ -32,6 +32,7 @@ class ConfirmationController extends Controller
             'user_id' => 'required|exists:users,id',
             'car_id' => 'required|exists:cars,car_id',
             'reservation_date' => 'required|date',
+            'pickup_location' => 'required|string',
             'status' => 'required|in:pending,confirmed,canceled',
         ]);
 
@@ -40,6 +41,7 @@ class ConfirmationController extends Controller
             'user_id' => $request->user_id,
             'car_id' => $request->car_id,
             'reservation_date' => $request->reservation_date,
+            'pickup_location' => $request->pickup_location,
             'status' => $request->status,
         ]);
 

@@ -52,7 +52,7 @@
                                 {{ date('M d', strtotime($reservation->start_date)) }} -
                                 {{ date('M d', strtotime($reservation->end_date)) }}
                             </td>
-                            <td>{{ $reservation->car->location }}</td>
+                            <td>{{ $reservation->pickup_location }}</td>
                             <td>${{ $reservation->total_price }}</td>
                             <td>
                                 @if($reservation->status == 'Upcoming')
@@ -62,7 +62,7 @@
                                 @elseif($reservation->status == 'Completed')
                                 <span class="badge bg-secondary">Completed</span>
                                 @else
-                                <span class="badge bg-danger">Cancelled</span>
+                                <span class="badge bg-warning">Pending</span>
                                 @endif
                             </td>
                             <td>

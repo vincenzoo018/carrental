@@ -114,14 +114,5 @@ class ConfirmationController extends Controller
     }
 
 
-    /**
-     * Show the pending cancellation notifications.
-     */
-    public function showNotifications()
-    {
-        // Fetch notifications (example: pending cancellations)
-        $notifications = Reservation::where('status', 'cancellation_requested')->get();
-
-        return view('admin.reservation', compact('notifications'));
-    }
+    
 }

@@ -127,9 +127,7 @@ class ReservationController extends Controller
     $admins = User::where('role_id', 1)->get(); // Use role_id instead of role
 
     // Notify all admins
-    foreach ($admins as $admin) {
-        $admin->notify(new ReservationCancellationRequested($reservation));
-    }
+    
 
     return redirect()->route('user.reservations')->with('success', 'Cancellation requested.');
 }

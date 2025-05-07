@@ -265,7 +265,7 @@ class AdminController extends Controller
     public function bookings()
     {
         // Paginate bookings with related user and car info
-        $bookings = Booking::with(['user', 'car'])->orderBy('booking_id', 'desc')->paginate(10);
+        $bookings = Booking::with(['user', 'service'])->orderBy('booking_id', 'desc')->paginate(10);
         return view('admin.bookings', compact('bookings'));
     }
 

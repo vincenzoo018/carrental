@@ -43,7 +43,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div>r
 
             <!-- Service Modal for each service -->
             <div class="modal fade" id="serviceModal{{ $service->id }}" tabindex="-1" aria-labelledby="serviceModal{{ $service->id }}Label" aria-hidden="true">
@@ -53,14 +53,15 @@
                             <h5 class="modal-title" id="serviceModal{{ $service->id }}Label">Book {{ $service->name }}</h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        <!-- filepath: c:\Users\akog4\carrental\resources\views\user\services.blade.php -->
                         <div class="modal-body">
-                            <form action="{{ route('user.services') }}" method="POST">
+                            <form action="{{ route('user.services.book') }}" method="POST">
                                 @csrf
-                                <input type="hidden" name="service_id" value="{{ $service->id }}">
-                                
+                                <input type="hidden" name="service_id" value="{{ $service->service_id }}"> <!-- Updated to match primary key -->
+
                                 <div class="mb-3">
-                                    <label for="pickupDate{{ $service->id }}" class="form-label">Booking Date</label>
-                                    <input type="date" class="form-control" id="pickupDate{{ $service->id }}" name="start_date" required min="{{ date('Y-m-d') }}">
+                                    <label for="pickupDate{{ $service->service_id }}" class="form-label">Booking Date</label>
+                                    <input type="date" class="form-control" id="pickupDate{{ $service->service_id }}" name="start_date" required min="{{ date('Y-m-d') }}">
                                 </div>
 
                                 <div class="alert alert-info">

@@ -48,9 +48,15 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 
     // Booking Listings
     Route::get('/bookings', [UserController::class, 'bookings'])->name('bookings');
+    Route::patch('/user/bookings/{booking}/cancel', [UserController::class, 'cancelBooking'])->name('user.bookings.cancel');
+
+
 
     // Available Services
     Route::get('/services', [UserController::class, 'services'])->name('services');
+    Route::post('/services', [UserController::class, 'services'])->name('services');
+    Route::post('/services/book', [UserController::class, 'storeBooking'])->name('services.book');
+
 
     // Profile page
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
@@ -137,3 +143,9 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     // Delete a reservation (DELETE method)
     Route::delete('/reservations/{reservationId}', [ConfirmationController::class, 'deleteReservation'])->name('reservations.delete');
 });
+
+
+use App\Http\Controllers\Admin\DamageController;
+
+// Damage assessment store route
+Route::post('/damage-assessment/store', [DamageController::class, 'store'])->name('damage.store');

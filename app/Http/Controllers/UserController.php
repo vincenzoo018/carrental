@@ -71,9 +71,7 @@ class UserController extends Controller
     public function bookings()
     {
         // Fetch all bookings for the logged-in user
-        $bookings = Booking::where('user_id', Auth::id())
-            ->orderBy('date', 'desc') // Sort bookings by date (latest first)
-            ->get();
+        $bookings = Booking::where('user_id', Auth::id())->get();
 
         // Separate active and completed bookings based on their status
         $activeBookings = $bookings->filter(function ($booking) {
@@ -87,48 +85,61 @@ class UserController extends Controller
         // Return the view with active and completed bookings
         return view('user.bookings', compact('activeBookings', 'completedBookings'));
     }
+    public function cancelBooking(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+    
+        $booking->update(['status' => 'cancelled']);
+    
+        return redirect()->route('bookings')->with('success', 'Booking cancelled successfully.');
 
+    }
+    
+    
     /**
      * Display a listing of available services for booking.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
-    public function services(Request $request)
-    {
-        // Handle the booking submission
-        if ($request->isMethod('post')) {
-            // Validate the form input
-            $validated = $request->validate([
-                'service_id' => 'required|exists:services,id', // Ensure service exists
-                'start_date' => 'required|date|after_or_equal:today', // Ensure valid date
-            ]);
 
-            // Retrieve the logged-in user
-            $userId = Auth::id();
+public function services(Request $request)
+{
+    $query = Service::query();
 
-            // Fetch the selected service
-            $service = Service::find($request->service_id);
-
-            // Create a new booking (you may adjust this logic depending on your database schema)
-            $booking = new Booking();
-            $booking->user_id = $userId;
-            $booking->service_id = $request->service_id;
-            $booking->start_date = $request->start_date;
-            $booking->price = $service->price; // Store the service price (you might calculate total if applicable)
-            $booking->status = 'pending'; // Set the status to 'pending' or another relevant status
-            $booking->save();
-
-            // Redirect back with a success message
-            return redirect()->route('user.services')->with('success', 'Service booked successfully!');
-        }
-
-        // Fetch all available services with pagination
-        $services = Service::paginate(10);
-
-        // Return the services view with the paginated services data
-        return view('user.services', compact('services'));
+    // Optional: Validate type to only allow known service types
+    $validTypes = ['Insurance', 'GPS', 'Child Seat', 'Roadside Assistance'];
+    if ($request->has('type') && in_array($request->type, $validTypes)) {
+        $query->where('type', $request->type);
     }
+
+    $services = $query->paginate(10);
+
+    return view('user.services', compact('services'));
+}
+
+public function storeBooking(Request $request)
+{
+    $request->validate([
+        'service_id' => 'required|exists:services,service_id', // Updated validation
+        'start_date' => 'required|date|after_or_equal:today',
+    ]);
+
+    $service = Service::findOrFail($request->service_id);
+
+    Booking::create([
+        'user_id' => Auth::id(),
+        'service_id' => $request->service_id,
+        'date' => $request->start_date, // Assuming 'date' is the start date
+        'total_price' => $service->price, // Assuming price is for one day
+        'status' => 'pending',
+    ]);
+
+    return redirect()->route('user.services')->with('success', 'Service booked successfully!');
+}
+
 
     /**
      * Display the user's profile.

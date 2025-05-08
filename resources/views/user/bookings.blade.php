@@ -43,7 +43,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <form action="{{ route('user.bookings.cancel', $booking->booking_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        <form action="#" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>

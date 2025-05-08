@@ -92,7 +92,7 @@ class UserController extends Controller
 
     // Separate active and completed bookings based on their status
     $activeBookings = $bookings->filter(function ($booking) {
-        return $booking->status == 'active' || $booking->status == 'upcoming';
+        return $booking->status == 'active' || $booking->status == 'pending';
     });
 
     $completedBookings = $bookings->filter(function ($booking) {

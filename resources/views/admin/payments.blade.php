@@ -34,7 +34,7 @@
                             <th>Transaction ID</th>
                             <th>Date</th>
                             <th>Customer</th>
-                            <th>Description</th>
+                            <th>Car</th>
                             <th>Amount</th>
                             <th>Method</th>
                             <th>Status</th>
@@ -42,14 +42,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($payments as $payment)
+                        @forelse($payments as $payment)
                         <tr>
                             <td>TRX-{{ str_pad($payment->payment_id, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td>{{ $payment->payment_date->format('M d, Y') }}</td>
-                            <td>{{ $payment->reservation->customer->name ?? 'N/A' }}</td>
-                            <td>{{ $payment->description ?? 'No description' }}</td>
+                            <td>{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : 'N/A' }}</td>
+                            <td>{{ $payment->reservation->user->name ?? 'N/A' }}</td>
+                            <td>{{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}</td>
                             <td>${{ number_format($payment->amount, 2) }}</td>
-                            <td>{{ $payment->payment_method }}</td>
+                            <td>{{ $payment->payment_method ?? 'N/A' }}</td>
                             <td>
                                 <span class="badge bg-{{ $payment->payment_status == 'Paid' ? 'success' : ($payment->payment_status == 'Pending' ? 'warning' : ($payment->payment_status == 'Failed' ? 'danger' : 'info')) }}">
                                     {{ $payment->payment_status }}
@@ -59,16 +59,6 @@
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewPaymentModal{{ $payment->payment_id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                @if($payment->payment_status == 'Pending')
-                                <button class="btn btn-sm btn-outline-success me-2">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                @endif
-                                @if($payment->payment_status == 'Failed')
-                                <button class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                                @endif
                             </td>
                         </tr>
 
@@ -87,15 +77,15 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Date & Time</label>
-                                            <p>{{ $payment->payment_date->format('M d, Y H:i') }}</p>
+                                            <p>{{ $payment->payment_date ? $payment->payment_date->format('M d, Y H:i') : 'N/A' }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Customer</label>
-                                            <p>{{ $payment->reservation->customer->name ?? 'N/A' }} ({{ $payment->reservation->customer->email ?? 'N/A' }})</p>
+                                            <p>{{ $payment->reservation->user->name ?? 'N/A' }} ({{ $payment->reservation->user->email ?? 'N/A' }})</p>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Description</label>
-                                            <p>{{ $payment->description ?? 'No description' }}</p>
+                                            <label class="form-label">Car</label>
+                                            <p>{{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Amount</label>
@@ -103,7 +93,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Payment Method</label>
-                                            <p>{{ $payment->payment_method }}</p>
+                                            <p>{{ $payment->payment_method ?? 'N/A' }}</p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Status</label>
@@ -113,18 +103,16 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        @if($payment->payment_status == 'Pending')
-                                        <button type="button" class="btn btn-success me-2">Mark as Paid</button>
-                                        @endif
-                                        @if($payment->payment_status == 'Failed')
-                                        <button type="button" class="btn btn-danger me-2">Refund</button>
-                                        @endif
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center">No payments found.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

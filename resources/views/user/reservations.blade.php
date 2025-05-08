@@ -34,10 +34,20 @@
                     @foreach($activeReservations as $reservation)
                     <tr class="text-center">
                         <td>{{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</td>
-                        <td>{{ $reservation->start_date->format('Y-m-d') }} to {{ $reservation->end_date->format('Y-m-d') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }} to {{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</td>
                         <td>{{ $reservation->pickup_location }}</td>
                         <td>${{ number_format($reservation->total_price, 2) }}</td>
-                        <td><strong class="text-dark">{{ ucfirst($reservation->status) }}</strong></td>
+                        <td>
+                            <strong class="text-dark">
+                                {{ ucfirst($reservation->status) }}
+                                @if(strtolower($reservation->status) === 'confirmed')
+                                <a href="{{ route('user.reservations.payment', $reservation->reservation_id) }}" class="btn btn-sm btn-primary mt-2">
+                                    Pay Now
+                                </a>
+                                @endif
+                            </strong>
+                        </td>
+
                         <td>
                             <!-- Cancel Button Form -->
                             <form action="{{ route('user.reservations.cancel', $reservation->reservation_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
@@ -45,8 +55,8 @@
                                 @method('PATCH') <!-- Important for sending the PATCH request -->
                                 <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
                             </form>
-
                         </td>
+
                     </tr>
                     @endforeach
                 </tbody>
@@ -76,10 +86,14 @@
                     @foreach($completedReservations as $reservation)
                     <tr class="text-center">
                         <td>{{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</td>
-                        <td>{{ $reservation->start_date->format('Y-m-d') }} to {{ $reservation->end_date->format('Y-m-d') }}</td>
+                        <td>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }} to {{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</td>
                         <td>{{ $reservation->pickup_location }}</td>
                         <td>${{ number_format($reservation->total_price, 2) }}</td>
-                        <td><strong class="text-dark">{{ ucfirst($reservation->status) }}</strong></td>
+                        <td>
+                            <span class="badge bg-{{ $reservation->status == 'completed' ? 'success' : ($reservation->status == 'cancelled' ? 'danger' : 'info') }}">
+                                {{ ucfirst($reservation->status) }}
+                            </span>
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>

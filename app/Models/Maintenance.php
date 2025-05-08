@@ -11,7 +11,7 @@ class Maintenance extends Model
 
     protected $primaryKey = 'maintenance_id';
     protected $fillable = [
-        'reservation_id',
+        'reservation_id' => 2 ,
         'damage',
         'warranty_contract',
         'date_of_return',

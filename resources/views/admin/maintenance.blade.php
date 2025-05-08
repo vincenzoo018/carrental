@@ -20,275 +20,172 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Car</th>
-                            <th>Type</th>
-                            <th>Scheduled Date</th>
-                            <th>Completed Date</th>
-                            <th>Status</th>
-                            <th>Cost</th>
+                            <th>Reservation</th>
+                            <th>Damage</th>
+                            <th>Warranty Contract</th>
+                            <th>Date of Return</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @for($i = 1; $i <= 10; $i++)
+                        @forelse($maintenances as $maintenance)
                         <tr>
-                            <td>MNT-{{ str_pad($i, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td>Toyota Camry (ABC-{{ $i }}234)</td>
+                            <td>MNT-{{ str_pad($maintenance->maintenance_id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <td>{{ $maintenance->reservation->car->brand ?? 'N/A' }} ({{ $maintenance->reservation->car->plate_number ?? 'N/A' }})</td>
+                            <td>{{ $maintenance->damage ?? 'N/A' }}</td>
+                            <td>{{ $maintenance->warranty_contract ?? 'N/A' }}</td>
+                            <td>{{ $maintenance->date_of_return }}</td>
                             <td>
-                                @if($i % 3 == 0)
-                                Oil Change
-                                @elseif($i % 2 == 0)
-                                Tire Rotation
-                                @else
-                                Brake Inspection
-                                @endif
-                            </td>
-                            <td>{{ date('M d, Y', strtotime("+".$i." days")) }}</td>
-                            <td>
-                                @if($i % 3 != 0)
-                                {{ date('M d, Y', strtotime("+".($i+1)." days")) }}
-                                @else
-                                -
-                                @endif
-                            </td>
-                            <td>
-                                @if($i % 3 == 0)
-                                <span class="badge bg-warning">Scheduled</span>
-                                @elseif($i % 2 == 0)
-                                <span class="badge bg-success">Completed</span>
-                                @else
-                                <span class="badge bg-info">In Progress</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($i % 3 == 0)
-                                -
-                                @elseif($i % 2 == 0)
-                                $120
-                                @else
-                                $85
-                                @endif
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewMaintenanceModal{{ $i }}">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary me-2" data-bs-toggle="modal" data-bs-target="#editMaintenanceModal{{ $i }}">
+                                <button class="btn btn-sm btn-outline-primary edit-maintenance-btn"
+                                    data-id="{{ $maintenance->maintenance_id }}"
+                                    data-reservation-id="{{ $maintenance->reservation_id }}"
+                                    data-damage="{{ $maintenance->damage }}"
+                                    data-warranty="{{ $maintenance->warranty_contract }}"
+                                    data-date="{{ $maintenance->date_of_return }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                @if($i % 3 == 0)
-                                <button class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                @endif
+                                <form action="{{ route('admin.maintenances.destroy', $maintenance->maintenance_id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
-
-                        <!-- View Maintenance Modal -->
-                        <div class="modal fade" id="viewMaintenanceModal{{ $i }}" tabindex="-1" aria-labelledby="viewMaintenanceModal{{ $i }}Label" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="viewMaintenanceModal{{ $i }}Label">Maintenance Details</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Maintenance ID</label>
-                                            <p>MNT-{{ str_pad($i, 4, '0', STR_PAD_LEFT) }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Car</label>
-                                            <p>Toyota Camry (ABC-{{ $i }}234)</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Type</label>
-                                            <p>
-                                                @if($i % 3 == 0)
-                                                Oil Change
-                                                @elseif($i % 2 == 0)
-                                                Tire Rotation
-                                                @else
-                                                Brake Inspection
-                                                @endif
-                                            </p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Scheduled Date</label>
-                                            <p>{{ date('M d, Y', strtotime("+".$i." days")) }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Status</label>
-                                            <p>
-                                                @if($i % 3 == 0)
-                                                <span class="badge bg-warning">Scheduled</span>
-                                                @elseif($i % 2 == 0)
-                                                <span class="badge bg-success">Completed</span>
-                                                @else
-                                                <span class="badge bg-info">In Progress</span>
-                                                @endif
-                                            </p>
-                                        </div>
-                                        @if($i % 3 != 0)
-                                        <div class="mb-3">
-                                            <label class="form-label">Completed Date</label>
-                                            <p>{{ date('M d, Y', strtotime("+".($i+1)." days")) }}</p>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Cost</label>
-                                            <p>
-                                                @if($i % 2 == 0)
-                                                $120
-                                                @else
-                                                $85
-                                                @endif
-                                            </p>
-                                        </div>
-                                        @endif
-                                        <div class="mb-3">
-                                            <label class="form-label">Notes</label>
-                                            <p>
-                                                @if($i % 3 == 0)
-                                                Regular scheduled maintenance
-                                                @elseif($i % 2 == 0)
-                                                All tires rotated and balanced
-                                                @else
-                                                Brake pads replaced
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Edit Maintenance Modal -->
-                        <div class="modal fade" id="editMaintenanceModal{{ $i }}" tabindex="-1" aria-labelledby="editMaintenanceModal{{ $i }}Label" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editMaintenanceModal{{ $i }}Label">Edit Maintenance</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form>
-                                            <div class="mb-3">
-                                                <label for="carSelect{{ $i }}" class="form-label">Car</label>
-                                                <select class="form-select" id="carSelect{{ $i }}">
-                                                    <option selected>Toyota Camry (ABC-{{ $i }}234)</option>
-                                                    <option>Honda Accord (DEF-5678)</option>
-                                                    <option>Ford Mustang (GHI-9012)</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="maintenanceType{{ $i }}" class="form-label">Type</label>
-                                                <select class="form-select" id="maintenanceType{{ $i }}">
-                                                    <option {{ $i % 3 == 0 ? 'selected' : '' }}>Oil Change</option>
-                                                    <option {{ $i % 2 == 0 ? 'selected' : '' }}>Tire Rotation</option>
-                                                    <option {{ $i % 3 != 0 && $i % 2 != 0 ? 'selected' : '' }}>Brake Inspection</option>
-                                                    <option>Battery Check</option>
-                                                    <option>Fluid Top-up</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="scheduledDate{{ $i }}" class="form-label">Scheduled Date</label>
-                                                <input type="date" class="form-control" id="scheduledDate{{ $i }}" value="{{ date('Y-m-d', strtotime('+'.$i.' days')) }}">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="statusSelect{{ $i }}" class="form-label">Status</label>
-                                                <select class="form-select" id="statusSelect{{ $i }}">
-                                                    <option {{ $i % 3 == 0 ? 'selected' : '' }}>Scheduled</option>
-                                                    <option {{ $i % 2 == 0 ? 'selected' : '' }}>Completed</option>
-                                                    <option {{ $i % 3 != 0 && $i % 2 != 0 ? 'selected' : '' }}>In Progress</option>
-                                                </select>
-                                            </div>
-                                            @if($i % 3 != 0)
-                                            <div class="mb-3">
-                                                <label for="completedDate{{ $i }}" class="form-label">Completed Date</label>
-                                                <input type="date" class="form-control" id="completedDate{{ $i }}" value="{{ date('Y-m-d', strtotime('+'.($i+1).' days')) }}">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label for="cost{{ $i }}" class="form-label">Cost ($)</label>
-                                                <input type="number" class="form-control" id="cost{{ $i }}" value="{{ $i % 2 == 0 ? 120 : 85 }}">
-                                            </div>
-                                            @endif
-                                            <div class="mb-3">
-                                                <label for="notes{{ $i }}" class="form-label">Notes</label>
-                                                <textarea class="form-control" id="notes{{ $i }}" rows="3">
-                                                    @if($i % 3 == 0)
-                                                    Regular scheduled maintenance
-                                                    @elseif($i % 2 == 0)
-                                                    All tires rotated and balanced
-                                                    @else
-                                                    Brake pads replaced
-                                                    @endif
-                                                </textarea>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <button type="button" class="btn btn-primary">Save Changes</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endfor
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center">No maintenance records found.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Add Maintenance Modal -->
-    <div class="modal fade" id="addMaintenanceModal" tabindex="-1" aria-labelledby="addMaintenanceModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addMaintenanceModalLabel">Schedule New Maintenance</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="carSelect" class="form-label">Car</label>
-                            <select class="form-select" id="carSelect">
-                                <option selected>Select Car</option>
-                                <option>Toyota Camry (ABC-1234)</option>
-                                <option>Honda Accord (DEF-5678)</option>
-                                <option>Ford Mustang (GHI-9012)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="maintenanceType" class="form-label">Type</label>
-                            <select class="form-select" id="maintenanceType">
-                                <option selected>Select Type</option>
-                                <option>Oil Change</option>
-                                <option>Tire Rotation</option>
-                                <option>Brake Inspection</option>
-                                <option>Battery Check</option>
-                                <option>Fluid Top-up</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="scheduledDate" class="form-label">Scheduled Date</label>
-                            <input type="date" class="form-control" id="scheduledDate">
-                        </div>
-                        <div class="mb-3">
-                            <label for="notes" class="form-label">Notes</label>
-                            <textarea class="form-control" id="notes" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Schedule Maintenance</button>
-                </div>
+<!-- Add Maintenance Modal -->
+<div class="modal fade" id="addMaintenanceModal" tabindex="-1" aria-labelledby="addMaintenanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addMaintenanceModalLabel">Schedule New Maintenance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.maintenances.store') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="reservation_id" class="form-label">Reservation</label>
+                        <select class="form-select" name="reservation_id" required>
+                            <option value="">Select Reservation</option>
+                            @foreach($reservations as $reservation)
+                            <option value="{{ $reservation->reservation_id }}">
+                                RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->car->brand ?? 'N/A' }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="damage" class="form-label">Damage</label>
+                        <textarea class="form-control" name="damage" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="warranty_contract" class="form-label">Warranty Contract</label>
+                        <textarea class="form-control" name="warranty_contract" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date_of_return" class="form-label">Date of Return</label>
+                        <input type="date" class="form-control" name="date_of_return" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Schedule Maintenance</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Maintenance Modal -->
+<div class="modal fade" id="editMaintenanceModal" tabindex="-1" aria-labelledby="editMaintenanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMaintenanceModalLabel">Edit Maintenance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editMaintenanceForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="mb-3">
+                        <label for="edit_reservation_id" class="form-label">Reservation</label>
+                        <select class="form-select" name="reservation_id" id="edit_reservation_id" required>
+                            @foreach($reservations as $reservation)
+                            <option value="{{ $reservation->reservation_id }}">
+                                RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->car->brand ?? 'N/A' }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_damage" class="form-label">Damage</label>
+                        <textarea class="form-control" name="damage" id="edit_damage" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_warranty_contract" class="form-label">Warranty Contract</label>
+                        <textarea class="form-control" name="warranty_contract" id="edit_warranty_contract" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_date_of_return" class="form-label">Date of Return</label>
+                        <input type="date" class="form-control" name="date_of_return" id="edit_date_of_return" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const editButtons = document.querySelectorAll('.edit-maintenance-btn');
+        const editForm = document.getElementById('editMaintenanceForm');
+        const editReservationId = document.getElementById('edit_reservation_id');
+        const editDamage = document.getElementById('edit_damage');
+        const editWarrantyContract = document.getElementById('edit_warranty_contract');
+        const editDateOfReturn = document.getElementById('edit_date_of_return');
+
+        editButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const maintenanceId = this.getAttribute('data-id');
+                const reservationId = this.getAttribute('data-reservation-id');
+                const damage = this.getAttribute('data-damage');
+                const warranty = this.getAttribute('data-warranty');
+                const date = this.getAttribute('data-date');
+
+                // Set form action
+                editForm.action = `/admin/maintenances/${maintenanceId}`;
+
+                // Populate form fields
+                editReservationId.value = reservationId;
+                editDamage.value = damage;
+                editWarrantyContract.value = warranty;
+                editDateOfReturn.value = date;
+
+                // Show the modal
+                const editModal = new bootstrap.Modal(document.getElementById('editMaintenanceModal'));
+                editModal.show();
+            });
+        });
+    });
+</script>
+@endpush

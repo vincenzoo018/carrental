@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\AuthenticationController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\User\ReservationController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\Admin\ConfirmationController;
 
 use App\Http\Middleware\AdminMiddleware;
@@ -50,7 +51,7 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::get('/bookings', [UserController::class, 'bookings'])->name('bookings');
     Route::get('/user/bookings', [UserController::class, 'bookings'])->name('user.bookings');
 
-    Route::patch('/user/bookings/{booking}/cancel', [UserController::class, 'cancelBooking'])->name('user.bookings.cancel');
+    Route::patch('/user/bookings/{booking}/cancel', [UserController::class, 'cancelBooking'])->name('bookings.cancel');
 
 
 
@@ -147,3 +148,31 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 });
 
 
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+
+    // Payments Index
+    Route::get('/payments', [PaymentController::class, 'index'])->name('payments');
+
+    // Payment Charge
+    Route::post('/payments/charge/{paymentId}', [PaymentController::class, 'charge'])->name('payments.charge');
+    Route::get('/payments/charge/{paymentId}', [PaymentController::class, 'charge'])->name('payments.charge');
+
+    // Payment Success
+    Route::get('/payments/success/{paymentId}', [PaymentController::class, 'success'])->name('payments.success');
+
+    // Redirect to Payment for Reservation
+    Route::get('/reservations/payment/{reservationId}', [PaymentController::class, 'redirectToPayment'])->name('reservations.payment');
+});
+use App\Http\Controllers\Admin\DamageController;
+
+Route::post('/admin/damages', [DamageController::class, 'store'])->name('admin.damages.store');
+
+use App\Http\Controllers\Admin\MaintenanceController;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::resource('maintenances', MaintenanceController::class);
+});
+
+
+
+Route::get('admin/payments', [AdminController::class, 'payments'])->name('admin.payments');

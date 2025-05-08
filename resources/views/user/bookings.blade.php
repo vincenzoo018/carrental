@@ -38,15 +38,15 @@
                                     <td>{{ \Carbon\Carbon::parse($booking->date)->format('Y-m-d') }}</td>
                                     <td>${{ number_format($booking->total_price, 2) }}</td>
                                     <td>
-                                        <span class="badge bg-{{ $booking->status == 'active' ? 'success' : 'info' }}">
+                                        <span class="badge bg-{{ $booking->status == 'active' ? 'success' : 'warning' }}">
                                             {{ ucfirst($booking->status) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <form action="#" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                        <form action="{{ route('user.bookings.cancel', $booking->booking_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
                                             @csrf
-                                            @method('PATCH')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">Cancel</button>
+                                            @method('PATCH') <!-- Important for sending the PATCH request -->
+                                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
                                         </form>
                                     </td>
                                 </tr>

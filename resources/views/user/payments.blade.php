@@ -1,139 +1,124 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Payment History Section -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="section-title">Payment History</h2>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>Transaction ID</th>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($payments as $payment)
-                    <tr>
-                        <td>TRX-{{ str_pad($payment->payment_id, 4, '0', STR_PAD_LEFT) }}</td>
-                        <td>{{ $payment->payment_date->format('Y-m-d') }}</td>
-                        <td>{{ $payment->reservation->description ?? 'No description' }}</td>
-                        <td>${{ number_format($payment->amount, 2) }}</td>
-                        <td>
-                            <span class="badge bg-{{ $payment->payment_status == 'Paid' ? 'success' : 'danger' }}">
-                                {{ $payment->payment_status }}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary">Invoice</button>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="text-center">No payment history available.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+<div class="container py-5">
+    <h2 class="mb-4 text-primary fw-bold">Your Payments</h2>
 
-        <!-- Payment Methods Section -->
-        <div class="mt-5">
-            <h2 class="section-title">Payment Methods</h2>
-            <div class="row">
-                @forelse(Auth::user()->paymentMethods as $method)
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h5 class="card-title">{{ $method->type }} ending in {{ $method->last4 }}</h5>
-                                    <p class="card-text">Expires {{ $method->expiry_date->format('m/Y') }}</p>
-                                </div>
-                                <div>
-                                    <button class="btn btn-sm btn-outline-danger">Remove</button>
-                                </div>
-                            </div>
-                        </div>
+    <!-- Success or Error Messages -->
+    @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <!-- Loop through confirmed reservations -->
+    @forelse($confirmedReservations as $reservation)
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Reservation #{{ $reservation->reservation_id }}</h5>
+            <!-- Reservation Details -->
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Car:</strong>
+                    <span>{{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Rental Period:</strong>
+                    <span>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }} to {{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Pickup Location:</strong>
+                    <span>{{ $reservation->pickup_location }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Total Amount:</strong>
+                    <span>${{ number_format($reservation->total_price, 2) }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between text-success fw-semibold">
+                    <strong>Amount to Pay (50%):</strong>
+                    <span>${{ number_format($reservation->total_price / 2, 2) }}</span>
+                </li>
+            </ul>
+
+            <!-- Stripe Payment Form -->
+            <form action="{{ route('user.payments.charge', $reservation->reservation_id) }}" method="POST" id="payment-form-{{ $reservation->reservation_id }}">
+                @csrf
+                <!-- Stripe Card Element -->
+                <div class="mb-3">
+                    <label for="card-element-{{ $reservation->reservation_id }}" class="form-label">Card details</label>
+                    <div id="card-element-{{ $reservation->reservation_id }}">
+                        <!-- A Stripe Element will be inserted here. -->
                     </div>
+                    <!-- Used to display form errors. -->
+                    <div id="card-errors-{{ $reservation->reservation_id }}" role="alert" class="text-danger mt-2"></div>
                 </div>
-                @empty
-                <div class="col-12">
-                    <p class="text-center">No payment methods added yet.</p>
-                </div>
-                @endforelse
-            </div>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                <i class="fas fa-plus me-2"></i>Add Payment Method
-            </button>
+                <button type="submit" class="btn btn-primary w-100" id="submit-button-{{ $reservation->reservation_id }}">Pay Now</button>
+            </form>
         </div>
     </div>
-</section>
-
-<!-- Add Payment Method Modal -->
-<div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addPaymentModalLabel">Add Payment Method</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label">Payment Method</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked>
-                            <label class="form-check-label" for="creditCard">
-                                Credit/Debit Card
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="paymentMethod" id="paypal">
-                            <label class="form-check-label" for="paypal">
-                                PayPal
-                            </label>
-                        </div>
-                    </div>
-                    <div id="creditCardForm">
-                        <div class="mb-3">
-                            <label for="cardNumber" class="form-label">Card Number</label>
-                            <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
-                        </div>
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="expiryDate" class="form-label">Expiry Date</label>
-                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="cvv" class="form-label">CVV</label>
-                                <input type="text" class="form-control" id="cvv" placeholder="123">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cardName" class="form-label">Name on Card</label>
-                            <input type="text" class="form-control" id="cardName" placeholder="John Doe">
-                        </div>
-                    </div>
-                    <div id="paypalForm" style="display: none;">
-                        <div class="alert alert-info">
-                            You will be redirected to PayPal to complete the setup.
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Add Payment Method</button>
-            </div>
-        </div>
-    </div>
+    @empty
+    <div class="alert alert-info">You have no confirmed reservations requiring payment.</div>
+    @endforelse
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+    @foreach($confirmedReservations as $reservation)
+    var stripe{{ $reservation->reservation_id }} = Stripe('{{ env("STRIPE_KEY") }}'); // Set Stripe key
+    var elements{{ $reservation->reservation_id }} = stripe{{ $reservation->reservation_id }}.elements();
+
+    // Create an instance of the card Element.
+    var card{{ $reservation->reservation_id }} = elements{{ $reservation->reservation_id }}.create('card');
+
+    // Add an instance of the card Element to the payment form.
+    card{{ $reservation->reservation_id }}.mount('#card-element-{{ $reservation->reservation_id }}');
+
+    // Handle form submission
+    var form{{ $reservation->reservation_id }} = document.getElementById('payment-form-{{ $reservation->reservation_id }}');
+    form{{ $reservation->reservation_id }}.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Disable the submit button to prevent multiple clicks
+        document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = true;
+
+        stripe{{ $reservation->reservation_id }}.createPaymentMethod({
+            type: 'card',
+            card: card{{ $reservation->reservation_id }},
+        }).then(function(result) {
+            if (result.error) {
+                // Display error message if something goes wrong
+                var errorElement = document.getElementById('card-errors-{{ $reservation->reservation_id }}');
+                errorElement.textContent = result.error.message;
+                document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = false;
+            } else {
+                // Send the payment method ID to the server for processing
+                var paymentMethodId = result.paymentMethod.id;
+
+                var formData = new FormData(form{{ $reservation->reservation_id }});
+                formData.append('payment_method_id', paymentMethodId);
+
+                // Send POST request with payment method ID
+                fetch(form{{ $reservation->reservation_id }}.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                }).then(function(response) {
+                    return response.json();
+                }).then(function(response) {
+                    if (response.error) {
+                        document.getElementById('card-errors-{{ $reservation->reservation_id }}').textContent = response.error;
+                    } else {
+                        window.location.href = response.redirect_url; // Redirect to success URL after payment
+                    }
+                }).catch(function(error) {
+                    console.error('Error:', error);
+                    document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = false;
+                });
+            }
+        });
+    });
+    @endforeach
+</script>
 
 @endsection

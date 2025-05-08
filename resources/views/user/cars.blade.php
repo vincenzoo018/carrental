@@ -24,7 +24,11 @@
                 @forelse($cars as $car)
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
-                        <img src="{{ $car->photo_url }}" class="card-img-top" alt="{{ $car->brand }} {{ $car->model }} {{ $car->year }}">
+                        @if($car->photo)
+                                    <img src="{{ asset($car->photo) }}" alt="Car Photo" style="width: 100px; height: auto;">
+                                @else
+                                    <img src="{{ asset('images/default-car.png') }}" alt="Default Car Photo" style="width: 100px; height: auto;">
+                                @endif
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ $car->brand }} {{ $car->model }} {{ $car->year }}</h5>
                             <div class="car-specs mb-3">
@@ -159,6 +163,7 @@
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Confirm Reservation</button>
                     </div>
+
                 </div>
             </form>
         </div>

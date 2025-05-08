@@ -110,14 +110,14 @@ class UserController extends Controller
         if ($booking->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-    
+
         $booking->update(['status' => 'cancelled']);
-    
+
         return redirect()->route('user.bookings')->with('success', 'Booking cancelled successfully.');
 
     }
-    
-    
+
+
     /**
      * Display a listing of available services for booking.
      *

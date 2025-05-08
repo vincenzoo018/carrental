@@ -22,15 +22,14 @@
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped table-hover">
+                <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Photo</th>
-                            <th>Brand & Model</th>
+                            <th>Brand</th>
+                            <th>Model</th>
                             <th>Year</th>
-                            <th>Plate Number</th>
-                            <th>Price/Day</th>
+                            <th>Price</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -38,19 +37,18 @@
                     <tbody>
                         @forelse($cars as $car)
                         <tr>
-                            <td>{{ $car->car_id }}</td>
                             <td>
-                                <img src="{{ $car->photo_url }}" width="60" alt="{{ $car->brand }} {{ $car->model }}" class="img-thumbnail">
+                                @if($car->photo)
+                                    <img src="{{ asset($car->photo) }}" alt="Car Photo" style="width: 100px; height: auto;">
+                                @else
+                                    <img src="{{ asset('images/default-car.png') }}" alt="Default Car Photo" style="width: 100px; height: auto;">
+                                @endif
                             </td>
-                            <td>{{ $car->brand }} {{ $car->model }}</td>
+                            <td>{{ $car->brand }}</td>
+                            <td>{{ $car->model }}</td>
                             <td>{{ $car->year }}</td>
-                            <td>{{ $car->plate_number }}</td>
                             <td>${{ number_format($car->price, 2) }}</td>
-                            <td>
-                                <span class="badge {{ $car->getStatusBadgeClass() }}">
-                                    {{ ucfirst($car->status) }}
-                                </span>
-                            </td>
+                            <td>{{ ucfirst($car->status) }}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editCarModal{{ $car->car_id }}">
                                     <i class="fas fa-edit"></i>
@@ -66,124 +64,95 @@
                         </tr>
 
                         <!-- Edit Car Modal -->
-<div class="modal fade" id="editCarModal{{ $car->car_id }}" tabindex="-1"
-    aria-labelledby="editCarModal{{ $car->car_id }}Label" aria-hidden="true">
-   <div class="modal-dialog modal-lg">
-       <div class="modal-content">
-           <div class="modal-header bg-primary text-white">
-               <h5 class="modal-title" id="editCarModal{{ $car->car_id }}Label">
-                   Edit {{ $car->brand }} {{ $car->model }}
-               </h5>
-               <button type="button" class="btn-close btn-close-white"
-                       data-bs-dismiss="modal" aria-label="Close"></button>
-           </div>
-           <form action="{{ route('admin.cars.update', $car->car_id) }}"
-                 method="POST"
-                 enctype="multipart/form-data">
-               @csrf
-               @method('PUT')
-               <div class="modal-body">
-                   <div class="row">
-                       <!-- Left Column -->
-                       <div class="col-md-6">
-                           <div class="mb-3">
-                               <label class="form-label">Brand</label>
-                               <input type="text" class="form-control"
-                                      name="brand" value="{{ $car->brand }}" required>
-                           </div>
-                           <div class="mb-3">
-                               <label class="form-label">Model</label>
-                               <input type="text" class="form-control"
-                                      name="model" value="{{ $car->model }}" required>
-                           </div>
-                           <div class="mb-3">
-                               <label class="form-label">Year</label>
-                               <input type="number" class="form-control"
-                                      name="year" value="{{ $car->year }}" required>
-                           </div>
-                           <div class="mb-3">
-                               <label class="form-label">Plate Number</label>
-                               <input type="text" class="form-control"
-                                      name="plate_number" value="{{ $car->plate_number }}" required>
-                           </div>
-                       </div>
+                        <div class="modal fade" id="editCarModal{{ $car->car_id }}" tabindex="-1" aria-labelledby="editCarModal{{ $car->car_id }}Label" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title" id="editCarModal{{ $car->car_id }}Label">
+                                            Edit {{ $car->brand }} {{ $car->model }}
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="{{ route('admin.cars.update', $car->car_id) }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        @method('PUT')
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <!-- Left Column -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Brand</label>
+                                                        <input type="text" class="form-control" name="brand" value="{{ $car->brand }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Model</label>
+                                                        <input type="text" class="form-control" name="model" value="{{ $car->model }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Year</label>
+                                                        <input type="number" class="form-control" name="year" value="{{ $car->year }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Plate Number</label>
+                                                        <input type="text" class="form-control" name="plate_number" value="{{ $car->plate_number }}" required>
+                                                    </div>
+                                                </div>
 
-                       <!-- Right Column -->
-                       <div class="col-md-6">
-                           <div class="mb-3">
-                               <label class="form-label">Price/Day ($)</label>
-                               <input type="number" step="0.01" class="form-control"
-                                      name="price" value="{{ $car->price }}" required>
-                           </div>
-                           <div class="mb-3">
-                               <label class="form-label">Status</label>
-                               <select class="form-select" name="status" required>
-                                   <option value="available" {{ $car->status === 'available' ? 'selected' : '' }}>
-                                       Available
-                                   </option>
-                                   <option value="rented" {{ $car->status === 'rented' ? 'selected' : '' }}>
-                                       Rented
-                                   </option>
-                                   <option value="maintenance" {{ $car->status === 'maintenance' ? 'selected' : '' }}>
-                                       Maintenance
-                                   </option>
-                               </select>
-                           </div>
-                           <div class="mb-3">
-                               <label class="form-label">Mileage</label>
-                               <input type="number" class="form-control"
-                                      name="mileage" value="{{ $car->mileage }}" required>
-                           </div>
-                           <div class="mb-3">
-                               <label class="form-label">Vehicle Type</label>
-                               <select class="form-select" name="type" required>
-                                   <option value="economy" {{ $car->type === 'economy' ? 'selected' : '' }}>
-                                       Economy
-                                   </option>
-                                   <option value="luxury" {{ $car->type === 'luxury' ? 'selected' : '' }}>
-                                       Luxury
-                                   </option>
-                                   <option value="suv" {{ $car->type === 'suv' ? 'selected' : '' }}>
-                                       SUV
-                                   </option>
-                                   <option value="sports" {{ $car->type === 'sports' ? 'selected' : '' }}>
-                                       Sports
-                                   </option>
-                               </select>
-                           </div>
-                       </div>
-                   </div>
+                                                <!-- Right Column -->
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Price/Day ($)</label>
+                                                        <input type="number" step="0.01" class="form-control" name="price" value="{{ $car->price }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Status</label>
+                                                        <select class="form-select" name="status" required>
+                                                            <option value="available" {{ $car->status === 'available' ? 'selected' : '' }}>Available</option>
+                                                            <option value="rented" {{ $car->status === 'rented' ? 'selected' : '' }}>Rented</option>
+                                                            <option value="maintenance" {{ $car->status === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Mileage</label>
+                                                        <input type="number" class="form-control" name="mileage" value="{{ $car->mileage }}" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Vehicle Type</label>
+                                                        <select class="form-select" name="type" required>
+                                                            <option value="economy" {{ $car->type === 'economy' ? 'selected' : '' }}>Economy</option>
+                                                            <option value="luxury" {{ $car->type === 'luxury' ? 'selected' : '' }}>Luxury</option>
+                                                            <option value="suv" {{ $car->type === 'suv' ? 'selected' : '' }}>SUV</option>
+                                                            <option value="sports" {{ $car->type === 'sports' ? 'selected' : '' }}>Sports</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                   <!-- Photo Upload -->
-                   <div class="mb-3">
-                       <label class="form-label">Car Photo</label>
-                       <input type="file" class="form-control"
-                              name="photo" accept="image/*">
-                       <div class="mt-2">
-                           <small class="text-muted">
-                               Current photo:
-                               <a href="{{ $car->photo_url }}" target="_blank"
-                                  class="text-decoration-none">
-                                   View Image
-                               </a>
-                           </small>
-                       </div>
-                   </div>
-               </div>
-               <div class="modal-footer">
-                   <button type="button" class="btn btn-secondary"
-                           data-bs-dismiss="modal">Close</button>
-                   <button type="submit" class="btn btn-primary">
-                       <i class="fas fa-save me-2"></i>Save Changes
-                   </button>
-               </div>
-           </form>
-       </div>
-   </div>
-</div>
+                                            <!-- Photo Upload -->
+                                            <div class="mb-3">
+                                                <label class="form-label">Car Photo</label>
+                                                <input type="file" class="form-control" name="photo" accept="image/*">
+                                                <div class="mt-2">
+                                                    <small class="text-muted">
+                                                        Current photo:
+                                                        <a href="{{ $car->photo_url }}" target="_blank" class="text-decoration-none">View Image</a>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-2"></i>Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center">No cars found</td>
+                            <td colspan="7" class="text-center">No cars found</td>
                         </tr>
                         @endforelse
                     </tbody>

@@ -240,4 +240,18 @@ body {
     .main-content.active {
         margin-left: 250px;
     }
+
+    .modal-content {
+        width: 8.5in;
+        min-height: 11in;
+        margin: 0 auto;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+        font-size: 12pt;
+    }
+
+    #receiptModal .modal-body p {
+        margin: 5px 0;
+    }
+
 }

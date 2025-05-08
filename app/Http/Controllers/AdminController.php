@@ -11,6 +11,7 @@ use App\Models\Booking;  // Importing the Booking model
 use App\Models\Payment;  // Importing the Payment model
 use App\Models\Reservation; // Importing the Reservation model
 use App\Models\User;
+
 use Storage;
 use Carbon\Carbon; // For date manipulation
 
@@ -20,10 +21,48 @@ class AdminController extends Controller
      * Show the admin dashboard.
      */
     public function dashboard()
-    {
-        return view('admin.dashboard');
-    }
+{
+    // Count available cars
+    $availableCars = Car::where('status', 'available')->count();
 
+    // Count active rentals (reservations with status 'active')
+    $activeRentals = Reservation::where('status', 'active')->count();
+
+    // Count registered customers
+    $registeredCustomers = User::where('role_id', 2)->count(); // Assuming role_id 2 is for customers
+
+    // Calculate total revenue (sum of total_price for confirmed rentals)
+    $totalRevenue = Reservation::where('status', 'confirmed')->sum('total_price');
+
+    // Calculate this month's revenue
+    $thisMonthRevenue = Payment::where('payment_status', 'Paid')
+        ->whereMonth('payment_date', now()->month)
+        ->whereYear('payment_date', now()->year)
+        ->sum('amount');
+
+    // Fetch recent rentals (limit to 5)
+    $recentRentals = Reservation::with(['user', 'car'])
+        ->orderBy('start_date', 'desc')
+        ->limit(5)
+        ->get();
+
+    // Fetch recent customers (limit to 5)
+    $recentCustomers = User::where('role_id', 2) // Assuming role_id 2 is for customers
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+
+    // Pass the data to the dashboard view
+    return view('admin.dashboard', compact(
+        'availableCars',
+        'activeRentals',
+        'registeredCustomers',
+        'totalRevenue',
+        'thisMonthRevenue',
+        'recentRentals',
+        'recentCustomers'
+    ));
+}
     /**
      * Show all cars in the system.
      */
@@ -37,70 +76,65 @@ class AdminController extends Controller
      * Store a newly created car in the database.
      */
     public function storeCar(Request $request)
-    {
-        $request->validate([
-            'brand' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
-            'year' => 'required|integer|digits:4',
-            'plate_number' => 'required|string|max:255|unique:cars',
-            'price' => 'required|numeric',
-            'status' => 'required|in:available,rented,maintenance',
-            'mileage' => 'required|numeric',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
-        ]);
-
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('car_photos', 'public');
-        }
-
-        Car::create([
-            'brand' => $request->brand,
-            'model' => $request->model,
-            'year' => $request->year,
-            'plate_number' => $request->plate_number,
-            'price' => $request->price,
-            'status' => $request->status,
-            'mileage' => $request->mileage,
-            'photo' => $photoPath,
-        ]);
-
-        return redirect()->route('admin.cars')->with('success', 'Car added successfully!');
-    }
-
-    /**
-     * Update the given car.
-     */
-    public function updateCar(Request $request, $carId)
 {
     $validated = $request->validate([
         'brand' => 'required|string|max:255',
         'model' => 'required|string|max:255',
-        'year' => 'required|integer|digits:4',
-        // Add ID column specification for unique rule
-        'plate_number' => 'required|string|max:255|unique:cars,plate_number,'.$carId.',car_id',
-        'price' => 'required|numeric',
-        'status' => 'required|in:available,rented,maintenance',
-        // Match validation with form input type (integer)
-        'mileage' => 'required|integer',
-        'photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:10240',
+        'year' => 'required|integer|min:1900|max:' . date('Y'),
+        'plate_number' => 'required|string|max:255|unique:cars',
+        'price' => 'required|numeric|min:0',
+        'status' => 'required|string',
+        'mileage' => 'required|integer|min:0',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    // Handle photo upload
+    if ($request->hasFile('photo')) {
+        $photo = $request->file('photo');
+        $photoName = time() . '_' . $photo->getClientOriginalName();
+        $photo->move(public_path('images'), $photoName);
+        $validated['photo'] = 'images/' . $photoName;
+    }
+
+    Car::create($validated);
+
+    return redirect()->route('admin.cars')->with('success', 'Car added successfully!');
+}
+
+    /**
+     * Update the given car.
+     */
+
+
+
+public function updateCar(Request $request, $carId)
+{
+    $validated = $request->validate([
+        'brand' => 'required|string|max:255',
+        'model' => 'required|string|max:255',
+        'year' => 'required|integer|min:1900|max:' . date('Y'),
+        'plate_number' => 'required|string|max:255|unique:cars,plate_number,' . $carId . ',car_id',
+        'price' => 'required|numeric|min:0',
+        'status' => 'required|string',
+        'mileage' => 'required|integer|min:0',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ]);
 
     $car = Car::findOrFail($carId);
 
     // Handle photo upload
     if ($request->hasFile('photo')) {
-        // Delete old photo if exists
-        if ($car->photo_url && Storage::disk('public')->exists($car->photo_url)) {
-            Storage::disk('public')->delete($car->photo_url);
+        // Delete the old photo if it exists
+        if ($car->photo && file_exists(public_path($car->photo))) {
+            unlink(public_path($car->photo));
         }
 
-        // Store new photo and get full URL path
-        $path = $request->file('photo')->store('cars', 'public');
-        $validated['photo_url'] = Storage::url($path);
+        $photo = $request->file('photo');
+        $photoName = time() . '_' . $photo->getClientOriginalName();
+        $photo->move(public_path('images'), $photoName);
+        $validated['photo'] = 'images/' . $photoName;
     }
 
-    // Update all validated fields including potential photo_url
     $car->update($validated);
 
     return redirect()->route('admin.cars')->with('success', 'Car updated successfully!');
@@ -277,25 +311,25 @@ class AdminController extends Controller
      * Show all payments in the system with optional filters.
      */
     public function payments(Request $request)
-    {
-        $query = Payment::with('reservation')->orderBy('payment_date', 'desc');
+{
+    $query = Payment::with('reservation.user', 'reservation.car')->orderBy('payment_date', 'desc');
 
-        // Filter by payment status if specified
-        if ($request->has('status') && $request->status !== 'All Status') {
-            $query->where('payment_status', operator: $request->status);
-        }
-
-        // Filter by payment date if specified
-        if ($request->has('date')) {
-            $date = Carbon::parse($request->date)->startOfDay();
-            $query->whereDate('payment_date', $date);
-        }
-
-        // Get the paginated payments
-        $payments = $query->paginate(10);
-
-        return view('admin.payments', compact('payments'));
+    // Filter by payment status if specified
+    if ($request->has('status') && $request->status !== 'All Status') {
+        $query->where('payment_status', $request->status);
     }
+
+    // Filter by payment date if specified
+    if ($request->has('date')) {
+        $date = Carbon::parse($request->date)->startOfDay();
+        $query->whereDate('payment_date', $date);
+    }
+
+    // Get the paginated payments
+    $payments = $query->paginate(10);
+
+    return view('admin.payments', compact('payments'));
+}
 
     // ** End of Payments Methods **
 

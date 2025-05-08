@@ -79,11 +79,10 @@ class ReservationController extends Controller
 {
     $user = Auth::user();
 
-    // Fetch the reservations again to make sure they're up-to-date
+    // Fetch active reservations (not completed or cancelled)
     $activeReservations = Reservation::with('car')
         ->where('user_id', $user->id)
-        ->where('status', '!=', 'completed')
-        ->where('status', '!=', 'cancelled')
+        ->whereNotIn('status', ['completed', 'cancelled', 'confirmed']) // Exclude completed, cancelled, and confirmed
         ->orderBy('start_date')
         ->get()
         ->each(function ($reservation) {
@@ -91,9 +90,10 @@ class ReservationController extends Controller
             $reservation->end_date = Carbon::parse($reservation->end_date);
         });
 
+    // Fetch completed or cancelled reservations
     $completedReservations = Reservation::with('car')
         ->where('user_id', $user->id)
-        ->whereIn('status', ['completed', 'cancelled'])
+        ->whereIn('status', ['completed', 'cancelled', 'confirmed']) // Include confirmed
         ->orderByDesc('end_date')
         ->get()
         ->each(function ($reservation) {
@@ -127,7 +127,7 @@ class ReservationController extends Controller
     $admins = User::where('role_id', 1)->get(); // Use role_id instead of role
 
     // Notify all admins
-    
+
 
     return redirect()->route('user.reservations')->with('success', 'Cancellation requested.');
 }

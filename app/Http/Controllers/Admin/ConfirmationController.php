@@ -57,19 +57,26 @@ class ConfirmationController extends Controller
      * Update the given reservation status.
      */
     public function updateReservation(Request $request, $reservationId)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,confirmed,cancelled',
-        ]);
+{
+    $request->validate([
+        'status' => 'required|in:pending,confirmed,completed,cancelled',
+    ]);
 
-        $reservation = Reservation::findOrFail($reservationId);
-        $reservation->update([
-            'status' => $request->status,
-        ]);
+    $reservation = Reservation::findOrFail($reservationId);
 
-        return redirect()->route('admin.reservations')->with('success', 'Reservation updated successfully!');
+    // Update the reservation status
+    $reservation->update([
+        'status' => $request->status,
+    ]);
+
+    // Notify the user if the status is updated to "completed", "cancelled", or "confirmed"
+    if (in_array($reservation->status, ['completed', 'cancelled', 'confirmed'])) {
+        $user = $reservation->user;
+        $user->notify(new \App\Notifications\ReservationStatusUpdated($reservation));
     }
 
+    return redirect()->route('admin.reservations')->with('success', 'Reservation updated successfully!');
+}
     /**
      * Approve the cancellation of a reservation and change status to canceled.
      */
@@ -114,5 +121,5 @@ class ConfirmationController extends Controller
     }
 
 
-    
+
 }

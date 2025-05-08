@@ -151,42 +151,32 @@
                         <!-- Update Reservation Modal -->
                         <div class="modal fade" id="updateReservationModal{{ $reservation->reservation_id }}" tabindex="-1" aria-labelledby="updateReservationModalLabel{{ $reservation->reservation_id }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
-                                <form method="POST" action="{{ route('admin.reservations.update', $reservation->reservation_id) }}">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-content">
-                                        <div class="modal-header bg-primary text-white">
-                                            <h5 class="modal-title" id="updateReservationModalLabel{{ $reservation->reservation_id }}">Update Reservation</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Start Date</label>
-                                                <input type="date" class="form-control" name="start_date" value="{{ $reservation->start_date }}" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">End Date</label>
-                                                <input type="date" class="form-control" name="end_date" value="{{ $reservation->end_date }}" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Total Price</label>
-                                                <input type="number" class="form-control" name="total_price" value="{{ $reservation->total_price }}" required>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Status</label>
-                                                <select class="form-select" name="status" required>
-                                                    <option value="pending" {{ $reservation->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                                    <option value="confirmed" {{ $reservation->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                                    <option value="cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-primary">Update Reservation</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        </div>
-                                    </div>
-                                </form>
+                                <!-- filepath: c:\Users\PC\carrental\resources\views\admin\reservations.blade.php -->
+<form method="POST" action="{{ route('admin.reservations.update', $reservation->reservation_id) }}">
+    @csrf
+    @method('PUT')
+    <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Update Reservation</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Status</label>
+                <select class="form-select" name="status" required>
+                    <option value="pending" {{ $reservation->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="confirmed" {{ $reservation->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                    <option value="completed" {{ $reservation->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                    <option value="cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Update Reservation</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+</form>
                             </div>
                         </div>
                         @endforeach
@@ -203,110 +193,96 @@
 </div>
 
 <!-- Damage Assessment Modal -->
-<div class="modal fade" id="damageAssessmentModal" tabindex="-1" aria-labelledby="damageAssessmentModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title" id="damageAssessmentModalLabel">Damage Assessment Report</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<form id="damageForm" method="POST" action="{{ route('admin.damages.store') }}" enctype="multipart/form-data">
+    @csrf
+    <div class="modal-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="reservationSelect" class="form-label">Reservation</label>
+                <select class="form-select" id="reservationSelect" name="reservation_id" required>
+                    <option value="">Select Reservation</option>
+                    @foreach($reservations as $reservation)
+                    <option value="{{ $reservation->reservation_id }}">
+                        RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->user->name }}
+                    </option>
+                    @endforeach
+                </select>
             </div>
-            <div class="modal-body">
-                <form id="damageForm">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="reservationSelect" class="form-label">Reservation</label>
-                            <select class="form-select" id="reservationSelect">
-                                <option value="">Select Reservation</option>
-                                @foreach($reservations as $reservation)
-                                <option
-                                    value="{{ $reservation->id }}"
-                                    data-name="{{ $reservation->user->name }}"
-                                    data-car="{{ $reservation->car->brand }} {{ $reservation->car->model }}"
-                                    data-total="{{ $reservation->total_price }}">
-                                    RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->user->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="assessmentDate" class="form-label">Assessment Date</label>
-                            <input type="date" class="form-control" id="assessmentDate" value="{{ date('Y-m-d') }}">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="damageTypes" class="form-label">Type of Damage</label>
-                        <input type="text" class="form-control" id="damageTypes" placeholder="e.g. Scratch, Dent">
-                        <small class="text-muted">Separate multiple damages with commas.</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="damageDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="damageDescription" rows="3"></textarea>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="severity" class="form-label">Severity</label>
-                            <select class="form-select" id="severity">
-                                <option value="minor">Minor</option>
-                                <option value="moderate">Moderate</option>
-                                <option value="severe">Severe</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="repairCost" class="form-label">Estimated Repair</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₱</span>
-                                <input type="number" class="form-control" id="repairCost" min="0">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="violationFee" class="form-label">Violation Fee</label>
-                            <div class="input-group">
-                                <span class="input-group-text">₱</span>
-                                <input type="number" class="form-control" id="violationFee" min="0">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="damagePhotos" class="form-label">Photos</label>
-                        <input type="file" class="form-control" id="damagePhotos" multiple>
-                    </div>
-
-                    <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" id="insuranceClaim">
-                        <label class="form-check-label" for="insuranceClaim">File insurance claim</label>
-                    </div>
-
-                    <!-- Receipt Preview -->
-                    <div id="receiptPreview" style="display:none;">
-                        <h4>Damage Assessment Receipt</h4>
-                        <p><strong>Reservation ID:</strong> <span id="receiptReservationId"></span></p>
-                        <p><strong>Customer:</strong> <span id="receiptCustomerName"></span></p>
-                        <p><strong>Car:</strong> <span id="receiptCar"></span></p>
-                        <p><strong>Damage Types:</strong> <span id="receiptDamageTypes"></span></p>
-                        <p><strong>Description:</strong> <span id="receiptDescription"></span></p>
-                        <p><strong>Severity:</strong> <span id="receiptSeverity"></span></p>
-                        <p><strong>Repair Cost:</strong> ₱<span id="receiptRepairCost"></span></p>
-                        <p><strong>Violation Fee:</strong> ₱<span id="receiptViolationFee"></span></p>
-                        <p><strong>Total Due:</strong> ₱<span id="receiptTotalDue"></span></p>
-                    </div>
-                </form>
-
-                <button class="btn btn-warning" id="generateReceiptBtn">Generate Receipt</button>
-                <button class="btn btn-primary" id="printReceipt">Print Receipt</button>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button class="btn btn-warning">Submit Damage Report</button>
+            <div class="col-md-6">
+                <label for="assessmentDate" class="form-label">Assessment Date</label>
+                <input type="date" class="form-control" id="assessmentDate" name="assessment_date" value="{{ date('Y-m-d') }}" required>
             </div>
         </div>
+
+        <div class="mb-3">
+            <label for="damageTypes" class="form-label">Type of Damage</label>
+            <input type="text" class="form-control" id="damageTypes" name="damage_types" placeholder="e.g. Scratch, Dent" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="damageDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="damageDescription" name="damage_description" rows="3"></textarea>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="severity" class="form-label">Severity</label>
+                <select class="form-select" id="severity" name="severity" required>
+                    <option value="minor">Minor</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="severe">Severe</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="repairCost" class="form-label">Estimated Repair</label>
+                <input type="number" class="form-control" id="repairCost" name="repair_cost" min="0" required>
+            </div>
+            <div class="col-md-4">
+                <label for="violationFee" class="form-label">Violation Fee</label>
+                <input type="number" class="form-control" id="violationFee" name="violation_fee" min="0" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="damagePhotos" class="form-label">Photos</label>
+            <input type="file" class="form-control" id="damagePhotos" name="damage_photos[]" multiple>
+        </div>
+
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="insuranceClaim" name="insurance_claim">
+            <label class="form-check-label" for="insuranceClaim">File insurance claim</label>
+        </div>
     </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-warning">Submit Damage Report</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+
+
+</form>
+
+<!-- Receipt Preview -->
+<div id="receiptPreview" style="display: none; padding: 20px; border: 1px solid #ddd; background: #fff;">
+    <h4 class="text-center">Damage Assessment Receipt</h4>
+    <hr>
+    <p><strong>Reservation ID:</strong> <span id="receiptReservationId"></span></p>
+    <p><strong>Customer Name:</strong> <span id="receiptCustomerName"></span></p>
+    <p><strong>Car:</strong> <span id="receiptCar"></span></p>
+    <p><strong>Damage Types:</strong> <span id="receiptDamageTypes"></span></p>
+    <p><strong>Description:</strong> <span id="receiptDescription"></span></p>
+    <p><strong>Severity:</strong> <span id="receiptSeverity"></span></p>
+    <p><strong>Repair Cost:</strong> ₱<span id="receiptRepairCost"></span></p>
+    <p><strong>Violation Fee:</strong> ₱<span id="receiptViolationFee"></span></p>
+    <p><strong>Total Due:</strong> ₱<span id="receiptTotalDue"></span></p>
+    <p><strong>Assessment Date:</strong> <span id="receiptAssessmentDate"></span></p>
 </div>
 
-
+<!-- Print Button -->
+<div class="text-end mt-3">
+    <button id="printReceiptBtn" class="btn btn-primary">
+        <i class="fas fa-print me-2"></i>Print Receipt
+    </button>
+</div>
 @endsection
 
 @push('scripts')
@@ -315,23 +291,24 @@
     document.addEventListener("DOMContentLoaded", function() {
         const reservationSelect = document.getElementById('reservationSelect');
         const receiptPreview = document.getElementById('receiptPreview');
-        const generateReceiptBtn = document.getElementById('generateReceiptBtn');
-        const printReceipt = document.getElementById('printReceipt');
+        const printReceiptBtn = document.getElementById('printReceiptBtn');
 
         function updateReceipt() {
+            console.log("updateReceipt triggered"); // Debugging log
             const selected = reservationSelect.selectedOptions[0];
             if (selected) {
                 document.getElementById('receiptReservationId').textContent = selected.textContent.split(" ")[0];
-                document.getElementById('receiptCustomerName').textContent = selected.dataset.name;
-                document.getElementById('receiptCar').textContent = selected.dataset.car;
-                document.getElementById('receiptDamageTypes').textContent = document.getElementById('damageTypes').value;
-                document.getElementById('receiptDescription').textContent = document.getElementById('damageDescription').value;
-                document.getElementById('receiptSeverity').textContent = document.getElementById('severity').value;
+                document.getElementById('receiptCustomerName').textContent = selected.dataset.name || "N/A";
+                document.getElementById('receiptCar').textContent = selected.dataset.car || "N/A";
+                document.getElementById('receiptDamageTypes').textContent = document.getElementById('damageTypes').value || "N/A";
+                document.getElementById('receiptDescription').textContent = document.getElementById('damageDescription').value || "N/A";
+                document.getElementById('receiptSeverity').textContent = document.getElementById('severity').value || "N/A";
                 document.getElementById('receiptRepairCost').textContent = document.getElementById('repairCost').value || "0";
                 document.getElementById('receiptViolationFee').textContent = document.getElementById('violationFee').value || "0";
                 const totalDue = (parseFloat(document.getElementById('repairCost').value) || 0) +
                     (parseFloat(document.getElementById('violationFee').value) || 0);
                 document.getElementById('receiptTotalDue').textContent = totalDue.toFixed(2);
+                document.getElementById('receiptAssessmentDate').textContent = document.getElementById('assessmentDate').value || "N/A";
                 receiptPreview.style.display = "block";
             }
         }
@@ -343,11 +320,10 @@
         document.getElementById('repairCost').addEventListener('input', updateReceipt);
         document.getElementById('violationFee').addEventListener('input', updateReceipt);
 
-        generateReceiptBtn.addEventListener('click', updateReceipt);
-
-        printReceipt.addEventListener('click', function() {
+        // Print the receipt
+        printReceiptBtn.addEventListener('click', function() {
             $('#receiptPreview').printThis({
-                header: "<h4>Damage Assessment Receipt</h4>"
+                header: "<h4 class='text-center'>Damage Assessment Receipt</h4>"
             });
         });
     });

@@ -61,51 +61,7 @@ class UserController extends Controller
         return view('user.cars', compact('cars'));
     }
 
-
-
-    /**
-     * Display a listing of the user's bookings.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function bookings()
-    {
-        // Fetch all bookings for the logged-in user
-        $bookings = Booking::where('user_id', Auth::id())->get();
-
-        // Separate active and completed bookings based on their status
-        $activeBookings = $bookings->filter(function ($booking) {
-            return $booking->status == 'active' || $booking->status == 'upcoming';
-        });
-
-        $completedBookings = $bookings->filter(function ($booking) {
-            return $booking->status == 'completed';
-        });
-
-        // Return the view with active and completed bookings
-        return view('user.bookings', compact('activeBookings', 'completedBookings'));
-    }
-    public function cancelBooking(Booking $booking)
-    {
-        if ($booking->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
-        }
-    
-        $booking->update(['status' => 'cancelled']);
-    
-        return redirect()->route('bookings')->with('success', 'Booking cancelled successfully.');
-
-    }
-    
-    
-    /**
-     * Display a listing of available services for booking.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
-     */
-
-public function services(Request $request)
+    public function services(Request $request)
 {
     $query = Service::query();
 
@@ -120,6 +76,56 @@ public function services(Request $request)
     return view('user.services', compact('services'));
 }
 
+
+
+    /**
+     * Display a listing of the user's bookings.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function bookings()
+{
+    // Fetch all bookings for the logged-in user, with related services
+    $bookings = Booking::with('service') // Eager load 'service' relationship
+                        ->where('user_id', Auth::id())
+                        ->get();
+
+    // Separate active and completed bookings based on their status
+    $activeBookings = $bookings->filter(function ($booking) {
+        return $booking->status == 'active' || $booking->status == 'upcoming';
+    });
+
+    $completedBookings = $bookings->filter(function ($booking) {
+        return $booking->status == 'completed';
+    });
+
+    // Pass the active and completed bookings to the view
+    return view('user.bookings', compact('activeBookings', 'completedBookings', 'bookings'));
+}
+
+
+
+    public function cancelBooking(Booking $booking)
+    {
+        if ($booking->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+    
+        $booking->update(['status' => 'cancelled']);
+    
+        return redirect()->route('user.bookings')->with('success', 'Booking cancelled successfully.');
+
+    }
+    
+    
+    /**
+     * Display a listing of available services for booking.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View
+     */
+
+
 public function storeBooking(Request $request)
 {
     $request->validate([
@@ -129,7 +135,7 @@ public function storeBooking(Request $request)
 
     $service = Service::findOrFail($request->service_id);
 
-    Booking::create([
+    $booking = Booking::create([
         'user_id' => Auth::id(),
         'service_id' => $request->service_id,
         'date' => $request->start_date, // Assuming 'date' is the start date
@@ -137,7 +143,8 @@ public function storeBooking(Request $request)
         'status' => 'pending',
     ]);
 
-    return redirect()->route('user.services')->with('success', 'Service booked successfully!');
+    // Redirect to bookings page with success message
+    return redirect()->route('user.bookings')->with('success', 'Service booked successfully!');
 }
 
 

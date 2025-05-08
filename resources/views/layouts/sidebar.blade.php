@@ -22,6 +22,11 @@
             
             <!-- Other Admin Sidebar Links -->
             <li class="nav-item mb-2">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link text-white {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-user-shield me-2"></i> Admin Dashboard
+                </a>
+            </li>
+            <li class="nav-item mb-2">
                 <a href="{{ route('admin.cars') }}" class="nav-link text-white {{ request()->routeIs('admin.cars') ? 'active' : '' }}">
                     <i class="fas fa-car me-2"></i> Car Management
                 </a>

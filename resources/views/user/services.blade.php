@@ -33,7 +33,7 @@
                 <div class="card h-100">
                     <img src="{{ $service->image_url }}" class="card-img-top" alt="{{ $service->name }}">
                     <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">{{ $service->name }}</h5>
+                        <h5 class="card-title">{{ $service->service_name }}</h5>
                         <p class="card-text">{{ $service->description }}</p>
                         <div class="d-flex justify-content-between align-items-center mt-auto">
                             <h5 class="mb-0">${{ number_format($service->price, 2) }}/day</h5>
@@ -58,6 +58,20 @@
                             <form action="{{ route('user.services.book') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="service_id" value="{{ $service->service_id }}"> <!-- Updated to match primary key -->
+                                <div class="mb-3">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Service</label>
+                                    <input type="text" class="form-control" value="{{ $service->service_name }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" class="form-control" value=" {{ $service->description }}" readonly>
+                                </div>
 
                                 <div class="mb-3">
                                     <label for="pickupDate{{ $service->service_id }}" class="form-label">Booking Date</label>

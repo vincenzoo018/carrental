@@ -1,3 +1,4 @@
+{{-- filepath: c:\Users\PC\carrental\resources\views\admin\dashboard.blade.php --}}
 @extends('layouts.admin')
 
 @section('content')
@@ -34,6 +35,15 @@
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card card-4">
+                <div class="card-body">
+                    <i class="fas fa-car-side"></i>
+                    <h3>{{ $rentedCars->count() }}</h3>
+                    <p>Cars Rented</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
             <div class="card dashboard-card card-5">
                 <div class="card-body">
                     <i class="fas fa-chart-line"></i>
@@ -43,7 +53,7 @@
             </div>
         </div>
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card dashboard-card card-4">
+            <div class="card dashboard-card card-6">
                 <div class="card-body">
                     <i class="fas fa-dollar-sign"></i>
                     <h3>P{{ number_format($thisMonthRevenue, 2) }}</h3>
@@ -51,7 +61,82 @@
                 </div>
             </div>
         </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card card-7">
+                <div class="card-body">
+                    <i class="fas fa-tools"></i>
+                    <h3>{{ $totalServices }}</h3>
+                    <p>Total Services</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card dashboard-card card-8">
+                <div class="card-body">
+                    <i class="fas fa-user-tie"></i>
+                    <h3>{{ $totalEmployees }}</h3>
+                    <p>Total Employees</p>
+                </div>
+            </div>
+        </div>
 
+    <!-- Cars Currently Rented -->
+    <div class="row">
+        <div class="col-lg-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Cars Currently Rented</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Car</th>
+                                    <th>Plate Number</th>
+                                    <th>Customer</th>
+                                    <th>Rental Start</th>
+                                    <th>Rental End</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($rentedCars as $car)
+                                <tr>
+                                    <td>{{ $car->brand }} {{ $car->model }}</td>
+                                    <td>{{ $car->plate_number }}</td>
+                                    <td>
+                                        @if($car->reservations->last())
+                                            {{ $car->reservations->last()->user->name ?? 'N/A' }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($car->reservations->last())
+                                            {{ $car->reservations->last()->start_date ?? 'N/A' }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($car->reservations->last())
+                                            {{ $car->reservations->last()->end_date ?? 'N/A' }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">No cars currently rented.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Recent Rentals -->
@@ -103,25 +188,26 @@
             </div>
         </div>
 
-        <!-- Recent Customers -->
+        <!-- Recent Payments -->
         <div class="col-lg-4 mb-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Recent Customers</h5>
+                    <h5 class="mb-0">Recent Payments</h5>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        @forelse($recentCustomers as $customer)
+                        @forelse($recentPayments as $payment)
                         <a href="#" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ $customer->name }}</h6>
-                                <small>{{ $customer->created_at ? \Carbon\Carbon::parse($customer->created_at)->diffForHumans() : 'N/A' }}</small>
+                                <h6 class="mb-1">TRX-{{ str_pad($payment->payment_id, 4, '0', STR_PAD_LEFT) }}</h6>
+                                <small>{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : 'N/A' }}</small>
                             </div>
-                            <p class="mb-1">{{ $customer->email }}</p>
-                            <small>{{ $customer->phone_number ?? 'N/A' }}</small>
+                            <p class="mb-1">Customer: {{ $payment->reservation->user->name ?? 'N/A' }}</p>
+                            <p class="mb-1">Car: {{ $payment->reservation->car->brand ?? 'N/A' }}</p>
+                            <small>Amount: P{{ number_format($payment->amount, 2) }}</small>
                         </a>
                         @empty
-                        <p class="text-center">No recent customers found.</p>
+                        <p class="text-center">No recent payments found.</p>
                         @endforelse
                     </div>
                 </div>

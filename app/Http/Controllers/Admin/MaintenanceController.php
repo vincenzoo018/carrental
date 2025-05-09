@@ -14,26 +14,27 @@ class MaintenanceController extends Controller
         // Retrieve all maintenance records with their associated reservations
         $maintenances = Maintenance::with('reservation')->get();
         $reservations = Reservation::all();
-        dd($maintenances);
+
+
         // Pass the data to the view
         return view('admin.maintenance', compact('maintenances', 'reservations'));
     }
 
     public function store(Request $request)
-    {
-        // Validate the request
-        $request->validate([
-            'reservation_id' => 'required|exists:reservations,reservation_id',
-            'damage' => 'nullable|string',
-            'warranty_contract' => 'nullable|string',
-            'date_of_return' => 'required|date',
-        ]);
+{
+    // Validate the request
+    $request->validate([
+        'reservation_id' => 'required|exists:reservations,reservation_id',
+        'damage' => 'nullable|string',
+        'warranty_contract' => 'nullable|string',
+        'date_of_return' => 'required|date',
+    ]);
 
-        // Create a new maintenance record
-        Maintenance::create($request->all());
+    // Create a new maintenance record
+    Maintenance::create($request->all());
 
-        return redirect()->back()->with('success', 'Maintenance record added successfully.');
-    }
+    return redirect()->back()->with('success', 'Maintenance record added successfully.');
+}
 
     public function update(Request $request, $id)
     {

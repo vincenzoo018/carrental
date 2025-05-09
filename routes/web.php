@@ -170,9 +170,22 @@ Route::post('/admin/damages', [DamageController::class, 'store'])->name('admin.d
 use App\Http\Controllers\Admin\MaintenanceController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::resource('maintenances', MaintenanceController::class);
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
+    Route::post('/maintenances', [MaintenanceController::class, 'store'])->name('maintenances.store'); // Add this line
+    Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy'])->name('maintenances.destroy'); // Optional: For delete functionality
 });
 
+use App\Http\Controllers\Admin\ReportController;
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+});
+
+use App\Http\Controllers\Admin\DashboardController;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
 Route::get('admin/payments', [AdminController::class, 'payments'])->name('admin.payments');

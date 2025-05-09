@@ -81,9 +81,9 @@
                         <select class="form-select" name="reservation_id" required>
                             <option value="">Select Reservation</option>
                             @foreach($reservations as $reservation)
-                            <option value="{{ $reservation->reservation_id }}">
-                                RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->car->brand ?? 'N/A' }}
-                            </option>
+                                <option value="{{ $reservation->reservation_id }}">
+                                    RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->car->brand ?? 'N/A' }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -99,10 +99,7 @@
                         <label for="date_of_return" class="form-label">Date of Return</label>
                         <input type="date" class="form-control" name="date_of_return" required>
                     </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Schedule Maintenance</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    </div>
+                    <button type="submit" class="btn btn-primary">Schedule Maintenance</button>
                 </form>
             </div>
         </div>

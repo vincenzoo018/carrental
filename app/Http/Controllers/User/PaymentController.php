@@ -52,16 +52,24 @@ class PaymentController extends Controller
         if ($paymentSuccessful) {
             // Save the payment record in the database
             $payment = Payment::create([
-                'user_id' => $reservation->user->id, // User ID from the reservation
-                'reservation_id' => $reservation->reservation_id, // Reservation ID
-                'payment_date' => now(), // Current timestamp
-                'amount' => $amountToPay, // Amount to pay
-                'payment_status' => 'Partial Paid', // Mark payment as completed
-                'payment_method' => 'Card', // Example payment method
+                'user_id' => $reservation->user->id,
+                'reservation_id' => $reservation->reservation_id,
+                'payment_date' => now(),
+                'amount' => $amountToPay,
+                'payment_status' => 'Paid',
             ]);
 
-            // Redirect back with success message
-            return redirect()->back()->with('success', 'Payment successful! Payment ID: ' . $payment->payment_id);
+            // Update the reservation's payment status
+            $reservation->update(['payment_status' => 'Paid']);
+
+            // Generate a contract (for simplicity, we'll just return a string here)
+            $contract = "Contract for Reservation #{$reservation->reservation_id}: Paid {$amountToPay} on " . now()->format('Y-m-d H:i:s');
+
+            // Redirect back with success message and contract
+            return redirect()->back()->with([
+                'success' => 'Payment successful!',
+                'contract' => $contract,
+            ]);
         } else {
             // Redirect back with error message
             return redirect()->back()->with('error', 'Payment failed. Please try again.');

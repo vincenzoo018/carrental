@@ -47,20 +47,27 @@
                 </li>
             </ul>
 
+            <!-- Payment Button or Contract -->
+            @if($reservation->payment_status === 'Paid')
+            <button class="btn btn-success w-100" disabled>PAID</button>
+            <div class="mt-3">
+                <h6 class="text-primary">Contract:</h6>
+                <p>{{ session('contract') ?? 'Contract details will be displayed here.' }}</p>
+            </div>
+            @else
             <!-- Stripe Payment Form -->
             <form action="{{ route('user.payments.charge', $reservation->reservation_id) }}" method="POST" id="payment-form-{{ $reservation->reservation_id }}">
                 @csrf
-                <!-- Stripe Card Element -->
                 <div class="mb-3">
                     <label for="card-element-{{ $reservation->reservation_id }}" class="form-label">Card details</label>
                     <div id="card-element-{{ $reservation->reservation_id }}">
                         <!-- A Stripe Element will be inserted here. -->
                     </div>
-                    <!-- Used to display form errors. -->
                     <div id="card-errors-{{ $reservation->reservation_id }}" role="alert" class="text-danger mt-2"></div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100" id="submit-button-{{ $reservation->reservation_id }}">Pay Now</button>
             </form>
+            @endif
         </div>
     </div>
     @empty
@@ -75,7 +82,7 @@
         {
             $reservation - > reservation_id
         }
-    } = Stripe('{{ env("STRIPE_KEY") }}'); // Set Stripe key
+    } = Stripe('{{ env("STRIPE_KEY") }}');
     var elements {
         {
             $reservation - > reservation_id
@@ -86,7 +93,6 @@
         }
     }.elements();
 
-    // Create an instance of the card Element.
     var card {
         {
             $reservation - > reservation_id
@@ -96,15 +102,12 @@
             $reservation - > reservation_id
         }
     }.create('card');
-
-    // Add an instance of the card Element to the payment form.
     card {
         {
             $reservation - > reservation_id
         }
     }.mount('#card-element-{{ $reservation->reservation_id }}');
 
-    // Handle form submission
     var form {
         {
             $reservation - > reservation_id
@@ -116,8 +119,6 @@
         }
     }.addEventListener('submit', function(event) {
         event.preventDefault();
-
-        // Disable the submit button to prevent multiple clicks
         document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = true;
 
         stripe {
@@ -133,22 +134,17 @@
             },
         }).then(function(result) {
             if (result.error) {
-                // Display error message if something goes wrong
                 var errorElement = document.getElementById('card-errors-{{ $reservation->reservation_id }}');
                 errorElement.textContent = result.error.message;
                 document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = false;
             } else {
-                // Send the payment method ID to the server for processing
-                var paymentMethodId = result.paymentMethod.id;
-
                 var formData = new FormData(form {
                     {
                         $reservation - > reservation_id
                     }
                 });
-                formData.append('payment_method_id', paymentMethodId);
+                formData.append('payment_method_id', result.paymentMethod.id);
 
-                // Send POST request with payment method ID
                 fetch(form {
                     {
                         $reservation - > reservation_id
@@ -165,7 +161,7 @@
                     if (response.error) {
                         document.getElementById('card-errors-{{ $reservation->reservation_id }}').textContent = response.error;
                     } else {
-                        window.location.href = response.redirect_url; // Redirect to success URL after payment
+                        window.location.reload(); // Reload the page to reflect the updated status
                     }
                 }).catch(function(error) {
                     console.error('Error:', error);

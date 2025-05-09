@@ -18,6 +18,7 @@ class Reservation extends Model
         'total_price',
         'status',
         'pickup_location',
+        'payment_status',
 
     ];
 

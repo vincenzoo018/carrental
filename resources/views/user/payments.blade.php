@@ -55,9 +55,13 @@
                 <p>{{ session('contract') ?? 'Contract details will be displayed here.' }}</p>
             </div>
             @else
-            <!-- Stripe Payment Form -->
+            <!-- Card Key Input -->
             <form action="{{ route('user.payments.charge', $reservation->reservation_id) }}" method="POST" id="payment-form-{{ $reservation->reservation_id }}">
                 @csrf
+                <div class="mb-3">
+                    <label for="card-key-{{ $reservation->reservation_id }}" class="form-label">Card Key</label>
+                    <input type="text" name="card_key" id="card-key-{{ $reservation->reservation_id }}" class="form-control" placeholder="Enter your card key" required>
+                </div>
                 <div class="mb-3">
                     <label for="card-element-{{ $reservation->reservation_id }}" class="form-label">Card details</label>
                     <div id="card-element-{{ $reservation->reservation_id }}">
@@ -119,6 +123,14 @@
         }
     }.addEventListener('submit', function(event) {
         event.preventDefault();
+
+        // Check if card key is provided
+        var cardKey = document.getElementById('card-key-{{ $reservation->reservation_id }}').value;
+        if (!cardKey) {
+            alert('Please enter your card key before proceeding.');
+            return;
+        }
+
         document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = true;
 
         stripe {
@@ -144,6 +156,7 @@
                     }
                 });
                 formData.append('payment_method_id', result.paymentMethod.id);
+                formData.append('card_key', cardKey); // Add card key to the form data
 
                 fetch(form {
                     {

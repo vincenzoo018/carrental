@@ -40,6 +40,11 @@ class PaymentController extends Controller
 
     public function charge(Request $request, $reservationId)
     {
+        // Validate the card key
+        $request->validate([
+            'card_key' => 'required|string|min:6', // Example validation rule
+        ]);
+
         // Find the reservation
         $reservation = Reservation::with('user')->findOrFail($reservationId);
 
@@ -62,7 +67,7 @@ class PaymentController extends Controller
             // Update the reservation's payment status
             $reservation->update(['payment_status' => 'Paid']);
 
-            // Generate a contract (for simplicity, we'll just return a string here)
+            // Generate a contract
             $contract = "Contract for Reservation #{$reservation->reservation_id}: Paid {$amountToPay} on " . now()->format('Y-m-d H:i:s');
 
             // Redirect back with success message and contract

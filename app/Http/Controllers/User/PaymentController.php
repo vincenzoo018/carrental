@@ -10,73 +10,63 @@ use Carbon\Carbon;
 use Stripe\Stripe;
 use Stripe\PaymentIntent;
 use Stripe\Exception\CardException;
+use Illuminate\Support\Str;
+
 
 class PaymentController extends Controller
 {
 
-public function index()
-{
-    /** @var int|null $userId */
-    $userId = auth()->id();
-
-    // Fetch user payments
-    $payments = Payment::with('reservation.car')
-        ->whereHas('reservation', function ($q) use ($userId) {
-            $q->where('user_id', $userId)->where('status', 'confirmed');
-        })
-        ->get();
-
-    // Fetch confirmed reservations for the logged-in user
-    $confirmedReservations = Reservation::with('car')
-        ->where('user_id', $userId)
-        ->where('status', 'confirmed')
-        ->get();
-
-    // Pass both variables to the view
-    return view('user.payments', compact('payments', 'confirmedReservations'));
-}
-
-    public function charge(Request $request, $paymentId)
+    public function index()
     {
-        // Validate the payment_method_id
-        $request->validate([
-            'payment_method_id' => 'required|string',
-        ]);
+        /** @var int|null $userId */
+        $userId = auth()->id();
 
-        // Retrieve the payment record and associated reservation
-        $payment = Payment::with('reservation')->findOrFail($paymentId);
-        $amount = $payment->reservation->total_price / 2;  // Only charge 50%
+        // Fetch user payments
+        $payments = Payment::with('reservation.car')
+            ->whereHas('reservation', function ($q) use ($userId) {
+                $q->where('user_id', $userId)->where('status', 'confirmed');
+            })
+            ->get();
 
-        // Set the Stripe secret key
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        // Fetch confirmed reservations for the logged-in user
+        $confirmedReservations = Reservation::with('car')
+            ->where('user_id', $userId)
+            ->where('status', 'confirmed')
+            ->get();
 
-        try {
-            // Create PaymentIntent and associate with the payment method
-            $paymentIntent = PaymentIntent::create([
-                'amount' => $amount * 100,  // Convert amount to cents
-                'currency' => 'usd',        // Currency code
-                'payment_method' => $request->input('payment_method_id'),  // Payment method from frontend
-                'confirmation_method' => 'manual',  // Manual confirmation
-                'confirm' => true,            // Confirm payment immediately
-            ]);
-
-            // Update the payment record to "Paid"
-            $payment->payment_status = 'Paid';
-            $payment->payment_date = now();
-            $payment->save();
-
-            // Return success response
-            return response()->json([
-                'redirect_url' => route('user.payments')
-            ]);
-        } catch (CardException $e) {
-            // Handle card exception errors (e.g., insufficient funds, etc.)
-            return response()->json([
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        // Pass both variables to the view
+        return view('user.payments', compact('payments', 'confirmedReservations'));
     }
 
+    public function charge(Request $request, $reservationId)
+    {
+        // Find the reservation
+        $reservation = Reservation::with('user')->findOrFail($reservationId);
+
+        // Calculate the amount to pay (50% of total price)
+        $amountToPay = $reservation->total_price / 2;
+
+        // Simulate payment processing (replace this with actual payment gateway logic)
+        $paymentSuccessful = true; // Assume payment is successful for now
+
+        if ($paymentSuccessful) {
+            // Save the payment record in the database
+            $payment = Payment::create([
+                'user_id' => $reservation->user->id, // User ID from the reservation
+                'reservation_id' => $reservation->reservation_id, // Reservation ID
+                'payment_date' => now(), // Current timestamp
+                'amount' => $amountToPay, // Amount to pay
+                'payment_status' => 'Partial Paid', // Mark payment as completed
+                'payment_method' => 'Card', // Example payment method
+            ]);
+
+            // Redirect back with success message
+            return redirect()->back()->with('success', 'Payment successful! Payment ID: ' . $payment->payment_id);
+        } else {
+            // Redirect back with error message
+            return redirect()->back()->with('error', 'Payment failed. Please try again.');
+        }
+    }
     public function success($paymentId)
     {
         $payment = Payment::findOrFail($paymentId);

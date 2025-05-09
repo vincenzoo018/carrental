@@ -10,6 +10,10 @@
     <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    @if(session('error'))
+    <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     <!-- Loop through confirmed reservations -->
     @forelse($confirmedReservations as $reservation)
     <div class="card shadow-sm border-0 mb-4">
@@ -20,6 +24,10 @@
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Car:</strong>
                     <span>{{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Name:</strong>
+                    <span>{{ $reservation->user->name }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Rental Period:</strong>
@@ -63,26 +71,66 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
     @foreach($confirmedReservations as $reservation)
-    var stripe{{ $reservation->reservation_id }} = Stripe('{{ env("STRIPE_KEY") }}'); // Set Stripe key
-    var elements{{ $reservation->reservation_id }} = stripe{{ $reservation->reservation_id }}.elements();
+    var stripe {
+        {
+            $reservation - > reservation_id
+        }
+    } = Stripe('{{ env("STRIPE_KEY") }}'); // Set Stripe key
+    var elements {
+        {
+            $reservation - > reservation_id
+        }
+    } = stripe {
+        {
+            $reservation - > reservation_id
+        }
+    }.elements();
 
     // Create an instance of the card Element.
-    var card{{ $reservation->reservation_id }} = elements{{ $reservation->reservation_id }}.create('card');
+    var card {
+        {
+            $reservation - > reservation_id
+        }
+    } = elements {
+        {
+            $reservation - > reservation_id
+        }
+    }.create('card');
 
     // Add an instance of the card Element to the payment form.
-    card{{ $reservation->reservation_id }}.mount('#card-element-{{ $reservation->reservation_id }}');
+    card {
+        {
+            $reservation - > reservation_id
+        }
+    }.mount('#card-element-{{ $reservation->reservation_id }}');
 
     // Handle form submission
-    var form{{ $reservation->reservation_id }} = document.getElementById('payment-form-{{ $reservation->reservation_id }}');
-    form{{ $reservation->reservation_id }}.addEventListener('submit', function(event) {
+    var form {
+        {
+            $reservation - > reservation_id
+        }
+    } = document.getElementById('payment-form-{{ $reservation->reservation_id }}');
+    form {
+        {
+            $reservation - > reservation_id
+        }
+    }.addEventListener('submit', function(event) {
         event.preventDefault();
 
         // Disable the submit button to prevent multiple clicks
         document.getElementById('submit-button-{{ $reservation->reservation_id }}').disabled = true;
 
-        stripe{{ $reservation->reservation_id }}.createPaymentMethod({
+        stripe {
+            {
+                $reservation - > reservation_id
+            }
+        }.createPaymentMethod({
             type: 'card',
-            card: card{{ $reservation->reservation_id }},
+            card: card {
+                {
+                    $reservation - > reservation_id
+                }
+            },
         }).then(function(result) {
             if (result.error) {
                 // Display error message if something goes wrong
@@ -93,11 +141,19 @@
                 // Send the payment method ID to the server for processing
                 var paymentMethodId = result.paymentMethod.id;
 
-                var formData = new FormData(form{{ $reservation->reservation_id }});
+                var formData = new FormData(form {
+                    {
+                        $reservation - > reservation_id
+                    }
+                });
                 formData.append('payment_method_id', paymentMethodId);
 
                 // Send POST request with payment method ID
-                fetch(form{{ $reservation->reservation_id }}.action, {
+                fetch(form {
+                    {
+                        $reservation - > reservation_id
+                    }
+                }.action, {
                     method: 'POST',
                     body: formData,
                     headers: {

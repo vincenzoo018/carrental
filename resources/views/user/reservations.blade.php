@@ -40,23 +40,17 @@
                         <td>
                             <strong class="text-dark">
                                 {{ ucfirst($reservation->status) }}
-                                @if(strtolower($reservation->status) === 'confirmed')
-                                <a href="{{ route('user.reservations.payment', $reservation->reservation_id) }}" class="btn btn-sm btn-primary mt-2">
-                                    Pay Now
-                                </a>
-                                @endif
                             </strong>
                         </td>
-
                         <td>
                             <!-- Cancel Button Form -->
-                            <form action="{{ route('user.reservations.cancel', $reservation->reservation_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                            <form action="{{ route('user.reservations.cancel', $reservation->reservation_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
                                 @csrf
-                                @method('PATCH') <!-- Important for sending the PATCH request -->
+                                @method('PATCH')
                                 <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
                             </form>
+                            <!-- No Pay Here icon in active reservations -->
                         </td>
-
                     </tr>
                     @endforeach
                 </tbody>
@@ -80,6 +74,7 @@
                         <th>Pickup Location</th>
                         <th>Total Price</th>
                         <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -94,6 +89,18 @@
                                 {{ ucfirst($reservation->status) }}
                             </span>
                         </td>
+                        <td>
+                            @if(strtolower($reservation->status) === 'confirmed')
+                            @if(isset($reservation->payment_status) && strtolower($reservation->payment_status) === 'paid')
+                            <span class="badge bg-success" style="font-size: 1em;">Paid</span>
+                            @else
+                            <a href="{{ route('user.payments', ['reservation_id' => $reservation->reservation_id]) }}"
+                                class="btn btn-warning btn-sm" title="Pay Here">
+                                <i class="fas fa-credit-card"></i>
+                            </a>
+                            @endif
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -103,3 +110,6 @@
     </div>
 </div>
 @endsection
+
+<!-- Font Awesome for the credit card icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

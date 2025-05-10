@@ -22,6 +22,18 @@ class Reservation extends Model
 
     ];
 
+    public function getPaymentStatusLabelAttribute()
+    {
+        $totalPaid = $this->payments()->where('payment_status', 'Paid')->sum('amount');
+        if ($totalPaid >= $this->total_price) {
+            return 'Paid';
+        } elseif ($totalPaid >= ($this->total_price / 2)) {
+            return 'Partially Paid';
+        } else {
+            return 'Pending';
+        }
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');

@@ -4,20 +4,10 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="section-title">Payment Management</h2>
-        <div class="d-flex">
-            <form method="GET" action="{{ route('admin.payments') }}">
-                <select class="form-select me-2" name="status">
-                    <option value="All Status" {{ request()->status == 'All Status' ? 'selected' : '' }}>All Status</option>
-                    <option value="Paid" {{ request()->status == 'Paid' ? 'selected' : '' }}>Paid</option>
-                    <option value="Pending" {{ request()->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="Failed" {{ request()->status == 'Failed' ? 'selected' : '' }}>Failed</option>
-                    <option value="Refunded" {{ request()->status == 'Refunded' ? 'selected' : '' }}>Refunded</option>
-                </select>
-                <input type="date" class="form-control me-2" style="width: 150px;" name="date" value="{{ request()->date }}">
-                <button class="btn btn-primary">
-                    <i class="fas fa-filter me-2"></i>Filter
-                </button>
-            </form>
+        <div>
+            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#damageAssessmentModal">
+                <i class="fas fa-car-crash me-2"></i>Damage Assessment
+            </button>
         </div>
     </div>
 
@@ -51,8 +41,21 @@
                             <td>${{ number_format($payment->amount, 2) }}</td>
                             <td>{{ $payment->payment_method ?? 'N/A' }}</td>
                             <td>
-                                <span class="badge bg-{{ $payment->payment_status == 'Paid' ? 'success' : ($payment->payment_status == 'Pending' ? 'warning' : ($payment->payment_status == 'Failed' ? 'danger' : 'info')) }}">
-                                    {{ $payment->payment_status }}
+                                @php
+                                $status = $payment->reservation ? $payment->reservation->payment_status_label : $payment->payment_status;
+                                @endphp
+                                <span class="badge
+                                    @if($status === 'Paid')
+                                        bg-success
+                                    @elseif($status === 'Partially Paid')
+                                        bg-warning text-dark
+                                    @elseif($status === 'Pending')
+                                        bg-secondary
+                                    @else
+                                        bg-info
+                                    @endif
+                                ">
+                                    {{ $status }}
                                 </span>
                             </td>
                             <td>
@@ -98,8 +101,8 @@
                                         <div class="mb-3">
                                             <label class="form-label">Status</label>
                                             <p><span class="badge bg-{{ $payment->payment_status == 'Paid' ? 'success' : ($payment->payment_status == 'Pending' ? 'warning' : ($payment->payment_status == 'Failed' ? 'danger' : 'info')) }}">
-                                                {{ $payment->payment_status }}
-                                            </span></p>
+                                                    {{ $payment->payment_status }}
+                                                </span></p>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
@@ -123,4 +126,125 @@
         </div>
     </div>
 </div>
+
+<!-- Damage Assessment Modal -->
+<div class="modal fade" id="damageAssessmentModal" tabindex="-1" aria-labelledby="damageAssessmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <form id="damageForm" method="POST" action="{{ route('admin.damages.store') }}" enctype="multipart/form-data" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title" id="damageAssessmentModalLabel">Damage Assessment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="reservationSelect" class="form-label">Reservation</label>
+                        <select class="form-select" id="reservationSelect" name="reservation_id" required>
+                            <option value="">Select Reservation</option>
+                            @foreach($payments as $payment)
+                            @if($payment->reservation)
+                            <option value="{{ $payment->reservation->reservation_id }}"
+                                data-name="{{ $payment->reservation->user->name }}"
+                                data-car="{{ $payment->reservation->car->brand }} {{ $payment->reservation->car->model }}">
+                                RES-{{ str_pad($payment->reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $payment->reservation->user->name }}
+                            </option>
+                            @endif
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="assessmentDate" class="form-label">Assessment Date</label>
+                        <input type="date" class="form-control" id="assessmentDate" name="assessment_date" value="{{ date('Y-m-d') }}" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="damageTypes" class="form-label">Type of Damage</label>
+                    <input type="text" class="form-control" id="damageTypes" name="damage_types" placeholder="e.g. Scratch, Dent" required>
+                </div>
+                <div class="mb-3">
+                    <label for="damageDescription" class="form-label">Description</label>
+                    <textarea class="form-control" id="damageDescription" name="damage_description" rows="3"></textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="severity" class="form-label">Severity</label>
+                        <select class="form-select" id="severity" name="severity" required>
+                            <option value="minor">Minor</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="severe">Severe</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="repairCost" class="form-label">Estimated Repair</label>
+                        <input type="number" class="form-control" id="repairCost" name="repair_cost" min="0" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="violationFee" class="form-label">Violation Fee</label>
+                        <input type="number" class="form-control" id="violationFee" name="violation_fee" min="0" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="damagePhotos" class="form-label">Photos</label>
+                    <input type="file" class="form-control" id="damagePhotos" name="damage_photos[]" multiple>
+                </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" class="form-check-input" id="insuranceClaim" name="insurance_claim">
+                    <label class="form-check-label" for="insuranceClaim">File insurance claim</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-warning">Submit Damage Report</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
+
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const reservationSelect = document.getElementById('reservationSelect');
+        const receiptPreview = document.getElementById('receiptPreview');
+        const printReceiptBtn = document.getElementById('printReceiptBtn');
+
+        function updateReceipt() {
+            const selected = reservationSelect.selectedOptions[0];
+            if (selected) {
+                document.getElementById('receiptReservationId').textContent = selected.textContent.split(" ")[0];
+                document.getElementById('receiptCustomerName').textContent = selected.dataset.name || "N/A";
+                document.getElementById('receiptCar').textContent = selected.dataset.car || "N/A";
+                document.getElementById('receiptDamageTypes').textContent = document.getElementById('damageTypes').value || "N/A";
+                document.getElementById('receiptDescription').textContent = document.getElementById('damageDescription').value || "N/A";
+                document.getElementById('receiptSeverity').textContent = document.getElementById('severity').value || "N/A";
+                document.getElementById('receiptRepairCost').textContent = document.getElementById('repairCost').value || "0";
+                document.getElementById('receiptViolationFee').textContent = document.getElementById('violationFee').value || "0";
+                const totalDue = (parseFloat(document.getElementById('repairCost').value) || 0) +
+                    (parseFloat(document.getElementById('violationFee').value) || 0);
+                document.getElementById('receiptTotalDue').textContent = totalDue.toFixed(2);
+                document.getElementById('receiptAssessmentDate').textContent = document.getElementById('assessmentDate').value || "N/A";
+                receiptPreview.style.display = "block";
+            }
+        }
+
+        if (reservationSelect) reservationSelect.addEventListener('change', updateReceipt);
+        if (document.getElementById('damageTypes')) document.getElementById('damageTypes').addEventListener('input', updateReceipt);
+        if (document.getElementById('damageDescription')) document.getElementById('damageDescription').addEventListener('input', updateReceipt);
+        if (document.getElementById('severity')) document.getElementById('severity').addEventListener('change', updateReceipt);
+        if (document.getElementById('repairCost')) document.getElementById('repairCost').addEventListener('input', updateReceipt);
+        if (document.getElementById('violationFee')) document.getElementById('violationFee').addEventListener('input', updateReceipt);
+
+        if (printReceiptBtn) {
+            printReceiptBtn.addEventListener('click', function() {
+                $('#receiptPreview').printThis({
+                    header: "<h4 class='text-center'>Damage Assessment Receipt</h4>"
+                });
+            });
+        }
+    });
+</script>
+@endpush
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

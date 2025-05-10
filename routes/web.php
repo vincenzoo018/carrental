@@ -163,6 +163,7 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     // Redirect to Payment for Reservation
     Route::get('/reservations/payment/{reservationId}', [PaymentController::class, 'redirectToPayment'])->name('reservations.payment');
 });
+
 use App\Http\Controllers\Admin\DamageController;
 
 Route::post('/admin/damages', [DamageController::class, 'store'])->name('admin.damages.store');
@@ -192,3 +193,6 @@ Route::get('admin/payments', [AdminController::class, 'payments'])->name('admin.
 
 Route::post('/admin/reservations/{reservation}/partial-paid', [\App\Http\Controllers\Admin\PaidStatusController::class, 'updatePartialPaidStatus'])
     ->name('admin.reservations.partialPaid');
+
+Route::get('/admin/reservations/{reservation}/payment-status', [\App\Http\Controllers\Admin\PaidStatusController::class, 'getReservationPaymentStatus'])
+    ->name('admin.reservations.paymentStatus');

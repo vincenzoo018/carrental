@@ -16,14 +16,9 @@
             <button class="btn btn-primary me-2">
                 <i class="fas fa-filter me-2"></i>Filter
             </button>
-            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#damageAssessmentModal">
-                <i class="fas fa-car-crash me-2"></i>Damage Assessment
-            </button>
             <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#updateReservationModal">
                 <i class="fas fa-edit"></i>
             </button>
-
-
         </div>
     </div>
 
@@ -153,11 +148,9 @@
                             </div>
                         </div>
 
-
                         <!-- Update Reservation Modal -->
                         <div class="modal fade" id="updateReservationModal{{ $reservation->reservation_id }}" tabindex="-1" aria-labelledby="updateReservationModalLabel{{ $reservation->reservation_id }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
-                                <!-- filepath: c:\Users\PC\carrental\resources\views\admin\reservations.blade.php -->
                                 <form method="POST" action="{{ route('admin.reservations.update', $reservation->reservation_id) }}">
                                     @csrf
                                     @method('PUT')
@@ -197,141 +190,4 @@
         </div>
     </div>
 </div>
-
-<!-- Damage Assessment Modal -->
-<form id="damageForm" method="POST" action="{{ route('admin.damages.store') }}" enctype="multipart/form-data">
-    @csrf
-    <div class="modal-body">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="reservationSelect" class="form-label">Reservation</label>
-                <select class="form-select" id="reservationSelect" name="reservation_id" required>
-                    <option value="">Select Reservation</option>
-                    @foreach($reservations as $reservation)
-                    <option value="{{ $reservation->reservation_id }}">
-                        RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->user->name }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label for="assessmentDate" class="form-label">Assessment Date</label>
-                <input type="date" class="form-control" id="assessmentDate" name="assessment_date" value="{{ date('Y-m-d') }}" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="damageTypes" class="form-label">Type of Damage</label>
-            <input type="text" class="form-control" id="damageTypes" name="damage_types" placeholder="e.g. Scratch, Dent" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="damageDescription" class="form-label">Description</label>
-            <textarea class="form-control" id="damageDescription" name="damage_description" rows="3"></textarea>
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label for="severity" class="form-label">Severity</label>
-                <select class="form-select" id="severity" name="severity" required>
-                    <option value="minor">Minor</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="severe">Severe</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label for="repairCost" class="form-label">Estimated Repair</label>
-                <input type="number" class="form-control" id="repairCost" name="repair_cost" min="0" required>
-            </div>
-            <div class="col-md-4">
-                <label for="violationFee" class="form-label">Violation Fee</label>
-                <input type="number" class="form-control" id="violationFee" name="violation_fee" min="0" required>
-            </div>
-        </div>
-
-        <div class="mb-3">
-            <label for="damagePhotos" class="form-label">Photos</label>
-            <input type="file" class="form-control" id="damagePhotos" name="damage_photos[]" multiple>
-        </div>
-
-        <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="insuranceClaim" name="insurance_claim">
-            <label class="form-check-label" for="insuranceClaim">File insurance claim</label>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="submit" class="btn btn-warning">Submit Damage Report</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    </div>
-
-
-</form>
-
-<!-- Receipt Preview -->
-<div id="receiptPreview" style="display: none; padding: 20px; border: 1px solid #ddd; background: #fff;">
-    <h4 class="text-center">Damage Assessment Receipt</h4>
-    <hr>
-    <p><strong>Reservation ID:</strong> <span id="receiptReservationId"></span></p>
-    <p><strong>Customer Name:</strong> <span id="receiptCustomerName"></span></p>
-    <p><strong>Car:</strong> <span id="receiptCar"></span></p>
-    <p><strong>Damage Types:</strong> <span id="receiptDamageTypes"></span></p>
-    <p><strong>Description:</strong> <span id="receiptDescription"></span></p>
-    <p><strong>Severity:</strong> <span id="receiptSeverity"></span></p>
-    <p><strong>Repair Cost:</strong> ₱<span id="receiptRepairCost"></span></p>
-    <p><strong>Violation Fee:</strong> ₱<span id="receiptViolationFee"></span></p>
-    <p><strong>Total Due:</strong> ₱<span id="receiptTotalDue"></span></p>
-    <p><strong>Assessment Date:</strong> <span id="receiptAssessmentDate"></span></p>
-</div>
-
-<!-- Print Button -->
-<div class="text-end mt-3">
-    <button id="printReceiptBtn" class="btn btn-primary">
-        <i class="fas fa-print me-2"></i>Print Receipt
-    </button>
-</div>
 @endsection
-
-@push('scripts')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const reservationSelect = document.getElementById('reservationSelect');
-        const receiptPreview = document.getElementById('receiptPreview');
-        const printReceiptBtn = document.getElementById('printReceiptBtn');
-
-        function updateReceipt() {
-            console.log("updateReceipt triggered"); // Debugging log
-            const selected = reservationSelect.selectedOptions[0];
-            if (selected) {
-                document.getElementById('receiptReservationId').textContent = selected.textContent.split(" ")[0];
-                document.getElementById('receiptCustomerName').textContent = selected.dataset.name || "N/A";
-                document.getElementById('receiptCar').textContent = selected.dataset.car || "N/A";
-                document.getElementById('receiptDamageTypes').textContent = document.getElementById('damageTypes').value || "N/A";
-                document.getElementById('receiptDescription').textContent = document.getElementById('damageDescription').value || "N/A";
-                document.getElementById('receiptSeverity').textContent = document.getElementById('severity').value || "N/A";
-                document.getElementById('receiptRepairCost').textContent = document.getElementById('repairCost').value || "0";
-                document.getElementById('receiptViolationFee').textContent = document.getElementById('violationFee').value || "0";
-                const totalDue = (parseFloat(document.getElementById('repairCost').value) || 0) +
-                    (parseFloat(document.getElementById('violationFee').value) || 0);
-                document.getElementById('receiptTotalDue').textContent = totalDue.toFixed(2);
-                document.getElementById('receiptAssessmentDate').textContent = document.getElementById('assessmentDate').value || "N/A";
-                receiptPreview.style.display = "block";
-            }
-        }
-
-        reservationSelect.addEventListener('change', updateReceipt);
-        document.getElementById('damageTypes').addEventListener('input', updateReceipt);
-        document.getElementById('damageDescription').addEventListener('input', updateReceipt);
-        document.getElementById('severity').addEventListener('change', updateReceipt);
-        document.getElementById('repairCost').addEventListener('input', updateReceipt);
-        document.getElementById('violationFee').addEventListener('input', updateReceipt);
-
-        // Print the receipt
-        printReceiptBtn.addEventListener('click', function() {
-            $('#receiptPreview').printThis({
-                header: "<h4 class='text-center'>Damage Assessment Receipt</h4>"
-            });
-        });
-    });
-</script>
-@endpush

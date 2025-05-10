@@ -189,3 +189,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 Route::get('admin/payments', [AdminController::class, 'payments'])->name('admin.payments');
+
+Route::post('/admin/reservations/{reservation}/partial-paid', [\App\Http\Controllers\Admin\PaidStatusController::class, 'updatePartialPaidStatus'])
+    ->name('admin.reservations.partialPaid');

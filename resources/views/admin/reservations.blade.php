@@ -58,13 +58,19 @@
                             <td>${{ $reservation->total_price }}</td>
                             <td>
                                 @if($reservation->status == 'cancellation_requested')
-                                    <label class="badge bg-warning">Cancellation Requested</label>
+                                <label class="badge bg-warning">Cancellation Requested</label>
                                 @elseif($reservation->status == 'pending')
-                                    <label class="badge bg-warning">Pending</label>
+                                <label class="badge bg-warning">Pending</label>
                                 @elseif($reservation->status == 'cancelled')
-                                    <label class="badge bg-secondary">Cancelled</label>
-                                @elseif($reservation->status == 'confirmed')  <!-- Changed to lowercase -->
-                                    <label class="badge bg-primary">Confirmed</label>
+                                <label class="badge bg-secondary">Cancelled</label>
+                                @elseif($reservation->status == 'confirmed')
+                                @if(isset($reservation->payment_status) && strtolower($reservation->payment_status) === 'paid')
+                                <label class="badge bg-warning text-dark">Paid (Partial)</label>
+                                @else
+                                <label class="badge bg-primary">Confirmed</label>
+                                @endif
+                                @elseif($reservation->status == 'completed')
+                                <label class="badge bg-success">Completed</label>
                                 @endif
                             </td>
                             <td>
@@ -152,31 +158,31 @@
                         <div class="modal fade" id="updateReservationModal{{ $reservation->reservation_id }}" tabindex="-1" aria-labelledby="updateReservationModalLabel{{ $reservation->reservation_id }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <!-- filepath: c:\Users\PC\carrental\resources\views\admin\reservations.blade.php -->
-<form method="POST" action="{{ route('admin.reservations.update', $reservation->reservation_id) }}">
-    @csrf
-    @method('PUT')
-    <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-            <h5 class="modal-title">Update Reservation</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body row g-3">
-            <div class="col-md-6">
-                <label class="form-label">Status</label>
-                <select class="form-select" name="status" required>
-                    <option value="pending" {{ $reservation->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="confirmed" {{ $reservation->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                    <option value="completed" {{ $reservation->status == 'completed' ? 'selected' : '' }}>Completed</option>
-                    <option value="cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                </select>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Update Reservation</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        </div>
-    </div>
-</form>
+                                <form method="POST" action="{{ route('admin.reservations.update', $reservation->reservation_id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">Update Reservation</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Status</label>
+                                                <select class="form-select" name="status" required>
+                                                    <option value="pending" {{ $reservation->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="confirmed" {{ $reservation->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                                    <option value="completed" {{ $reservation->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                                    <option value="cancelled" {{ $reservation->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Update Reservation</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         @endforeach

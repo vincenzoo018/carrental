@@ -33,7 +33,15 @@ class Payment extends Model
      */
     public function reservation()
     {
-        return $this->belongsTo(Reservation::class, 'reservation_id');
+        return $this->belongsTo(\App\Models\Reservation::class, 'reservation_id');
+    }
+
+    /**
+     * Get the booking that owns the payment.
+     */
+    public function booking()
+    {
+        return $this->belongsTo(\App\Models\Booking::class, 'booking_id');
     }
 
     /**
@@ -41,6 +49,6 @@ class Payment extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class); // Payment belongs to a User
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 }

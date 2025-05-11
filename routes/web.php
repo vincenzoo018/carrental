@@ -53,13 +53,10 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
 
     Route::patch('/user/bookings/{booking}/cancel', [UserController::class, 'cancelBooking'])->name('bookings.cancel');
 
-
-
     // Available Services
     Route::get('/services', [UserController::class, 'services'])->name('services');
     Route::post('/services', [UserController::class, 'services'])->name('services');
     Route::post('/services/book', [UserController::class, 'storeBooking'])->name('services.book');
-
 
     // Profile page
     Route::get('/profile', [UserController::class, 'profile'])->name('profile');
@@ -204,3 +201,16 @@ Route::post('/admin/reservations/{reservation}/partial-paid', [\App\Http\Control
 
 Route::get('/admin/reservations/{reservation}/payment-status', [\App\Http\Controllers\Admin\PaidStatusController::class, 'getReservationPaymentStatus'])
     ->name('admin.reservations.paymentStatus');
+
+// Admin Bookings
+Route::prefix('admin')->name('admin.')->middleware('auth', 'admin')->group(function () {
+    Route::get('bookings', [\App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings');
+    Route::put('bookings/{booking}', [\App\Http\Controllers\Admin\BookingController::class, 'update'])->name('bookings.update');
+});
+
+// User Bookings
+Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
+    Route::get('bookings', [\App\Http\Controllers\User\BookingController::class, 'index'])->name('bookings');
+    Route::post('/bookings/charge/{booking}', [\App\Http\Controllers\User\PaymentController::class, 'chargeBooking'])->name('user.bookings.charge');
+    Route::post('bookings/charge/{booking}', [\App\Http\Controllers\User\PaymentController::class, 'chargeBooking'])->name('bookings.charge');
+});

@@ -24,7 +24,8 @@
                             <th>Transaction ID</th>
                             <th>Date</th>
                             <th>Customer</th>
-                            <th>Car</th>
+                            <th>Type</th>
+                            <th>Car / Service</th>
                             <th>Amount</th>
                             <th>Method</th>
                             <th>Status</th>
@@ -36,13 +37,30 @@
                         <tr>
                             <td>TRX-{{ str_pad($payment->payment_id, 4, '0', STR_PAD_LEFT) }}</td>
                             <td>{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : 'N/A' }}</td>
-                            <td>{{ $payment->reservation->user->name ?? 'N/A' }}</td>
-                            <td>{{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}</td>
+                            <td>
+                                {{ $payment->reservation->user->name ?? $payment->booking->user->name ?? 'N/A' }}
+                            </td>
+                            <td>
+                                @if($payment->reservation_id)
+                                    Reservation
+                                @elseif($payment->booking_id)
+                                    Booking
+                                @else
+                                    N/A
+                                @endif
+                            </td>
+                            <td>
+                                @if($payment->reservation)
+                                    {{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}
+                                @elseif($payment->booking)
+                                    {{ $payment->booking->service->service_name ?? 'N/A' }}
+                                @endif
+                            </td>
                             <td>${{ number_format($payment->amount, 2) }}</td>
                             <td>{{ $payment->payment_method ?? 'N/A' }}</td>
                             <td>
                                 @php
-                                $status = $payment->reservation ? $payment->reservation->payment_status_label : $payment->payment_status;
+                                    $status = $payment->payment_status;
                                 @endphp
                                 <span class="badge
                                     @if($status === 'Paid')
@@ -64,7 +82,6 @@
                                 </button>
                             </td>
                         </tr>
-
                         <!-- View Payment Modal -->
                         <div class="modal fade" id="viewPaymentModal{{ $payment->payment_id }}" tabindex="-1" aria-labelledby="viewPaymentModal{{ $payment->payment_id }}Label" aria-hidden="true">
                             <div class="modal-dialog">
@@ -84,11 +101,29 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Customer</label>
-                                            <p>{{ $payment->reservation->user->name ?? 'N/A' }} ({{ $payment->reservation->user->email ?? 'N/A' }})</p>
+                                            <p>{{ $payment->reservation->user->name ?? $payment->booking->user->name ?? 'N/A' }} ({{ $payment->reservation->user->email ?? $payment->booking->user->email ?? 'N/A' }})</p>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Car</label>
-                                            <p>{{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}</p>
+                                            <label class="form-label">Type</label>
+                                            <p>
+                                                @if($payment->reservation_id)
+                                                    Reservation
+                                                @elseif($payment->booking_id)
+                                                    Booking
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Car / Service</label>
+                                            <p>
+                                                @if($payment->reservation)
+                                                    {{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}
+                                                @elseif($payment->booking)
+                                                    {{ $payment->booking->service->service_name ?? 'N/A' }}
+                                                @endif
+                                            </p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Amount</label>
@@ -113,7 +148,7 @@
                         </div>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center">No payments found.</td>
+                            <td colspan="9" class="text-center">No payments found.</td>
                         </tr>
                         @endforelse
                     </tbody>

@@ -23,6 +23,7 @@ class Booking extends Model
         'date',
         'total_price',
         'status',
+        'payment_status', // <-- add this if not present
     ];
 
     public function user()

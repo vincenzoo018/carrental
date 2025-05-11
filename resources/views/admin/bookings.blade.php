@@ -33,7 +33,7 @@
                             <th>Customer</th>
                             <th>Service</th>
                             <th>Date</th>
-                            <th>Car</th>
+
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -46,26 +46,30 @@
                             <td>{{ $booking->user->name ?? 'N/A' }}</td>
                             <td>{{ $booking->service->service_name ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</td>
-                            <td>—</td>
+
                             <td>${{ number_format($booking->total_price, 2) }}</td>
                             <td>
-                                <span class="badge 
-                                    @if($booking->status === 'pending') bg-warning
+                                <span class="badge
+                                    @if($booking->payment_status === 'Paid') bg-success
+                                    @elseif($booking->status === 'pending') bg-warning
                                     @elseif($booking->status === 'confirmed') bg-info
                                     @elseif($booking->status === 'completed') bg-success
                                     @elseif($booking->status === 'cancelled') bg-danger
                                     @else bg-secondary @endif">
-                                    {{ ucfirst($booking->status) }}
+                                    {{ $booking->payment_status === 'Paid' ? 'Paid' : ucfirst($booking->status) }}
                                 </span>
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#viewBookingModal{{ $booking->booking_id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#updateBookingModal{{ $booking->booking_id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
                             </td>
                         </tr>
 
-                        <!-- Modal -->
+                        <!-- View Booking Modal -->
                         <div class="modal fade" id="viewBookingModal{{ $booking->booking_id }}" tabindex="-1" aria-labelledby="viewBookingModalLabel{{ $booking->booking_id }}" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
@@ -107,6 +111,37 @@
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Update Booking Modal -->
+                        <div class="modal fade" id="updateBookingModal{{ $booking->booking_id }}" tabindex="-1" aria-labelledby="updateBookingModalLabel{{ $booking->booking_id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <form method="POST" action="{{ route('admin.bookings.update', $booking->booking_id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">Update Booking</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Status</label>
+                                                <select class="form-select" name="status" required>
+                                                    <option value="pending" {{ $booking->status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                                    <option value="confirmed" {{ $booking->status == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                                                    <option value="completed" {{ $booking->status == 'completed' ? 'selected' : '' }}>Completed</option>
+                                                    <option value="cancelled" {{ $booking->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary">Update Booking</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                         @empty

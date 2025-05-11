@@ -86,6 +86,47 @@
     @empty
     <div class="alert alert-info">You have no confirmed reservations requiring payment.</div>
     @endforelse
+
+    <!-- Service Bookings Payment Section -->
+    <h2 class="mb-4 text-primary fw-bold">Service Bookings Payments</h2>
+    @php
+        $confirmedBookings = $confirmedBookings ?? [];
+    @endphp
+    @forelse($confirmedBookings as $booking)
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Booking #{{ $booking->booking_id }}</h5>
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Service:</strong>
+                    <span>{{ $booking->service->service_name ?? '-' }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Booking Date:</strong>
+                    <span>{{ \Carbon\Carbon::parse($booking->date)->format('Y-m-d') }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <strong>Total Amount:</strong>
+                    <span>${{ number_format($booking->total_price, 2) }}</span>
+                </li>
+            </ul>
+            @if($booking->payment_status === 'Paid')
+                <button class="btn btn-success w-100" disabled>PAID</button>
+            @else
+                <form action="{{ route('user.bookings.charge', $booking->booking_id) }}" method="POST" id="payment-form-booking-{{ $booking->booking_id }}">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="card-key-booking-{{ $booking->booking_id }}" class="form-label">Card Key</label>
+                        <input type="text" name="card_key" id="card-key-booking-{{ $booking->booking_id }}" class="form-control" placeholder="Enter your card key" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Pay Now</button>
+                </form>
+            @endif
+        </div>
+    </div>
+    @empty
+    <div class="alert alert-info">You have no confirmed bookings requiring payment.</div>
+    @endforelse
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>

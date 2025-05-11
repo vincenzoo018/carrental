@@ -9,7 +9,7 @@ class CreateDamagesTable extends Migration
     public function up()
     {
         Schema::create('damages', function (Blueprint $table) {
-            $table->id(); // Primary key
+            $table->id('damage_id'); // Primary key
             $table->unsignedBigInteger('reservation_id'); // Foreign key reference to reservations table
             $table->string('damage_types'); // Damage types (comma-separated)
             $table->text('damage_description'); // Detailed description of the damage

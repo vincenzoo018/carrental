@@ -42,8 +42,8 @@
                     <span>${{ number_format($reservation->total_price, 2) }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between text-success fw-semibold">
-                    <strong>Amount to Pay (50%):</strong>
-                    <span>${{ number_format($reservation->total_price / 2, 2) }}</span>
+                    <strong>Amount to Pay:</strong>
+                    <span>${{ number_format($reservation->total_price * 2, 2) }}</span>
                 </li>
             </ul>
 

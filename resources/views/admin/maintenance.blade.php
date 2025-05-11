@@ -22,6 +22,8 @@
                             <th>ID</th>
                             <th>Reservation</th>
                             <th>Damage</th>
+                            <th>Repair Cost</th>
+                            <th>Date of Assessment</th>
                             <th>Warranty Contract</th>
                             <th>Date of Return</th>
                             <th>Actions</th>
@@ -29,11 +31,25 @@
                     </thead>
                     <tbody>
                         @forelse($maintenances as $maintenance)
+                        @php
+                            // Fetch the latest damage assessment for this reservation
+                            $damage = \App\Models\Damage::where('reservation_id', $maintenance->reservation_id)->latest()->first();
+                        @endphp
                         <tr>
                             <td>MNT-{{ str_pad($maintenance->maintenance_id, 4, '0', STR_PAD_LEFT) }}</td>
-                            <td>{{ $maintenance->reservation->car->brand ?? 'N/A' }} ({{ $maintenance->reservation->car->plate_number ?? 'N/A' }})</td>
-                            <td>{{ $maintenance->damage ?? 'N/A' }}</td>
-                            <td>{{ $maintenance->warranty_contract ?? 'N/A' }}</td>
+                            <td>
+                                RES-{{ str_pad($maintenance->reservation_id, 4, '0', STR_PAD_LEFT) }}
+                            </td>
+                            <td>
+                                {{ $damage ? $damage->damage_types : '' }}
+                            </td>
+                            <td>
+                                {{ $damage ? '$' . number_format($damage->repair_cost, 2) : '' }}
+                            </td>
+                            <td>
+                                {{ $damage ? $damage->assessment_date : '' }}
+                            </td>
+                            <td>{{ $maintenance->warranty_contract }}</td>
                             <td>{{ $maintenance->date_of_return }}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary edit-maintenance-btn"
@@ -51,11 +67,41 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
+                                <!-- Mark as Repaired Button -->
+                                @if($maintenance->reservation && $maintenance->reservation->car && $maintenance->reservation->car->status !== 'available')
+                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#markRepairedModal{{ $maintenance->maintenance_id }}">
+                                    <i class="fas fa-check"></i> Mark as Repaired
+                                </button>
+                                @endif
                             </td>
                         </tr>
+
+                        <!-- Mark as Repaired Modal -->
+                        <div class="modal fade" id="markRepairedModal{{ $maintenance->maintenance_id }}" tabindex="-1" aria-labelledby="markRepairedModalLabel{{ $maintenance->maintenance_id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form method="POST" action="{{ route('admin.maintenances.markRepaired', $maintenance->maintenance_id) }}">
+                                    @csrf
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Mark Car as Repaired</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to mark this car as repaired and available for rental?</p>
+                                            <p><strong>Car:</strong> {{ $maintenance->reservation->car->brand ?? '' }} {{ $maintenance->reservation->car->model ?? '' }}</p>
+                                            <p><strong>Plate:</strong> {{ $maintenance->reservation->car->plate_number ?? '' }}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-success">Yes, Mark as Repaired</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center">No maintenance records found.</td>
+                            <td colspan="8" class="text-center">No maintenance records found.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -77,19 +123,48 @@
                 <form action="{{ route('admin.maintenances.store') }}" method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label for="reservation_id" class="form-label">Reservation</label>
-                        <select class="form-select" name="reservation_id" required>
-                            <option value="">Select Reservation</option>
-                            @foreach($reservations as $reservation)
-                                <option value="{{ $reservation->reservation_id }}">
-                                    RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->car->brand ?? 'N/A' }}
+                        <label for="damage_id" class="form-label">Damage Assessment</label>
+                        <select class="form-select" name="damage_id" id="damage_id" required>
+                            <option value="">Select Damage Assessment</option>
+                            @foreach($damages as $damage)
+                                <option value="{{ $damage->id }}"
+                                    data-reservation_id="{{ $damage->reservation_id }}"
+                                    data-damage_types="{{ $damage->damage_types }}"
+                                    data-damage_description="{{ $damage->damage_description }}"
+                                    data-severity="{{ $damage->severity }}"
+                                    data-repair_cost="{{ $damage->repair_cost }}"
+                                    data-violation_fee="{{ $damage->violation_fee }}"
+                                    data-insurance_claim="{{ $damage->insurance_claim }}"
+                                    data-assessment_date="{{ $damage->assessment_date }}"
+                                >
+                                    DMG-{{ str_pad($damage->id, 4, '0', STR_PAD_LEFT) }} - RES-{{ str_pad($damage->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $damage->damage_types }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="damage" class="form-label">Damage</label>
-                        <textarea class="form-control" name="damage" rows="3"></textarea>
+                        <label class="form-label">Type of Damage</label>
+                        <input type="text" class="form-control" id="damage_types" name="damage_types" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="damage_description" name="damage_description" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Severity</label>
+                        <input type="text" class="form-control" id="severity" name="severity" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Repair Cost</label>
+                        <input type="text" class="form-control" id="repair_cost" name="repair_cost" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Violation Fee</label>
+                        <input type="text" class="form-control" id="violation_fee" name="violation_fee" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assessment Date</label>
+                        <input type="text" class="form-control" id="assessment_date" name="assessment_date" readonly>
                     </div>
                     <div class="mb-3">
                         <label for="warranty_contract" class="form-label">Warranty Contract</label>
@@ -130,7 +205,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="edit_damage" class="form-label">Damage</label>
-                        <textarea class="form-control" name="damage" id="edit_damage" rows="3"></textarea>
+                        <input type="text" class="form-control" name="damage" required>
                     </div>
                     <div class="mb-3">
                         <label for="edit_warranty_contract" class="form-label">Warranty Contract</label>
@@ -183,6 +258,72 @@
                 editModal.show();
             });
         });
+
+        const reservationSelect = document.getElementById('reservation_id');
+        const damageInput = document.getElementById('damage');
+        const repairCostInput = document.getElementById('repair_cost');
+        const assessmentDateInput = document.getElementById('assessment_date');
+
+        reservationSelect.addEventListener('change', function () {
+            const selectedOption = this.options[this.selectedIndex];
+            const damage = selectedOption.getAttribute('data-damage');
+            const repairCost = selectedOption.getAttribute('data-repair_cost');
+            const assessmentDate = selectedOption.getAttribute('data-assessment_date');
+
+            damageInput.value = damage || '';
+            repairCostInput.value = repairCost || '';
+            assessmentDateInput.value = assessmentDate || '';
+        });
     });
+</script>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const reservationSelect = document.getElementById('reservation_id');
+    const damageInput = document.getElementById('damage');
+    const repairCostInput = document.getElementById('repair_cost');
+    const assessmentDateInput = document.getElementById('assessment_date');
+
+    reservationSelect.addEventListener('change', function () {
+        const selected = reservationSelect.selectedOptions[0];
+        damageInput.value = selected.getAttribute('data-damage') || '';
+        repairCostInput.value = selected.getAttribute('data-repair_cost') || '';
+        assessmentDateInput.value = selected.getAttribute('data-assessment_date') || '';
+    });
+});
+</script>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const damageSelect = document.getElementById('damage_id');
+    const fields = [
+        'damage_types',
+        'damage_description',
+        'severity',
+        'repair_cost',
+        'violation_fee',
+        'assessment_date'
+    ];
+    if (damageSelect) {
+        damageSelect.addEventListener('change', function () {
+            const selected = damageSelect.selectedOptions[0];
+            fields.forEach(field => {
+                const input = document.getElementById(field);
+                if (input) {
+                    input.value = selected.getAttribute('data-' + field) || '';
+                }
+            });
+        });
+        // Trigger change event on page load if a value is already selected
+        if (damageSelect.value) {
+            const event = new Event('change');
+            damageSelect.dispatchEvent(event);
+        }
+    }
+});
 </script>
 @endpush

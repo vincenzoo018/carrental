@@ -174,6 +174,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance');
     Route::post('/maintenances', [MaintenanceController::class, 'store'])->name('maintenances.store'); // Add this line
     Route::delete('/maintenances/{id}', [MaintenanceController::class, 'destroy'])->name('maintenances.destroy'); // Optional: For delete functionality
+    Route::post('/admin/maintenances/{maintenance}/mark-repaired', [App\Http\Controllers\Admin\MaintenanceController::class, 'markRepaired'])->name('maintenances.markRepaired');
 });
 
 use App\Http\Controllers\Admin\ReportController;

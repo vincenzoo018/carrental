@@ -36,6 +36,21 @@ class DashboardController extends Controller
             ->whereYear('payment_date', now()->year)
             ->sum('amount');
 
+        // Calculate monthly revenue for the current year
+        $monthlyRevenue = Payment::selectRaw('MONTH(payment_date) as month, SUM(amount) as total')
+            ->where('payment_status', 'Paid')
+            ->whereYear('payment_date', now()->year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
+
+        // Fill missing months with 0
+        $revenueData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $revenueData[] = $monthlyRevenue[$i] ?? 0;
+        }
+
         // Fetch recent rentals (limit to 5)
         $recentRentals = Reservation::with(['user', 'car'])
             ->orderBy('start_date', 'desc')
@@ -68,7 +83,8 @@ class DashboardController extends Controller
             'recentPayments',
             'rentedCars',
             'totalServices',
-            'totalEmployees'
+            'totalEmployees',
+            'revenueData'
         ));
     }
 }

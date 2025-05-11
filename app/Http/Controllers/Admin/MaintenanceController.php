@@ -5,36 +5,43 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Maintenance;
 use App\Models\Reservation;
+use App\Models\Car;
 use Illuminate\Http\Request;
 
 class MaintenanceController extends Controller
 {
     public function index()
     {
-        // Retrieve all maintenance records with their associated reservations
         $maintenances = Maintenance::with('reservation')->get();
-        $reservations = Reservation::all();
+        // Fetch reservations with their latest damage
+        $reservations = \App\Models\Reservation::with(['car', 'damages' => function($q) {
+            $q->latest('assessment_date');
+        }])->get();
+        $damages = \App\Models\Damage::all(); // Add this line
 
-
-        // Pass the data to the view
-        return view('admin.maintenance', compact('maintenances', 'reservations'));
+        return view('admin.maintenance', compact('maintenances', 'reservations', 'damages'));
     }
 
     public function store(Request $request)
-{
-    // Validate the request
-    $request->validate([
-        'reservation_id' => 'required|exists:reservations,reservation_id',
-        'damage' => 'nullable|string',
-        'warranty_contract' => 'nullable|string',
-        'date_of_return' => 'required|date',
-    ]);
+    {
+        $request->validate([
+            'damage_id' => 'required|exists:damages,id',
+            'warranty_contract' => 'nullable|string',
+            'date_of_return' => 'required|date',
+        ]);
 
-    // Create a new maintenance record
-    Maintenance::create($request->all());
+        $damage = \App\Models\Damage::findOrFail($request->damage_id);
 
-    return redirect()->back()->with('success', 'Maintenance record added successfully.');
-}
+        Maintenance::create([
+            'damage_id' => $damage->id,
+            'reservation_id' => $damage->reservation_id,
+            'damage' => $damage->damage_types,
+            'warranty_contract' => $request->warranty_contract ?? '',
+            'date_of_return' => $request->date_of_return,
+        ]);
+
+        return redirect()->back()->with('success', 'Maintenance record added successfully.');
+    }
 
     public function update(Request $request, $id)
     {
@@ -60,5 +67,17 @@ class MaintenanceController extends Controller
         $maintenance->delete();
 
         return redirect()->back()->with('success', 'Maintenance record deleted successfully.');
+    }
+
+    public function markRepaired($id)
+    {
+        $maintenance = Maintenance::findOrFail($id);
+        $reservation = $maintenance->reservation;
+        if ($reservation && $reservation->car) {
+            $car = $reservation->car;
+            $car->status = 'available';
+            $car->save();
+        }
+        return redirect()->back()->with('success', 'Car marked as repaired and available.');
     }
 }

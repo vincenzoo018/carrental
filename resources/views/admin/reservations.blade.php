@@ -60,7 +60,7 @@
                                 <label class="badge bg-secondary">Cancelled</label>
                                 @elseif($reservation->status == 'confirmed')
                                 @if(isset($reservation->payment_status) && strtolower($reservation->payment_status) === 'paid')
-                                <label class="badge bg-warning text-dark">Paid (Partial)</label>
+                                <label class="badge bg-success ">Paid</label>
                                 @else
                                 <label class="badge bg-primary">Confirmed</label>
                                 @endif

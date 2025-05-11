@@ -53,8 +53,8 @@ class Reservation extends Model
     {
         return $this->hasOne(Maintenance::class, 'reservation_id');
     }
-    public function damage()
+    public function damages()
     {
-        return $this->hasMany(Damage::class);
+        return $this->hasMany(\App\Models\Damage::class, 'reservation_id', 'reservation_id');
     }
 }

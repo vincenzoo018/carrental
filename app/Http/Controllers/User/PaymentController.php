@@ -49,7 +49,7 @@ class PaymentController extends Controller
         $reservation = Reservation::with('user')->findOrFail($reservationId);
 
         // Calculate the amount to pay (50% of total price)
-        $amountToPay = $reservation->total_price / 2;
+        $amountToPay = $reservation->total_price * 2;
 
         // Simulate payment processing (replace this with actual payment gateway logic)
         $paymentSuccessful = true; // Assume payment is successful for now

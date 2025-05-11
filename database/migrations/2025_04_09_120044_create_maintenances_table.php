@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('maintenances', function (Blueprint $table) {
             $table->id('maintenance_id');
-            $table->unsignedBigInteger('reservation_id')->nullable();
             $table->text('damage')->nullable();
             $table->text('warranty_contract')->nullable();
             $table->date('date_of_return');
-
-            $table->foreign('reservation_id')->references('reservation_id')->on('reservations');
             $table->timestamps();
         });
     }

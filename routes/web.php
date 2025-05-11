@@ -73,6 +73,13 @@ Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
     Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('updatePassword');
 });
 
+Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
+    Route::get('contract/{reservation_id}', [\App\Http\Controllers\User\ContractController::class, 'contract'])->name('contract');
+    Route::get('contract/{reservation_id}/pdf', [\App\Http\Controllers\User\ContractController::class, 'contractPdf'])->name('contract.pdf');
+    Route::get('receipt/{payment_id}', [\App\Http\Controllers\User\ContractController::class, 'receipt'])->name('receipt');
+    Route::get('receipt/{payment_id}/pdf', [\App\Http\Controllers\User\ContractController::class, 'receiptPdf'])->name('receipt.pdf');
+});
+
 // ===========================
 // Reservation Routes (Authenticated)
 // ===========================

@@ -52,7 +52,16 @@
             <button class="btn btn-success w-100" disabled>PAID</button>
             <div class="mt-3">
                 <h6 class="text-primary">Contract:</h6>
-                <p>{{ session('contract') ?? 'Contract details will be displayed here.' }}</p>
+                <a href="{{ route('user.contract', $reservation->reservation_id) }}" class="btn btn-outline-primary btn-sm mb-2">View Contract</a>
+                <a href="{{ route('user.contract.pdf', $reservation->reservation_id) }}" class="btn btn-outline-secondary btn-sm mb-2">Download Contract PDF</a>
+                <h6 class="text-primary mt-3">Receipt:</h6>
+                @php
+                    $payment = $reservation->payments()->where('payment_status', 'Paid')->latest()->first();
+                @endphp
+                @if($payment)
+                    <a href="{{ route('user.receipt', $payment->payment_id) }}" class="btn btn-outline-primary btn-sm mb-2">View Receipt</a>
+                    <a href="{{ route('user.receipt.pdf', $payment->payment_id) }}" class="btn btn-outline-secondary btn-sm mb-2">Download Receipt PDF</a>
+                @endif
             </div>
             @else
             <!-- Card Key Input -->

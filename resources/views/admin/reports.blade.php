@@ -19,6 +19,7 @@
                             <option value="" selected>Select Report Type</option>
                             <option value="Rental Revenue">Rental Revenue</option>
                             <option value="Service Revenue">Service Revenue</option>
+                            <option value="Sales">Sales</option> <!-- Add this line -->
                         </select>
                     </div>
                     <div class="col-md-4">
@@ -70,17 +71,39 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            @foreach(array_keys($reportData->first()->toArray()) as $column)
-                                <th>{{ ucfirst(str_replace('_', ' ', $column)) }}</th>
-                            @endforeach
+                            <th>Sales ID</th>
+                            <th>Employee</th>
+                            <th>Type</th>
+                            <th>Reference</th>
+                            <th>Date</th>
+                            <th>Total Sales</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($reportData as $data)
+                        @foreach($reportData as $sale)
                         <tr>
-                            @foreach($data->toArray() as $value)
-                                <td>{{ $value }}</td>
-                            @endforeach
+                            <td>{{ $sale->sales_id }}</td>
+                            <td>{{ $sale->employee->name ?? 'N/A' }}</td>
+                            <td>
+                                @if($sale->reservation_id)
+                                    Reservation
+                                @elseif($sale->booking_id)
+                                    Booking
+                                @else
+                                    N/A
+                                @endif
+                            </td>
+                            <td>
+                                @if($sale->reservation)
+                                    Reservation #{{ $sale->reservation->reservation_id }}
+                                @elseif($sale->booking)
+                                    Booking #{{ $sale->booking->booking_id }}
+                                @else
+                                    N/A
+                                @endif
+                            </td>
+                            <td>{{ $sale->date }}</td>
+                            <td>${{ number_format($sale->total_sales, 2) }}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -91,5 +114,48 @@
     @else
     <p class="text-center mt-4">No data available for the selected filters.</p>
     @endif
+
+    @if(isset($salesGraphData) && count($salesGraphData) > 0)
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">Sales Trend (Last 12 Months)</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="salesChart" height="100"></canvas>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+@if(isset($salesGraphData) && count($salesGraphData) > 0)
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {!! json_encode($salesGraphData->pluck('month')) !!},
+            datasets: [{
+                label: 'Total Sales',
+                data: {!! json_encode($salesGraphData->pluck('total')) !!},
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+@endif
+</script>
+@endpush

@@ -213,4 +213,6 @@ Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
     Route::get('bookings', [\App\Http\Controllers\User\BookingController::class, 'index'])->name('bookings');
     Route::post('/bookings/charge/{booking}', [\App\Http\Controllers\User\PaymentController::class, 'chargeBooking'])->name('user.bookings.charge');
     Route::post('bookings/charge/{booking}', [\App\Http\Controllers\User\PaymentController::class, 'chargeBooking'])->name('bookings.charge');
+    Route::get('/damage-assessment/{reservation}', [\App\Http\Controllers\User\DamageAssessmentController::class, 'show'])->name('damage.assessment');
+    Route::post('/damage-assessment/pay/{damage}', [\App\Http\Controllers\User\DamageAssessmentController::class, 'pay'])->name('damage.assessment.pay');
 });

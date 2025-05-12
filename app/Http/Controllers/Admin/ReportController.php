@@ -8,6 +8,7 @@ use App\Models\Reservation;
 use App\Models\Payment;
 use App\Models\Car;
 use App\Models\User;
+use App\Models\Sales;
 
 class ReportController extends Controller
 {
@@ -16,11 +17,17 @@ class ReportController extends Controller
      */
     public function index()
     {
-        // Fetch all cars and customers for filters
         $cars = Car::all();
         $customers = User::where('role_id', 2)->get(); // Assuming role_id 2 is for customers
 
-        return view('admin.reports', compact('cars', 'customers'));
+        // Fetch sales data for graph (last 12 months)
+        $salesGraphData = Sales::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(total_sales) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->take(12)
+            ->get();
+
+        return view('admin.reports', compact('cars', 'customers', 'salesGraphData'));
     }
 
     /**
@@ -75,7 +82,16 @@ class ReportController extends Controller
         // Fetch the data
         $reportData = $query ? $query->get() : [];
 
+        // Fetch additional data for the view
+        $cars = Car::all();
+        $customers = User::where('role_id', 2)->get();
+        $salesGraphData = Sales::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(total_sales) as total')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->take(12)
+            ->get();
+
         // Pass the data to the view
-        return view('admin.reports', compact('reportData', 'reportTitle', 'dateFrom', 'dateTo'));
+        return view('admin.reports', compact('reportData', 'reportTitle', 'dateFrom', 'dateTo', 'cars', 'customers', 'salesGraphData'));
     }
 }

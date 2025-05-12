@@ -61,7 +61,16 @@
                 @if($payment)
                     <a href="{{ route('user.receipt', $payment->payment_id) }}" class="btn btn-outline-primary btn-sm mb-2">View Receipt</a>
                     <a href="{{ route('user.receipt.pdf', $payment->payment_id) }}" class="btn btn-outline-secondary btn-sm mb-2">Download Receipt PDF</a>
+                    <a href="{{ route('user.damage.assessment', $reservation->reservation_id) }}"
+       id="damage-assessment-btn-{{ $reservation->reservation_id }}"
+       class="btn btn-outline-danger btn-sm mb-2"
+       onclick="this.style.display='none'">
+        View Damage Assessment
+    </a>
+
+
                 @endif
+
             </div>
             @else
             <!-- Card Key Input -->
@@ -234,3 +243,5 @@
 </script>
 
 @endsection
+
+

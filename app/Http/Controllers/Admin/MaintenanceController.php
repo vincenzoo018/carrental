@@ -25,16 +25,15 @@ class MaintenanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'damage_id' => 'required|exists:damages,id',
+            'damage_id' => 'required|exists:damages,damage_id', // Use damage_id, not id
             'warranty_contract' => 'nullable|string',
             'date_of_return' => 'required|date',
         ]);
 
-        $damage = \App\Models\Damage::findOrFail($request->damage_id);
+        $damage = \App\Models\Damage::where('damage_id', $request->damage_id)->firstOrFail();
 
-        Maintenance::create([
-            'damage_id' => $damage->id,
-            'reservation_id' => $damage->reservation_id,
+        \App\Models\Maintenance::create([
+            'damage_id' => $damage->damage_id, // Use damage_id
             'damage' => $damage->damage_types,
             'warranty_contract' => $request->warranty_contract ?? '',
             'date_of_return' => $request->date_of_return,

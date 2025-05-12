@@ -41,12 +41,14 @@
                                 {{ $payment->reservation->user->name ?? $payment->booking->user->name ?? 'N/A' }}
                             </td>
                             <td>
-                                @if($payment->reservation_id)
-                                Reservation
+                                @if($payment->damage_id)
+                                    Damage Assessment
+                                @elseif($payment->reservation_id)
+                                    Reservation
                                 @elseif($payment->booking_id)
-                                Booking
+                                    Booking
                                 @else
-                                N/A
+                                    N/A
                                 @endif
                             </td>
                             <td>

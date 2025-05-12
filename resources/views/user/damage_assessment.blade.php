@@ -51,9 +51,9 @@
                         </li>
                     </ul>
                     @if(!$damage->is_paid)
-                        <form action="{{ route('user.damage.assessment.pay', $damage->damage_id) }}" method="POST">
+                        <form id="damage-payment-form" action="{{ route('user.damage.assessment.pay', $damage->damage_id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-danger w-100 py-2 fs-5">
+                            <button type="submit" class="btn btn-danger w-100 py-2 fs-5" id="pay-damage-btn">
                                 <i class="fas fa-credit-card me-2"></i> Pay for Damages
                             </button>
                         </form>
@@ -70,8 +70,27 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('damage-payment-form');
+    var payBtn = document.getElementById('pay-damage-btn');
+    if (form && payBtn) {
+        form.addEventListener('submit', function(e) {
+            var confirmed = confirm('Are you sure you want to pay for damages?');
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+    }
+});
+</script>
 @endpush

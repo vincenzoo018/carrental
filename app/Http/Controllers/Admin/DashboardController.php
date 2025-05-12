@@ -72,6 +72,17 @@ class DashboardController extends Controller
         // Count total employees
         $totalEmployees = Employee::count();
 
+        // Calculate damage revenue
+        $damageRevenue = Payment::where('payment_status', 'Paid')
+            ->whereNotNull('damage_id')
+            ->sum('amount');
+
+        // Calculate reservation revenue
+        $reservationRevenue = Payment::where('payment_status', 'Paid')
+            ->whereNotNull('reservation_id')
+            ->whereNull('damage_id')
+            ->sum('amount');
+
         // Pass the data to the dashboard view
         return view('admin.dashboard', compact(
             'availableCars',
@@ -84,7 +95,9 @@ class DashboardController extends Controller
             'rentedCars',
             'totalServices',
             'totalEmployees',
-            'revenueData'
+            'revenueData',
+            'damageRevenue',
+            'reservationRevenue'
         ));
     }
 }

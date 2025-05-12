@@ -29,6 +29,7 @@ class DamageAssessmentController extends Controller
             Payment::create([
                 'user_id' => $userId,
                 'reservation_id' => $damage->reservation_id,
+                'damage_id' => $damage->damage_id, // <-- Add this line!
                 'amount' => $damage->repair_cost + $damage->violation_fee,
                 'payment_status' => 'Paid',
                 'payment_date' => now(),

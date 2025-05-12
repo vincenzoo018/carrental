@@ -16,6 +16,7 @@ class Payment extends Model
     protected $fillable = [
         'reservation_id',
         'booking_id',
+        'damage_id',
         'user_id',
         'amount',
         'payment_status',
@@ -51,5 +52,9 @@ class Payment extends Model
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
+    public function damages()
+    {
+        return $this->hasMany(\App\Models\Damage::class, 'damage_id', 'damage_id');
     }
 }

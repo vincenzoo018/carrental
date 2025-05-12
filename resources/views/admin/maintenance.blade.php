@@ -20,10 +20,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Reservation</th>
+                            <th>Damage ID</th>
                             <th>Damage</th>
                             <th>Repair Cost</th>
-                            <th>Date of Assessment</th>
                             <th>Warranty Contract</th>
                             <th>Date of Return</th>
                             <th>Actions</th>
@@ -31,31 +30,24 @@
                     </thead>
                     <tbody>
                         @forelse($maintenances as $maintenance)
-                        @php
-                            // Fetch the latest damage assessment for this reservation
-                            $damage = \App\Models\Damage::where('reservation_id', $maintenance->reservation_id)->latest()->first();
-                        @endphp
                         <tr>
                             <td>MNT-{{ str_pad($maintenance->maintenance_id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <td>DMG-{{ str_pad($maintenance->damage_id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <td>{{ $maintenance->damage }}</td>
                             <td>
-                                RES-{{ str_pad($maintenance->reservation_id, 4, '0', STR_PAD_LEFT) }}
-                            </td>
-                            <td>
-                                {{ $damage ? $damage->damage_types : '' }}
-                            </td>
-                            <td>
-                                {{ $damage ? '$' . number_format($damage->repair_cost, 2) : '' }}
-                            </td>
-                            <td>
-                                {{ $damage ? $damage->assessment_date : '' }}
+                                @php
+                                    $repairCost = $maintenance->repair_cost ?? ($maintenance->damageRelation->repair_cost ?? '');
+                                @endphp
+                                {{ $repairCost ? '₱' . number_format($repairCost, 2) : 'N/A' }}
                             </td>
                             <td>{{ $maintenance->warranty_contract }}</td>
                             <td>{{ $maintenance->date_of_return }}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary edit-maintenance-btn"
                                     data-id="{{ $maintenance->maintenance_id }}"
-                                    data-reservation-id="{{ $maintenance->reservation_id }}"
+                                    data-damage-id="{{ $maintenance->damage_id }}"
                                     data-damage="{{ $maintenance->damage }}"
+                                    data-repair-cost="{{ $repairCost }}"
                                     data-warranty="{{ $maintenance->warranty_contract }}"
                                     data-date="{{ $maintenance->date_of_return }}">
                                     <i class="fas fa-edit"></i>
@@ -67,41 +59,11 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
-                                <!-- Mark as Repaired Button -->
-                                @if($maintenance->reservation && $maintenance->reservation->car && $maintenance->reservation->car->status !== 'available')
-                                <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#markRepairedModal{{ $maintenance->maintenance_id }}">
-                                    <i class="fas fa-check"></i> Mark as Repaired
-                                </button>
-                                @endif
                             </td>
                         </tr>
-
-                        <!-- Mark as Repaired Modal -->
-                        <div class="modal fade" id="markRepairedModal{{ $maintenance->maintenance_id }}" tabindex="-1" aria-labelledby="markRepairedModalLabel{{ $maintenance->maintenance_id }}" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <form method="POST" action="{{ route('admin.maintenances.markRepaired', $maintenance->maintenance_id) }}">
-                                    @csrf
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Mark Car as Repaired</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Are you sure you want to mark this car as repaired and available for rental?</p>
-                                            <p><strong>Car:</strong> {{ $maintenance->reservation->car->brand ?? '' }} {{ $maintenance->reservation->car->model ?? '' }}</p>
-                                            <p><strong>Plate:</strong> {{ $maintenance->reservation->car->plate_number ?? '' }}</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-success">Yes, Mark as Repaired</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center">No maintenance records found.</td>
+                            <td colspan="7" class="text-center">No maintenance records found.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -127,44 +89,21 @@
                         <select class="form-select" name="damage_id" id="damage_id" required>
                             <option value="">Select Damage Assessment</option>
                             @foreach($damages as $damage)
-                                <option value="{{ $damage->id }}"
-                                    data-reservation_id="{{ $damage->reservation_id }}"
-                                    data-damage_types="{{ $damage->damage_types }}"
-                                    data-damage_description="{{ $damage->damage_description }}"
-                                    data-severity="{{ $damage->severity }}"
-                                    data-repair_cost="{{ $damage->repair_cost }}"
-                                    data-violation_fee="{{ $damage->violation_fee }}"
-                                    data-insurance_claim="{{ $damage->insurance_claim }}"
-                                    data-assessment_date="{{ $damage->assessment_date }}"
-                                >
-                                    DMG-{{ str_pad($damage->id, 4, '0', STR_PAD_LEFT) }} - RES-{{ str_pad($damage->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $damage->damage_types }}
+                                <option value="{{ $damage->damage_id }}"
+                                    data-damage="{{ $damage->damage_types }}"
+                                    data-repair_cost="{{ $damage->repair_cost }}">
+                                    DMG-{{ str_pad($damage->damage_id, 4, '0', STR_PAD_LEFT) }} - {{ $damage->damage_types }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Type of Damage</label>
-                        <input type="text" class="form-control" id="damage_types" name="damage_types" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <input type="text" class="form-control" id="damage_description" name="damage_description" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Severity</label>
-                        <input type="text" class="form-control" id="severity" name="severity" readonly>
+                        <label class="form-label">Damage</label>
+                        <input type="text" class="form-control" id="damage" name="damage" readonly>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Repair Cost</label>
                         <input type="text" class="form-control" id="repair_cost" name="repair_cost" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Violation Fee</label>
-                        <input type="text" class="form-control" id="violation_fee" name="violation_fee" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Assessment Date</label>
-                        <input type="text" class="form-control" id="assessment_date" name="assessment_date" readonly>
                     </div>
                     <div class="mb-3">
                         <label for="warranty_contract" class="form-label">Warranty Contract</label>
@@ -193,19 +132,14 @@
                 <form id="editMaintenanceForm" method="POST">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="damage_id" id="edit_damage_id">
                     <div class="mb-3">
-                        <label for="edit_reservation_id" class="form-label">Reservation</label>
-                        <select class="form-select" name="reservation_id" id="edit_reservation_id" required>
-                            @foreach($reservations as $reservation)
-                            <option value="{{ $reservation->reservation_id }}">
-                                RES-{{ str_pad($reservation->reservation_id, 4, '0', STR_PAD_LEFT) }} - {{ $reservation->car->brand ?? 'N/A' }}
-                            </option>
-                            @endforeach
-                        </select>
+                        <label class="form-label">Damage</label>
+                        <input type="text" class="form-control" name="damage" id="edit_damage" readonly>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_damage" class="form-label">Damage</label>
-                        <input type="text" class="form-control" name="damage" required>
+                        <label class="form-label">Repair Cost</label>
+                        <input type="text" class="form-control" name="repair_cost" id="edit_repair_cost" readonly>
                     </div>
                     <div class="mb-3">
                         <label for="edit_warranty_contract" class="form-label">Warranty Contract</label>
@@ -228,102 +162,52 @@
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const editButtons = document.querySelectorAll('.edit-maintenance-btn');
-        const editForm = document.getElementById('editMaintenanceForm');
-        const editReservationId = document.getElementById('edit_reservation_id');
-        const editDamage = document.getElementById('edit_damage');
-        const editWarrantyContract = document.getElementById('edit_warranty_contract');
-        const editDateOfReturn = document.getElementById('edit_date_of_return');
-
-        editButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const maintenanceId = this.getAttribute('data-id');
-                const reservationId = this.getAttribute('data-reservation-id');
-                const damage = this.getAttribute('data-damage');
-                const warranty = this.getAttribute('data-warranty');
-                const date = this.getAttribute('data-date');
-
-                // Set form action
-                editForm.action = `/admin/maintenances/${maintenanceId}`;
-
-                // Populate form fields
-                editReservationId.value = reservationId;
-                editDamage.value = damage;
-                editWarrantyContract.value = warranty;
-                editDateOfReturn.value = date;
-
-                // Show the modal
-                const editModal = new bootstrap.Modal(document.getElementById('editMaintenanceModal'));
-                editModal.show();
-            });
-        });
-
-        const reservationSelect = document.getElementById('reservation_id');
-        const damageInput = document.getElementById('damage');
-        const repairCostInput = document.getElementById('repair_cost');
-        const assessmentDateInput = document.getElementById('assessment_date');
-
-        reservationSelect.addEventListener('change', function () {
-            const selectedOption = this.options[this.selectedIndex];
-            const damage = selectedOption.getAttribute('data-damage');
-            const repairCost = selectedOption.getAttribute('data-repair_cost');
-            const assessmentDate = selectedOption.getAttribute('data-assessment_date');
-
-            damageInput.value = damage || '';
-            repairCostInput.value = repairCost || '';
-            assessmentDateInput.value = assessmentDate || '';
-        });
-    });
-</script>
-@endpush
-
-@push('scripts')
-<script>
 document.addEventListener('DOMContentLoaded', function () {
-    const reservationSelect = document.getElementById('reservation_id');
+    // Add Modal: Auto-fill damage and repair cost
+    const damageSelect = document.getElementById('damage_id');
     const damageInput = document.getElementById('damage');
     const repairCostInput = document.getElementById('repair_cost');
-    const assessmentDateInput = document.getElementById('assessment_date');
-
-    reservationSelect.addEventListener('change', function () {
-        const selected = reservationSelect.selectedOptions[0];
-        damageInput.value = selected.getAttribute('data-damage') || '';
-        repairCostInput.value = selected.getAttribute('data-repair_cost') || '';
-        assessmentDateInput.value = selected.getAttribute('data-assessment_date') || '';
-    });
-});
-</script>
-@endpush
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const damageSelect = document.getElementById('damage_id');
-    const fields = [
-        'damage_types',
-        'damage_description',
-        'severity',
-        'repair_cost',
-        'violation_fee',
-        'assessment_date'
-    ];
     if (damageSelect) {
         damageSelect.addEventListener('change', function () {
             const selected = damageSelect.selectedOptions[0];
-            fields.forEach(field => {
-                const input = document.getElementById(field);
-                if (input) {
-                    input.value = selected.getAttribute('data-' + field) || '';
-                }
-            });
+            damageInput.value = selected.getAttribute('data-damage') || '';
+            repairCostInput.value = selected.getAttribute('data-repair_cost') || '';
         });
-        // Trigger change event on page load if a value is already selected
         if (damageSelect.value) {
             const event = new Event('change');
             damageSelect.dispatchEvent(event);
         }
     }
+
+    // Edit Modal: Fill fields from button data
+    const editButtons = document.querySelectorAll('.edit-maintenance-btn');
+    const editForm = document.getElementById('editMaintenanceForm');
+    const editDamageId = document.getElementById('edit_damage_id');
+    const editDamage = document.getElementById('edit_damage');
+    const editRepairCost = document.getElementById('edit_repair_cost');
+    const editWarrantyContract = document.getElementById('edit_warranty_contract');
+    const editDateOfReturn = document.getElementById('edit_date_of_return');
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const maintenanceId = this.getAttribute('data-id');
+            const damageId = this.getAttribute('data-damage-id');
+            const damage = this.getAttribute('data-damage');
+            const repairCost = this.getAttribute('data-repair-cost');
+            const warranty = this.getAttribute('data-warranty');
+            const date = this.getAttribute('data-date');
+
+            editForm.action = `/admin/maintenances/${maintenanceId}`;
+            editDamageId.value = damageId;
+            editDamage.value = damage;
+            editRepairCost.value = repairCost;
+            editWarrantyContract.value = warranty;
+            editDateOfReturn.value = date;
+
+            const editModal = new bootstrap.Modal(document.getElementById('editMaintenanceModal'));
+            editModal.show();
+        });
+    });
 });
 </script>
 @endpush

@@ -9,6 +9,8 @@ class Damage extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'damage_id';
+
     protected $fillable = [
         'reservation_id',
         'damage_types',
@@ -24,6 +26,11 @@ class Damage extends Model
     protected $casts = [
         'damage_photos' => 'array',
     ];
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'damage_id');
+    }
 
     public function reservation()
     {

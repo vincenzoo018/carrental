@@ -227,6 +227,11 @@
                 <canvas id="revenueChart" height="80"></canvas>
             </div>
         </div>
+
+        <div>
+            <p>Damage Assessment Revenue: ₱{{ number_format($damageRevenue, 2) }}</p>
+            <p>Reservation Revenue: ₱{{ number_format($reservationRevenue, 2) }}</p>
+        </div>
     </div>
     @endsection
 

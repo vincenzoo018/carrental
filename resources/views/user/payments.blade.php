@@ -87,15 +87,11 @@
     <div class="alert alert-info">You have no confirmed reservations requiring payment.</div>
     @endforelse
 
-    <!-- Service Bookings Payment Section -->
-    <h2 class="mb-4 text-primary fw-bold">Service Bookings Payments</h2>
-    @php
-        $confirmedBookings = $confirmedBookings ?? [];
-    @endphp
+    <!-- Loop through confirmed bookings for payment -->
     @forelse($confirmedBookings as $booking)
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body">
-            <h5 class="card-title mb-3">Booking #{{ $booking->booking_id }}</h5>
+            <h5 class="card-title mb-3">Service Booking #{{ $booking->booking_id }}</h5>
             <ul class="list-group list-group-flush mb-4">
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Service:</strong>
@@ -110,10 +106,11 @@
                     <span>${{ number_format($booking->total_price, 2) }}</span>
                 </li>
             </ul>
-            @if($booking->payment_status === 'Paid')
+
+            @if(isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')
                 <button class="btn btn-success w-100" disabled>PAID</button>
             @else
-                <form action="{{ route('user.bookings.charge', $booking->booking_id) }}" method="POST" id="payment-form-booking-{{ $booking->booking_id }}">
+                <form action="{{ route('user.bookings.charge', ['booking' => $booking->booking_id]) }}" method="POST">
                     @csrf
                     <div class="mb-3">
                         <label for="card-key-booking-{{ $booking->booking_id }}" class="form-label">Card Key</label>

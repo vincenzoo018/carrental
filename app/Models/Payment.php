@@ -14,12 +14,13 @@ class Payment extends Model
 
     // Allow mass assignment for these attributes
     protected $fillable = [
-        'user_id',        // Assuming the payments table has a user_id column
         'reservation_id',
-        'payment_date',
+        'booking_id',
+        'user_id',
         'amount',
         'payment_status',
-        'payment_method',
+        'payment_date',
+        // ...other fields...
     ];
 
     // Automatically cast these fields to their appropriate types

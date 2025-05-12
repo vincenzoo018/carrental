@@ -14,21 +14,21 @@ class BookingController extends Controller
     {
         $user = Auth::user();
 
-        // Fetch active bookings (not completed or cancelled)
+        // Active bookings: not completed, not cancelled, not paid
         $activeBookings = Booking::with('service')
             ->where('user_id', $user->id)
-            ->whereNotIn('status', ['completed', 'cancelled', 'confirmed'])
+            ->whereNotIn('status', ['completed', 'cancelled', 'Paid'])
             ->orderBy('date')
             ->get();
 
-        // Fetch completed or cancelled bookings
+        // Completed/Cancelled/Paid/Confirmed bookings
         $completedBookings = Booking::with('service')
             ->where('user_id', $user->id)
-            ->whereIn('status', ['completed', 'cancelled', 'confirmed'])
+            ->whereIn('status', ['completed', 'cancelled', 'Paid', 'confirmed'])
             ->orderByDesc('date')
             ->get();
 
-        // Fetch confirmed bookings for payment
+         // Fetch confirmed bookings for payment
         $confirmedBookings = Booking::with('service')
             ->where('user_id', $user->id)
             ->where('status', 'confirmed')

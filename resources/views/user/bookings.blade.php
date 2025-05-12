@@ -36,9 +36,14 @@
                         <td>{{ \Carbon\Carbon::parse($booking->date)->format('Y-m-d') }}</td>
                         <td>${{ number_format($booking->total_price, 2) }}</td>
                         <td>
-                            <strong class="text-dark">
+                            <span class="badge
+                                @if($booking->status == 'completed') bg-success
+                                @elseif($booking->status == 'cancelled') bg-danger
+                                @elseif($booking->status == 'pending') bg-warning text-dark
+                                @else bg-info
+                                @endif">
                                 {{ ucfirst($booking->status) }}
-                            </strong>
+                            </span>
                         </td>
                         <td>
                             <form action="{{ route('user.bookings.cancel', $booking->booking_id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
@@ -79,8 +84,13 @@
                         <td>{{ \Carbon\Carbon::parse($booking->date)->format('Y-m-d') }}</td>
                         <td>${{ number_format($booking->total_price, 2) }}</td>
                         <td>
-                            <span class="badge bg-{{ $booking->status == 'completed' ? 'success' : ($booking->status == 'cancelled' ? 'danger' : 'info') }}">
-                                {{ ucfirst($booking->status) }}
+                            <span class="badge
+                                @if($booking->status == 'completed' || (isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')) bg-success
+                                @elseif($booking->status == 'cancelled') bg-danger
+                                @elseif($booking->status == 'pending') bg-warning text-dark
+                                @else bg-info
+                                @endif">
+                                {{ (isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid') ? 'Paid' : ucfirst($booking->status) }}
                             </span>
                         </td>
                         <td>
@@ -88,13 +98,11 @@
                                 @if(isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')
                                     <span class="badge bg-success" style="font-size: 1em;">Paid</span>
                                 @else
-                                    <a href="{{ route('user.payments', ['booking_id' => $booking->booking_id]) }}"
-                                        class="btn btn-warning btn-sm" title="Pay Here">
-                                        <i class="fas fa-credit-card"></i>
-                                    </a>
+                                    <a href="{{ route('user.payments', ['reservation_id' => $booking->booking_id]) }}"
+                                class="btn btn-warning btn-sm" title="Pay Here">
+                                <i class="fas fa-credit-card"></i>
+                            </a>
                                 @endif
-                            @else
-                                <a href="{{ url('/services') }}" class="btn btn-sm btn-outline-primary">Book Again</a>
                             @endif
                         </td>
                     </tr>

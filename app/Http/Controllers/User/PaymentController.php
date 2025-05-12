@@ -92,6 +92,15 @@ class PaymentController extends Controller
         $paymentSuccessful = true;
 
         if ($paymentSuccessful) {
+            // Save payment for the booking
+            Payment::create([
+                'booking_id' => $booking->booking_id, // <-- Make sure this is set!
+                'user_id' => auth()->id(),
+                'amount' => $booking->total_price,
+                'payment_status' => 'Paid',
+                'payment_date' => now(),
+            ]);
+
             // Update booking's payment status and status
             $booking->update([
                 'payment_status' => 'Paid',

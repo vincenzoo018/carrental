@@ -9,8 +9,9 @@ use App\Models\Payment;
 use App\Models\Car;
 use App\Models\User;
 use App\Models\Sales;
+use Illuminate\Support\Facades\DB;
 
-class ReportController extends Controller
+class ReportsController extends Controller
 {
     /**
      * Show the report generation page.
@@ -20,6 +21,12 @@ class ReportController extends Controller
         $cars = Car::all();
         $customers = User::where('role_id', 2)->get(); // Assuming role_id 2 is for customers
 
+        // Payment totals
+        $overallPaid = Payment::where('payment_status', 'Paid')->sum('amount');
+        $reservationPaid = Payment::where('payment_status', 'Paid')->whereNotNull('reservation_id')->sum('amount');
+        $bookingPaid = Payment::where('payment_status', 'Paid')->whereNotNull('booking_id')->sum('amount');
+        $damagePaid = Payment::where('payment_status', 'Paid')->whereNotNull('damage_id')->sum('amount');
+
         // Fetch sales data for graph (last 12 months)
         $salesGraphData = Sales::selectRaw('DATE_FORMAT(date, "%Y-%m") as month, SUM(total_sales) as total')
             ->groupBy('month')
@@ -27,7 +34,15 @@ class ReportController extends Controller
             ->take(12)
             ->get();
 
-        return view('admin.reports', compact('cars', 'customers', 'salesGraphData'));
+        return view('admin.reports', compact(
+            'cars',
+            'customers',
+            'salesGraphData',
+            'overallPaid',
+            'reservationPaid',
+            'bookingPaid',
+            'damagePaid'
+        ));
     }
 
     /**
@@ -91,7 +106,25 @@ class ReportController extends Controller
             ->take(12)
             ->get();
 
+        // Payment totals (same as above)
+        $overallPaid = Payment::where('payment_status', 'Paid')->sum('amount');
+        $reservationPaid = Payment::where('payment_status', 'Paid')->whereNotNull('reservation_id')->sum('amount');
+        $bookingPaid = Payment::where('payment_status', 'Paid')->whereNotNull('booking_id')->sum('amount');
+        $damagePaid = Payment::where('payment_status', 'Paid')->whereNotNull('damage_id')->sum('amount');
+
         // Pass the data to the view
-        return view('admin.reports', compact('reportData', 'reportTitle', 'dateFrom', 'dateTo', 'cars', 'customers', 'salesGraphData'));
+        return view('admin.reports', compact(
+            'reportData',
+            'reportTitle',
+            'dateFrom',
+            'dateTo',
+            'cars',
+            'customers',
+            'salesGraphData',
+            'overallPaid',
+            'reservationPaid',
+            'bookingPaid',
+            'damagePaid'
+        ));
     }
 }

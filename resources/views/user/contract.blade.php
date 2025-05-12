@@ -9,7 +9,7 @@
                 <div class="text-muted">Contract #: {{ $reservation->reservation_id }}</div>
             </div>
             <div>
-                <img src="{{ asset('images/logo.png') }}" alt="Company Logo" style="height: 60px;">
+                <p>Note: Please bring one copy of this at the shop</p>
             </div>
         </div>
         <hr>

@@ -181,11 +181,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/admin/maintenances/{maintenance}/mark-repaired', [App\Http\Controllers\Admin\MaintenanceController::class, 'markRepaired'])->name('maintenances.markRepaired');
 });
 
-use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReportsController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
-    Route::get('/reports/generate', [ReportController::class, 'generate'])->name('reports.generate');
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
+    Route::get('/reports/generate', [ReportsController::class, 'generate'])->name('reports.generate');
 });
 
 use App\Http\Controllers\Admin\DashboardController;

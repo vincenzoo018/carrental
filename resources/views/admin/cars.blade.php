@@ -39,15 +39,17 @@
                         <tr>
                             <td>
                                 @if($car->photo)
-                                    <img src="{{ asset($car->photo) }}" alt="Car Photo" style="width: 100px; height: auto;">
+                                <img src="{{ asset($car->photo) }}" alt="Car Photo" style="width: 100px; height: auto;">
                                 @else
-                                    <img src="{{ asset('images/default-car.png') }}" alt="Default Car Photo" style="width: 100px; height: auto;">
+                                <img src="{{ asset('images/default-car.png') }}" alt="Default Car Photo" style="width: 100px; height: auto;">
                                 @endif
                             </td>
                             <td>{{ $car->brand }}</td>
                             <td>{{ $car->model }}</td>
                             <td>{{ $car->year }}</td>
-                            <td>${{ number_format($car->price, 2) }}</td>
+                            <td>₱
+                                {{ number_format($car->price, 2) }}
+                            </td>
                             <td>{{ ucfirst($car->status) }}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editCarModal{{ $car->car_id }}">
@@ -101,7 +103,8 @@
                                                 <!-- Right Column -->
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
-                                                        <label class="form-label">Price/Day ($)</label>
+                                                        <label class="form-label">Price/Day (₱
+                                                            )</label>
                                                         <input type="number" step="0.01" class="form-control" name="price" value="{{ $car->price }}" required>
                                                     </div>
                                                     <div class="mb-3">
@@ -179,7 +182,8 @@
                     <div class="mb-3"><label class="form-label">Model</label><input type="text" class="form-control" name="model" required></div>
                     <div class="mb-3"><label class="form-label">Year</label><input type="number" class="form-control" name="year" required></div>
                     <div class="mb-3"><label class="form-label">Plate Number</label><input type="text" class="form-control" name="plate_number" required></div>
-                    <div class="mb-3"><label class="form-label">Price per Day ($)</label><input type="number" step="0.01" class="form-control" name="price" required></div>
+                    <div class="mb-3"><label class="form-label">Price per Day (₱
+                            )</label><input type="number" step="0.01" class="form-control" name="price" required></div>
                     <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select class="form-select" name="status" required>

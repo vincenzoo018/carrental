@@ -37,7 +37,7 @@
                         <select class="form-select" id="carFilter" name="carFilter">
                             <option value="" selected>All Cars</option>
                             @foreach($cars as $car)
-                                <option value="{{ $car->car_id }}">{{ $car->brand }} {{ $car->model }}</option>
+                            <option value="{{ $car->car_id }}">{{ $car->brand }} {{ $car->model }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -46,7 +46,7 @@
                         <select class="form-select" id="customerFilter" name="customerFilter">
                             <option value="" selected>All Customers</option>
                             @foreach($customers as $customer)
-                                <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -86,20 +86,20 @@
                             <td>{{ $sale->employee->name ?? 'N/A' }}</td>
                             <td>
                                 @if($sale->reservation_id)
-                                    Reservation
+                                Reservation
                                 @elseif($sale->booking_id)
-                                    Booking
+                                Booking
                                 @else
-                                    N/A
+                                N/A
                                 @endif
                             </td>
                             <td>
                                 @if($sale->reservation)
-                                    Reservation #{{ $sale->reservation->reservation_id }}
+                                Reservation #{{ $sale->reservation->reservation_id }}
                                 @elseif($sale->booking)
-                                    Booking #{{ $sale->booking->booking_id }}
+                                Booking #{{ $sale->booking->booking_id }}
                                 @else
-                                    N/A
+                                N/A
                                 @endif
                             </td>
                             <td>{{ $sale->date }}</td>
@@ -131,15 +131,19 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-@if(isset($salesGraphData) && count($salesGraphData) > 0)
+    @if(isset($salesGraphData) && count($salesGraphData) > 0)
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {!! json_encode($salesGraphData->pluck('month')) !!},
+            labels: {
+                !!json_encode($salesGraphData - > pluck('month')) !!
+            },
             datasets: [{
                 label: 'Total Sales',
-                data: {!! json_encode($salesGraphData->pluck('total')) !!},
+                data: {
+                    !!json_encode($salesGraphData - > pluck('total')) !!
+                },
                 borderColor: 'rgba(54, 162, 235, 1)',
                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
                 fill: true,
@@ -149,13 +153,17 @@
         options: {
             responsive: true,
             plugins: {
-                legend: { display: true }
+                legend: {
+                    display: true
+                }
             },
             scales: {
-                y: { beginAtZero: true }
+                y: {
+                    beginAtZero: true
+                }
             }
         }
     });
-@endif
+    @endif
 </script>
 @endpush

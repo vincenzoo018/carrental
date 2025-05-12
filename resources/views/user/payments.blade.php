@@ -39,11 +39,13 @@
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Total Amount:</strong>
-                    <span>${{ number_format($reservation->total_price, 2) }}</span>
+                    <span>₱
+                        {{ number_format($reservation->total_price, 2) }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between text-success fw-semibold">
                     <strong>Amount to Pay:</strong>
-                    <span>${{ number_format($reservation->total_price * 2, 2) }}</span>
+                    <span>₱
+                        {{ number_format($reservation->total_price * 2, 2) }}</span>
                 </li>
             </ul>
 
@@ -56,17 +58,17 @@
                 <a href="{{ route('user.contract.pdf', $reservation->reservation_id) }}" class="btn btn-outline-secondary btn-sm mb-2">Download Contract PDF</a>
                 <h6 class="text-primary mt-3">Receipt:</h6>
                 @php
-                    $payment = $reservation->payments()->where('payment_status', 'Paid')->latest()->first();
+                $payment = $reservation->payments()->where('payment_status', 'Paid')->latest()->first();
                 @endphp
                 @if($payment)
-                    <a href="{{ route('user.receipt', $payment->payment_id) }}" class="btn btn-outline-primary btn-sm mb-2">View Receipt</a>
-                    <a href="{{ route('user.receipt.pdf', $payment->payment_id) }}" class="btn btn-outline-secondary btn-sm mb-2">Download Receipt PDF</a>
-                    <a href="{{ route('user.damage.assessment', $reservation->reservation_id) }}"
-       id="damage-assessment-btn-{{ $reservation->reservation_id }}"
-       class="btn btn-outline-danger btn-sm mb-2"
-       onclick="this.style.display='none'">
-        View Damage Assessment
-    </a>
+                <a href="{{ route('user.receipt', $payment->payment_id) }}" class="btn btn-outline-primary btn-sm mb-2">View Receipt</a>
+                <a href="{{ route('user.receipt.pdf', $payment->payment_id) }}" class="btn btn-outline-secondary btn-sm mb-2">Download Receipt PDF</a>
+                <a href="{{ route('user.damage.assessment', $reservation->reservation_id) }}"
+                    id="damage-assessment-btn-{{ $reservation->reservation_id }}"
+                    class="btn btn-outline-danger btn-sm mb-2"
+                    onclick="this.style.display='none'">
+                    View Damage Assessment
+                </a>
 
 
                 @endif
@@ -112,21 +114,22 @@
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <strong>Total Amount:</strong>
-                    <span>${{ number_format($booking->total_price, 2) }}</span>
+                    <span>₱
+                        {{ number_format($booking->total_price, 2) }}</span>
                 </li>
             </ul>
 
             @if(isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')
-                <button class="btn btn-success w-100" disabled>PAID</button>
+            <button class="btn btn-success w-100" disabled>PAID</button>
             @else
-                <form action="{{ route('user.bookings.charge', ['booking' => $booking->booking_id]) }}" method="POST">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="card-key-booking-{{ $booking->booking_id }}" class="form-label">Card Key</label>
-                        <input type="text" name="card_key" id="card-key-booking-{{ $booking->booking_id }}" class="form-control" placeholder="Enter your card key" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Pay Now</button>
-                </form>
+            <form action="{{ route('user.bookings.charge', ['booking' => $booking->booking_id]) }}" method="POST">
+                @csrf
+                <div class="mb-3">
+                    <label for="card-key-booking-{{ $booking->booking_id }}" class="form-label">Card Key</label>
+                    <input type="text" name="card_key" id="card-key-booking-{{ $booking->booking_id }}" class="form-control" placeholder="Enter your card key" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Pay Now</button>
+            </form>
             @endif
         </div>
     </div>
@@ -243,5 +246,3 @@
 </script>
 
 @endsection
-
-

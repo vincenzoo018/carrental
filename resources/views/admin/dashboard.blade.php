@@ -172,7 +172,9 @@
                                                 {{ ucfirst($rental->status) }}
                                             </span>
                                         </td>
-                                        <td>${{ number_format($rental->total_price, 2) }}</td>
+                                        <td>₱
+                                            {{ number_format($rental->total_price, 2) }}
+                                        </td>
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary">View</button>
                                         </td>

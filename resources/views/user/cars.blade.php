@@ -25,10 +25,10 @@
                 <div class="col-md-4 mb-4">
                     <div class="card h-100">
                         @if($car->photo)
-                                    <img src="{{ asset($car->photo) }}" alt="Car Photo" style="width: 100px; height: auto;">
-                                @else
-                                    <img src="{{ asset('images/default-car.png') }}" alt="Default Car Photo" style="width: 100px; height: auto;">
-                                @endif
+                        <img src="{{ asset($car->photo) }}" alt="Car Photo" style="width: 100px; height: auto;">
+                        @else
+                        <img src="{{ asset('images/default-car.png') }}" alt="Default Car Photo" style="width: 100px; height: auto;">
+                        @endif
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">{{ $car->brand }} {{ $car->model }} {{ $car->year }}</h5>
                             <div class="car-specs mb-3">
@@ -45,7 +45,9 @@
                                 <span class="badge bg-{{ $car->is_available ? 'success' : 'danger' }}">
                                     {{ ucfirst($car->status) }}
                                 </span>
-                                <h5 class="mb-0">${{ number_format($car->price, 2) }}/day</h5>
+                                <h5 class="mb-0">₱
+                                    {{ number_format($car->price, 2) }}/day
+                                </h5>
                             </div>
 
                             @if($car->status === \App\Models\Car::STATUS_AVAILABLE)
@@ -114,7 +116,8 @@
 
                         <div>
                             <label for="price"><strong>Price per day:</strong></label>
-                            <label id="price">${{ number_format($car->price, 2) }}</label>
+                            <label id="price">₱
+                                {{ number_format($car->price, 2) }}</label>
                         </div>
 
                         <!-- Authenticated User Info -->

@@ -50,7 +50,7 @@
                             <td>{{ $reservation->car->brand }} {{ $reservation->car->model }}</td>
                             <td>{{ date('M d', strtotime($reservation->start_date)) }} - {{ date('M d', strtotime($reservation->end_date)) }}</td>
                             <td>{{ $reservation->pickup_location }}</td>
-                            <td>${{ $reservation->total_price }}</td>
+                            <td>₱{{ $reservation->total_price }}</td>
                             <td>
                                 @if($reservation->status == 'cancellation_requested')
                                 <label class="badge bg-warning">Cancellation Requested</label>
@@ -115,7 +115,7 @@
                                                         <p><strong>Model:</strong> {{ $reservation->car->brand }} {{ $reservation->car->model }}</p>
                                                         <p><strong>Plate:</strong> {{ $reservation->car->plate_number }}</p>
                                                         <p><strong>Year:</strong> {{ $reservation->car->year }}</p>
-                                                        <p><strong>Daily Rate:</strong> ${{ $reservation->car->price }}</p>
+                                                        <p><strong>Daily Rate:</strong> ₱{{ $reservation->car->price }}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -130,7 +130,7 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <h6>Payment</h6>
-                                                <p><strong>Total:</strong> ${{ $reservation->total_price }}</p>
+                                                <p><strong>Total:</strong> ₱{{ $reservation->total_price }}</p>
                                                 <p><strong>Status:</strong> {{ $reservation->payments->count() > 0 ? 'Paid' : 'Pending' }}</p>
                                             </div>
                                         </div>

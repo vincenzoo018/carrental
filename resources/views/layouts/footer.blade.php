@@ -1,41 +1,53 @@
-<footer class="footer">
+<footer class="footer mt-auto py-3 bg-dark text-white">
     <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>About CarRental</h5>
-                <p>We provide the best car rental services with a wide range of vehicles to choose from. Our mission is to make your journey comfortable and memorable.</p>
+        <div class="row align-items-center gy-3">
+            <div class="col-md-4 text-center text-md-start">
+                <span class="fw-bold">CarRental</span> &mdash; Making your journey comfortable.
             </div>
-            <div class="col-md-2">
-                <h5>Quick Links</h5>
-                <ul class="footer-links">
-                    <li><a href="{{ route('user.home') }}">Home</a></li>
-                    <li><a href="{{ route('user.cars') }}">Cars</a></li>
-                    <li><a href="{{ route('user.reservations') }}">Rentals</a></li>
-                    <li><a href="{{ route('user.bookings') }}">Services</a></li>
-                </ul>
+            <div class="col-md-4 text-center">
+                <a href="{{ route('user.home') }}" class="footer-link mx-2">Home</a>
+                <a href="{{ route('user.cars') }}" class="footer-link mx-2">Cars</a>
+                <a href="{{ route('user.reservations') }}" class="footer-link mx-2">Rentals</a>
+                <a href="{{ route('user.bookings') }}" class="footer-link mx-2">Services</a>
             </div>
-            <div class="col-md-3">
-                <h5>Contact Us</h5>
-                <ul class="footer-links">
-                    <li><i class="fas fa-map-marker-alt me-2"></i> 123 Street, City</li>
-                    <li><i class="fas fa-phone me-2"></i> +1 234 567 890</li>
-                    <li><i class="fas fa-envelope me-2"></i> info@carrental.com</li>
-                </ul>
-            </div>
-            <div class="col-md-3">
-                <h5>Follow Us</h5>
-                <div class="social-icons">
-                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
-                </div>
+            <div class="col-md-4 text-center text-md-end">
+                <a href="https://facebook.com/carrental" class="text-white-50 mx-1" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://twitter.com/carrental" class="text-white-50 mx-1" target="_blank"><i class="fab fa-twitter"></i></a>
+                <a href="https://instagram.com/carrental" class="text-white-50 mx-1" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://linkedin.com/company/carrental" class="text-white-50 mx-1" target="_blank"><i class="fab fa-linkedin-in"></i></a>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 text-center copyright">
-                <p class="mb-0">&copy; 2023 CarRental System. All rights reserved.</p>
+        <div class="row mt-2">
+            <div class="col-12 text-center small text-white-50">
+                &copy; {{ date('Y') }} CarRental System. All rights reserved.
             </div>
         </div>
     </div>
+    <style>
+        .footer {
+            font-size: 0.97rem;
+            box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .footer-link {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: #0d6efd;
+            text-decoration: underline;
+        }
+
+        .footer .social-icons a,
+        .footer a i {
+            transition: color 0.2s;
+        }
+
+        .footer .social-icons a:hover,
+        .footer a i:hover {
+            color: #0d6efd !important;
+        }
+    </style>
 </footer>

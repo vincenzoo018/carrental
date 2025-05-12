@@ -42,25 +42,26 @@
                             </td>
                             <td>
                                 @if($payment->reservation_id)
-                                    Reservation
+                                Reservation
                                 @elseif($payment->booking_id)
-                                    Booking
+                                Booking
                                 @else
-                                    N/A
+                                N/A
                                 @endif
                             </td>
                             <td>
                                 @if($payment->reservation)
-                                    {{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}
+                                {{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}
                                 @elseif($payment->booking)
-                                    {{ $payment->booking->service->service_name ?? 'N/A' }}
+                                {{ $payment->booking->service->service_name ?? 'N/A' }}
                                 @endif
                             </td>
-                            <td>${{ number_format($payment->amount, 2) }}</td>
+                            <td>₱{{ number_format($payment->amount, 2) }}
+                            </td>
                             <td>{{ $payment->payment_method ?? 'N/A' }}</td>
                             <td>
                                 @php
-                                    $status = $payment->payment_status;
+                                $status = $payment->payment_status;
                                 @endphp
                                 <span class="badge
                                     @if($status === 'Paid')
@@ -107,11 +108,11 @@
                                             <label class="form-label">Type</label>
                                             <p>
                                                 @if($payment->reservation_id)
-                                                    Reservation
+                                                Reservation
                                                 @elseif($payment->booking_id)
-                                                    Booking
+                                                Booking
                                                 @else
-                                                    N/A
+                                                N/A
                                                 @endif
                                             </p>
                                         </div>
@@ -119,15 +120,17 @@
                                             <label class="form-label">Car / Service</label>
                                             <p>
                                                 @if($payment->reservation)
-                                                    {{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}
+                                                {{ $payment->reservation->car->brand ?? 'N/A' }} {{ $payment->reservation->car->model ?? '' }}
                                                 @elseif($payment->booking)
-                                                    {{ $payment->booking->service->service_name ?? 'N/A' }}
+                                                {{ $payment->booking->service->service_name ?? 'N/A' }}
                                                 @endif
                                             </p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Amount</label>
-                                            <p>${{ number_format($payment->amount, 2) }}</p>
+                                            <p>₱
+                                                {{ number_format($payment->amount, 2) }}
+                                            </p>
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Payment Method</label>

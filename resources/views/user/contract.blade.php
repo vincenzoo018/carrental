@@ -23,7 +23,7 @@
             <h5 class="fw-bold">Car Details</h5>
             <p class="mb-1"><strong>Car:</strong> {{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</p>
             <p class="mb-1"><strong>Rental Period:</strong> {{ \Carbon\Carbon::parse($reservation->start_date)->format('M d, Y') }} to {{ \Carbon\Carbon::parse($reservation->end_date)->format('M d, Y') }}</p>
-            <p class="mb-1"><strong>Total Price:</strong> ${{ number_format($reservation->total_price, 2) }}</p>
+            <p class="mb-1"><strong>Total Bill Paid:</strong> ₱{{ number_format($reservation->total_price * 2, 2) }}</p>
         </div>
         <div class="mb-4">
             <h5 class="fw-bold">Terms &amp; Conditions</h5>

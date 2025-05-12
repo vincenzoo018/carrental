@@ -39,7 +39,7 @@
                             <td>{{ $service->service_id }}</td>
                             <td>{{ $service->service_name }}</td>
                             <td>{{ $service->description }}</td>
-                            <td>${{ number_format($service->price, 2) }}</td>
+                            <td>₱{{ number_format($service->price, 2) }}</td>
                             <td>{{ $service->employee->name }}</td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#editServiceModal{{ $service->service_id }}">
@@ -76,7 +76,7 @@
                                                 <input type="text" class="form-control" name="description" value="{{ $service->description }}" required>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label">Price ($)</label>
+                                                <label class="form-label">Price (₱)</label>
                                                 <input type="number" step="0.01" class="form-control" name="price" value="{{ $service->price }}" required>
                                             </div>
                                             <div class="mb-3">
@@ -132,7 +132,7 @@
                         <input type="text" class="form-control" name="description" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Price ($)</label>
+                        <label class="form-label">Price (₱)</label>
                         <input type="number" step="0.01" class="form-control" name="price" required>
                     </div>
                     <div class="mb-3">

@@ -36,7 +36,9 @@
                         <td>{{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</td>
                         <td>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }} to {{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</td>
                         <td>{{ $reservation->pickup_location }}</td>
-                        <td>${{ number_format($reservation->total_price, 2) }}</td>
+                        <td>₱
+                            {{ number_format($reservation->total_price, 2) }}
+                        </td>
                         <td>
                             <strong class="text-dark">
                                 {{ ucfirst($reservation->status) }}
@@ -83,7 +85,9 @@
                         <td>{{ $reservation->car->brand }} {{ $reservation->car->model }} ({{ $reservation->car->year }})</td>
                         <td>{{ \Carbon\Carbon::parse($reservation->start_date)->format('Y-m-d') }} to {{ \Carbon\Carbon::parse($reservation->end_date)->format('Y-m-d') }}</td>
                         <td>{{ $reservation->pickup_location }}</td>
-                        <td>${{ number_format($reservation->total_price, 2) }}</td>
+                        <td>₱
+                            {{ number_format($reservation->total_price, 2) }}
+                        </td>
                         <td>
                             <span class="badge bg-{{ $reservation->status == 'completed' ? 'success' : ($reservation->status == 'cancelled' ? 'danger' : 'info') }}">
                                 {{ ucfirst($reservation->status) }}

@@ -36,7 +36,9 @@
                         <h5 class="card-title">{{ $service->service_name }}</h5>
                         <p class="card-text">{{ $service->description }}</p>
                         <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <h5 class="mb-0">${{ number_format($service->price, 2) }}/day</h5>
+                            <h5 class="mb-0">₱
+                                {{ number_format($service->price, 2) }}/day
+                            </h5>
                         </div>
                         <button class="btn btn-primary w-100 mt-auto" data-bs-toggle="modal" data-bs-target="#serviceModal{{ $service->id }}">
                             Book Now
@@ -79,7 +81,9 @@
                                 </div>
 
                                 <div class="alert alert-info">
-                                    <h6 class="mb-1">Estimated Total: ${{ number_format($service->price, 2) }}</h6>
+                                    <h6 class="mb-1">Estimated Total: ₱
+                                        {{ number_format($service->price, 2) }}
+                                    </h6>
                                     <small class="text-muted">Final price will be calculated after booking</small>
                                 </div>
                                 <div class="modal-footer">
@@ -101,14 +105,14 @@
         </div>
 
         <!-- Pagination -->
-<!-- Pagination -->
-@if($services->hasPages())
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-            {{ $services->links() }}
-        </ul>
-    </nav>
-@endif
+        <!-- Pagination -->
+        @if($services->hasPages())
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {{ $services->links() }}
+            </ul>
+        </nav>
+        @endif
 
     </div>
 </section>
@@ -124,9 +128,9 @@
             startDate.setDate(startDate.getDate() + 1);
             const endDate = $('#returnDate' + id);
             endDate.attr('min', startDate.toISOString().split('T')[0]);
-            
+
             if (endDate.val() && new Date(endDate.val()) <= new Date(this.value)) {
-                endDate.val('');  // Clear return date if it's earlier than start date
+                endDate.val(''); // Clear return date if it's earlier than start date
             }
         });
     });

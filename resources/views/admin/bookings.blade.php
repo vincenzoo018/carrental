@@ -47,7 +47,9 @@
                             <td>{{ $booking->service->service_name ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($booking->date)->format('M d, Y') }}</td>
 
-                            <td>${{ number_format($booking->total_price, 2) }}</td>
+                            <td>₱
+                                {{ number_format($booking->total_price, 2) }}
+                            </td>
                             <td>
                                 <span class="badge
                                     @if($booking->payment_status === 'Paid') bg-success
@@ -94,7 +96,9 @@
                                             <div class="col-md-6">
                                                 <h6>Service Info</h6>
                                                 <p><strong>Service:</strong> {{ $booking->service->service_name ?? 'N/A' }}</p>
-                                                <p><strong>Price:</strong> ${{ number_format($booking->total_price, 2) }}</p>
+                                                <p><strong>Price:</strong> ₱
+                                                    {{ number_format($booking->total_price, 2) }}
+                                                </p>
                                             </div>
                                             <div class="col-md-6">
                                                 <h6>Payment</h6>

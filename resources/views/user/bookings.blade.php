@@ -34,7 +34,9 @@
                     <tr class="text-center">
                         <td>{{ $booking->service->service_name ?? '-' }}</td>
                         <td>{{ \Carbon\Carbon::parse($booking->date)->format('Y-m-d') }}</td>
-                        <td>${{ number_format($booking->total_price, 2) }}</td>
+                        <td>₱
+                            {{ number_format($booking->total_price, 2) }}
+                        </td>
                         <td>
                             <span class="badge
                                 @if($booking->status == 'completed') bg-success
@@ -82,7 +84,9 @@
                     <tr class="text-center">
                         <td>{{ $booking->service->service_name ?? '-' }}</td>
                         <td>{{ \Carbon\Carbon::parse($booking->date)->format('Y-m-d') }}</td>
-                        <td>${{ number_format($booking->total_price, 2) }}</td>
+                        <td>₱
+                            {{ number_format($booking->total_price, 2) }}
+                        </td>
                         <td>
                             <span class="badge
                                 @if($booking->status == 'completed' || (isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')) bg-success
@@ -95,14 +99,14 @@
                         </td>
                         <td>
                             @if(strtolower($booking->status) === 'confirmed')
-                                @if(isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')
-                                    <span class="badge bg-success" style="font-size: 1em;">Paid</span>
-                                @else
-                                    <a href="{{ route('user.payments', ['reservation_id' => $booking->booking_id]) }}"
+                            @if(isset($booking->payment_status) && strtolower($booking->payment_status) === 'paid')
+                            <span class="badge bg-success" style="font-size: 1em;">Paid</span>
+                            @else
+                            <a href="{{ route('user.payments', ['reservation_id' => $booking->booking_id]) }}"
                                 class="btn btn-warning btn-sm" title="Pay Here">
                                 <i class="fas fa-credit-card"></i>
                             </a>
-                                @endif
+                            @endif
                             @endif
                         </td>
                     </tr>

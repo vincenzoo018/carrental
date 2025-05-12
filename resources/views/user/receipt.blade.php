@@ -10,7 +10,7 @@
                 <div class="text-muted">Date: {{ \Carbon\Carbon::parse($payment->payment_date)->format('M d, Y') }}</div>
             </div>
             <div>
-                <img src="{{ asset('images/logo.png') }}" alt="Company Logo" style="height: 50px;">
+                <p>Bridge Method Receipt </p>
             </div>
         </div>
         <hr>
@@ -39,14 +39,14 @@
                     <tr>
                         <td>1</td>
                         <td>Car Rental (Reservation #{{ $payment->reservation->reservation_id }})</td>
-                        <td>${{ number_format($payment->amount, 2) }}</td>
-                        <td>${{ number_format($payment->amount, 2) }}</td>
+                        <td>₱{{ number_format($payment->reservation->total_price * 2, 2) }}</td>
+                        <td>₱{{ number_format($payment->reservation->total_price * 2, 2) }}</td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
                         <th colspan="3" class="text-end">Total Paid</th>
-                        <th>${{ number_format($payment->amount, 2) }}</th>
+                        <th>₱{{ number_format($payment->reservation->total_price * 2, 2) }}</th>
                     </tr>
                 </tfoot>
             </table>

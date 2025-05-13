@@ -17,8 +17,8 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            @if($damage)
-            <div class="card shadow border-0 mb-4">
+            @if($damage && !$damage->is_paid)
+            <div class="card shadow border-0 mb-4" id="damage-assessment-card">
                 <div class="card-header bg-danger text-white d-flex align-items-center">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <span>Reservation #{{ $reservation->reservation_id }}</span>
@@ -39,31 +39,33 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-tools text-info me-2"></i> <strong>Repair Cost:</strong></span>
-                            <span class="fw-bold text-info">${{ number_format($damage->repair_cost, 2) }}</span>
+                            <span class="fw-bold text-info">₱{{ number_format($damage->repair_cost, 2) }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <span><i class="fas fa-gavel text-secondary me-2"></i> <strong>Violation Fee:</strong></span>
-                            <span class="fw-bold text-secondary">${{ number_format($damage->violation_fee, 2) }}</span>
+                            <span class="fw-bold text-secondary">₱{{ number_format($damage->violation_fee, 2) }}</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
                             <span><i class="fas fa-wallet text-danger me-2"></i> <strong>Total Due:</strong></span>
-                            <span class="fw-bold text-danger fs-5">${{ number_format($damage->repair_cost + $damage->violation_fee, 2) }}</span>
+                            <span class="fw-bold text-danger fs-5">₱{{ number_format($damage->repair_cost + $damage->violation_fee, 2) }}</span>
                         </li>
                     </ul>
-                    @if(!$damage->is_paid)
-                        <form id="damage-payment-form" action="{{ route('user.damage.assessment.pay', $damage->damage_id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-danger w-100 py-2 fs-5" id="pay-damage-btn">
-                                <i class="fas fa-credit-card me-2"></i> Pay for Damages
-                            </button>
-                        </form>
-                    @else
-                        <button class="btn btn-success w-100 py-2 fs-5" disabled>
-                            <i class="fas fa-check-circle me-2"></i> PAID
+                    <form id="damage-payment-form" action="{{ route('damage.assessment.pay', $damage->damage_id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger w-100 py-2 fs-5" id="pay-damage-btn">
+                            <i class="fas fa-credit-card me-2"></i> Pay for Damages
                         </button>
-                    @endif
+                    </form>
                 </div>
             </div>
+            @elseif($damage && $damage->is_paid)
+                <div class="alert alert-success text-center">The damage assessment has been paid successfully.</div>
+                <button class="btn btn-success w-100 py-2 fs-5" disabled>
+                    <i class="fas fa-check-circle me-2"></i> Paid
+                </button>
+                <a href="{{ route('damage.assessment.receipt', $damage->damage_id) }}" class="btn btn-primary w-100 py-2 fs-5 mt-3">
+                    <i class="fas fa-receipt me-2"></i> View Receipt
+                </a>
             @else
                 <div class="alert alert-info text-center">No damage assessment found for this reservation.</div>
             @endif
@@ -83,11 +85,24 @@
 document.addEventListener('DOMContentLoaded', function () {
     var form = document.getElementById('damage-payment-form');
     var payBtn = document.getElementById('pay-damage-btn');
+    var damageCard = document.getElementById('damage-assessment-card');
+
     if (form && payBtn) {
         form.addEventListener('submit', function(e) {
             var confirmed = confirm('Are you sure you want to pay for damages?');
             if (!confirmed) {
                 e.preventDefault();
+            } else {
+                // Simulate successful payment and remove the card
+                e.preventDefault(); // Remove this line if the form is actually submitted to the server
+                alert('Payment successful!');
+                if (damageCard) {
+                    damageCard.style.display = 'none';
+                }
+                payBtn.textContent = 'Paid';
+                payBtn.classList.remove('btn-danger');
+                payBtn.classList.add('btn-success');
+                payBtn.disabled = true;
             }
         });
     }

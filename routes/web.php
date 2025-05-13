@@ -216,3 +216,13 @@ Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
     Route::get('/damage-assessment/{reservation}', [\App\Http\Controllers\User\DamageAssessmentController::class, 'show'])->name('damage.assessment');
     Route::post('/damage-assessment/pay/{damage}', [\App\Http\Controllers\User\DamageAssessmentController::class, 'pay'])->name('damage.assessment.pay');
 });
+
+use App\Http\Controllers\User\DamageAssessmentController;
+
+Route::post('/damage-assessment/pay/{damageId}', [DamageAssessmentController::class, 'payForDamage'])->name('user.damage.assessment.pay');
+Route::post('/damage-assessment/pay/{damage}', [\App\Http\Controllers\User\DamageAssessmentController::class, 'pay'])->name('damage.assessment.pay');
+Route::get('/damage-assessment/{reservation}', [DamageAssessmentController::class, 'show'])->name('damage.assessment');
+
+use App\Http\Controllers\User\DamageReceiptController;
+
+Route::get('/damage-assessment/receipt/{damage}', [DamageReceiptController::class, 'generateReceipt'])->name('damage.assessment.receipt');

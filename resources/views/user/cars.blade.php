@@ -1,4 +1,4 @@
-   @extends('layouts.app')
+@extends('layouts.app')
    <link rel="stylesheet" href="{{ asset('css/cars.css') }}">
    @section('content')
    <!-- Car Listing Section -->
@@ -93,13 +93,11 @@
    <!-- Rent Modal -->
    <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
        <div class="modal-dialog">
-           <form method="POST" action="{{ route('user.reservations.store', $car) }}">">
+           <form method="POST" action="{{ route('user.reservations.store') }}">
                @csrf
-               <!-- Add these hidden fields -->
-               <input type="hidden" name="car_id" value="{{ $car->car_id }}">
-               <input type="hidden" name="car_price" value="{{ $car->price }}">
-
-
+               <!-- Hidden fields to store car data -->
+               <input type="hidden" name="car_id" id="modalCarId">
+               <input type="hidden" name="car_price" id="modalCarPriceInput">
 
                <div class="modal-content">
                    <div class="modal-header">
@@ -108,16 +106,15 @@
                    </div>
 
                    <div class="modal-body">
-                       <!-- Use label tags to display car details -->
+                       <!-- Display car details -->
                        <div>
-                           <label for="car_id"><strong>Car:</strong></label>
-                           <label id="car_id">{{ $car->brand }} {{ $car->model }} ({{ $car->year }})</label>
+                           <label for="modalCarName"><strong>Car:</strong></label>
+                           <span id="modalCarName"></span>
                        </div>
 
                        <div>
-                           <label for="price"><strong>Price per day:</strong></label>
-                           <label id="price">₱
-                               {{ number_format($car->price, 2) }}</label>
+                           <label for="modalCarPrice"><strong>Price per day:</strong></label>
+                           <span id="modalCarPrice"></span>
                        </div>
 
                        <!-- Authenticated User Info -->
@@ -176,27 +173,33 @@
 
    @section('scripts')
    <script>
-       // In your script inside user.cars view
        document.addEventListener('DOMContentLoaded', function() {
-           $('.rent-now-btn').on('click', function() {
-               const carId = $(this).data('car-id');
-               const carName = $(this).data('car-name');
-               const carPrice = $(this).data('car-price');
+           // Handle "Rent Now" button click
+           document.querySelectorAll('.rent-now-btn').forEach(button => {
+               button.addEventListener('click', function() {
+                   const carId = this.getAttribute('data-car-id');
+                   const carName = this.getAttribute('data-car-name');
+                   const carPrice = this.getAttribute('data-car-price');
 
-               $('#modalCarId').val(carId); // ✅ correctly pass carId
-               $('#modalCarName').text(carName); // carName is a display name
-               $('#modalCarPrice').text(carPrice); // shows price in modal
-               $('#modalCarPriceInput').val(carPrice); // ✅ correctly pass carPrice
+                   // Update modal fields
+                   document.getElementById('modalCarId').value = carId;
+                   document.getElementById('modalCarName').textContent = carName;
+                   document.getElementById('modalCarPrice').textContent = `₱ ${parseFloat(carPrice).toFixed(2)}`;
+                   document.getElementById('modalCarPriceInput').value = carPrice;
+               });
            });
 
-           // Date logic (optional validation)
-           $('#pickupDate').on('change', function() {
+           // Date validation logic
+           const pickupDate = document.getElementById('pickupDate');
+           const returnDate = document.getElementById('returnDate');
+
+           pickupDate.addEventListener('change', function() {
                const startDate = new Date(this.value);
                startDate.setDate(startDate.getDate() + 1);
-               $('#returnDate').attr('min', startDate.toISOString().split('T')[0]);
+               returnDate.setAttribute('min', startDate.toISOString().split('T')[0]);
 
-               if ($('#returnDate').val() && new Date($('#returnDate').val()) <= new Date(this.value)) {
-                   $('#returnDate').val('');
+               if (returnDate.value && new Date(returnDate.value) <= new Date(this.value)) {
+                   returnDate.value = '';
                }
            });
        });

@@ -32,12 +32,8 @@ class DamageAssessmentController extends Controller
 
     public function pay(Request $request, $damageId)
     {
-        // Fetch the damage record
-        $damage = Damage::find($damageId);
-
-        if (!$damage) {
-            return redirect()->back()->with('error', 'Damage record not found.');
-        }
+        $damage = Damage::findOrFail($damageId);
+        $userId = auth()->id();
 
         if ($damage->is_paid) {
             return redirect()->back()->with('success', 'The damage has already been paid.');
@@ -46,20 +42,25 @@ class DamageAssessmentController extends Controller
         // Mark the damage as paid
         $damage->is_paid = true;
         $damage->save();
+        // Record payment with damage_id
+        Payment::create([
+            'user_id'        => $userId,
+            'reservation_id' => $damage->reservation_id,
+            'damage_id'      => $damage->damage_id,
+            'amount'         => ($damage->repair_cost ?? 0) + ($damage->violation_fee ?? 0),
+            'payment_status' => 'Paid',
+            'payment_date'   => now(),
+            'payment_method' => 'Card', // or your actual method
+        ]);
 
-        // Redirect to the receipt generation route
         return redirect()->route('damage.assessment.receipt', $damage->damage_id)
-                         ->with('success', 'Payment successful. Receipt generated.');
+        ->with('success', 'Payment successful. Receipt generated.');
     }
 
     public function payForDamage($damageId)
     {
-        // Fetch the damage record
-        $damage = Damage::find($damageId);
-
-        if (!$damage) {
-            return redirect()->back()->with('error', 'Damage record not found.');
-        }
+        $damage = Damage::findOrFail($damageId);
+        $userId = auth()->id();
 
         if ($damage->is_paid) {
             return redirect()->back()->with('success', 'The damage has already been paid.');
@@ -69,6 +70,17 @@ class DamageAssessmentController extends Controller
         $damage->is_paid = true;
         $damage->save();
 
+        // Record payment with damage_id
+        Payment::create([
+            'user_id'        => $userId,
+            'reservation_id' => $damage->reservation_id,
+            'damage_id'      => $damage->damage_id,
+            'amount'         => ($damage->repair_cost ?? 0) + ($damage->violation_fee ?? 0),
+            'payment_status' => 'Paid',
+            'payment_date'   => now(),
+            'payment_method' => 'Card', // or your actual method
+        ]);
+
         return redirect()->back()->with('success', 'Payment successful. The damage has been marked as paid.');
     }
-}
+    }

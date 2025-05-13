@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Damage;
+use App\Models\Reservation;
 
 class DamageReceiptController extends Controller
 {
@@ -21,10 +22,14 @@ class DamageReceiptController extends Controller
             return redirect()->back()->with('error', 'The damage assessment has not been paid yet.');
         }
 
+        // Fetch the reservation associated with the damage
+        $reservation = Reservation::find($damage->reservation_id);
+
         // Generate receipt data
         $receiptData = [
             'damage_id' => $damage->damage_id,
             'reservation_id' => $damage->reservation_id,
+            'reservation' => $reservation, // Pass the reservation object
             'damage_types' => $damage->damage_types,
             'damage_description' => $damage->damage_description,
             'repair_cost' => $damage->repair_cost,

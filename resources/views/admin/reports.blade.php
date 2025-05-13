@@ -133,8 +133,8 @@
                             @endif
                         </td>
                         <td>
-                            @if(isset($item->amount))
-                            ₱{{ number_format($item->amount, 2) }}
+                            @if(isset($item->total_price))
+                            ₱{{ number_format($item->total_price, 2) }}
                             @elseif(isset($item->total_sales))
                             ₱{{ number_format($item->total_sales, 2) }}
                             @else

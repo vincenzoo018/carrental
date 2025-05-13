@@ -152,3 +152,21 @@ class PaymentController extends Controller
         return redirect()->route('user.payments.charge', $payment->payment_id);
     }
 }
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Damage;
+
+class PaymentController extends Controller
+{
+    public function index()
+    {
+        // Get all paid damages with reservation and user
+        $damagePayments = Damage::with(['reservation.user'])
+            ->where('is_paid', 1)
+            ->latest()
+            ->get();
+
+        return view('admin.payments', compact('damagePayments'));
+    }
+}

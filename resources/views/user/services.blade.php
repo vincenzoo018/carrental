@@ -31,7 +31,7 @@
             @forelse($services as $service)
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
-                    <img src="{{ $service->image_url }}" class="card-img-top" alt="{{ $service->name }}">
+                    <img src="{{ asset('images/images.png') }}" class="card-img-top" alt="{{ $service->name }}">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title">{{ $service->service_name }}</h5>
                         <p class="card-text">{{ $service->description }}</p>
@@ -45,7 +45,7 @@
                         </button>
                     </div>
                 </div>
-            </div>r
+            </div>
 
             <!-- Service Modal for each service -->
             <div class="modal fade" id="serviceModal{{ $service->id }}" tabindex="-1" aria-labelledby="serviceModal{{ $service->id }}Label" aria-hidden="true">

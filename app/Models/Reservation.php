@@ -58,4 +58,8 @@ class Reservation extends Model
     {
         return $this->hasMany(\App\Models\Damage::class, 'reservation_id', 'reservation_id');
     }
+    public function damages()
+    {
+        return $this->hasMany(\App\Models\Damage::class, 'reservation_id', 'reservation_id');
+    }
 }
